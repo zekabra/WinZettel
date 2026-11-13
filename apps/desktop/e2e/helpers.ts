@@ -67,8 +67,8 @@ export async function fixture(name: string, content: string): Promise<string> {
 export async function openFile(path: string, content: string): Promise<FileState> {
   await cli('file', 'open', path, '--wait', 'applied', '--sha256', sha256(content))
   const state = await waitState(path, { open: true, active: true, ready: true,
-    dirty: false, contentSha256: sha256(content), mode: 'wysiwyg' })
-  await $(`${editor} [data-mf-capricorn-runtime] [data-cap-content]`).waitForDisplayed()
+    dirty: false, contentSha256: sha256(content), mode: 'sourceCode' })
+  await $(`${editor} .cm-content`).waitForDisplayed()
   await visibleContent(content)
   return state
 }
@@ -113,8 +113,8 @@ export async function save(path: string, content: string) {
   assert.equal(await readFile(path, 'utf8'), content)
 }
 
-export async function switchMode(mode: 'wysiwyg' | 'sourceCode' | 'preview', path: string) {
-  const labels = { wysiwyg: 'Wysiwyg', sourceCode: 'Source Code', preview: 'Preview' }
+export async function switchMode(mode: 'sourceCode' | 'preview', path: string) {
+  const labels = { sourceCode: 'Source Code', preview: 'Preview' }
   await $('button[aria-label="more"][aria-haspopup="menu"]').click()
   await $("//*[@role='menuitem'][normalize-space(.)='View']").click()
   await $(`//*[@role='menuitemcheckbox'][contains(., '${labels[mode]}')]`).click()

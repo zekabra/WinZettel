@@ -1,13 +1,13 @@
 import { EDITOR_CSS_SCOPE_CLASS } from './editorCssScope'
 import type { CssSnippet } from './library'
 
-const scope = `.${EDITOR_CSS_SCOPE_CLASS} [data-cap-content]`
+const scope = `.${EDITOR_CSS_SCOPE_CLASS} .mf-preview-content`
 
 export const cssSnippetTemplates = [
   {
     id: 'completed-tasks',
     label: 'cssTemplateCompletedTasks',
-    css: `${scope} .capricorn-markdown-list-item:has(> .capricorn-markdown-task-prefix > .capricorn-markdown-task-checkbox:checked) > .capricorn-markdown-list-content {
+    css: `${scope} li:has(> input[type='checkbox']:checked) {
   text-decoration: line-through;
 }`,
   },
@@ -22,14 +22,14 @@ export const cssSnippetTemplates = [
   {
     id: 'compact-tables',
     label: 'cssTemplateCompactTables',
-    css: `${scope} :is(.capricorn-markdown-table-cell, .capricorn-markdown-inline-table-cell) {
+    css: `${scope} :is(th, td) {
   padding: 2px 8px;
 }`,
   },
   {
     id: 'quote-accent',
     label: 'cssTemplateQuoteAccent',
-    css: `${scope} :is(blockquote.capricorn-markdown-blockquote, .capricorn-markdown-quoted-block) {
+    css: `${scope} blockquote {
   background-image: repeating-linear-gradient(to right, var(--mf-theme-accent-background) 0, var(--mf-theme-accent-background) 2px, transparent 2px, transparent 1em);
 }`,
   },

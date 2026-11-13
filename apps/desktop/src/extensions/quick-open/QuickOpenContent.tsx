@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button'
 import { Command } from '@/components/ui/command'
 import { logger } from '@/helper/logger'
 import { useTranslation } from '@/i18n'
-import { FileIcon, LoaderCircleIcon } from 'lucide-react'
+import { LoaderCircleIcon, LockIcon } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import {
   checkRecentQuickOpenFiles,
@@ -13,6 +13,9 @@ import {
   type QuickOpenFile,
 } from './quickOpenFiles'
 import { useQuickOpenRanking } from './useQuickOpenRanking'
+import useNoteEncryptionStore, { noteKey, readNoteEncryptionState } from '@/stores/useNoteEncryptionStore'
+import { fileTypeIcon } from '@/helper/fileTypeIcon'
+import { stripNoteExtension } from '@/helper/noteName'
 
 export { openQuickOpenFile } from './quickOpenFiles'
 
@@ -26,6 +29,11 @@ interface QuickOpenContentProps {
   onSelect: (file: QuickOpenFile) => void
 }
 
+const QuickOpenFileIcon = ({ file }: { file: QuickOpenFile }) => {
+  const Icon = fileTypeIcon(file.path || file.name)
+  return <Icon aria-hidden='true' className='size-3.5 shrink-0 text-muted-foreground' />
+}
+
 export function QuickOpenContent({
   rootPath,
   fileExcludePatterns,
@@ -33,11 +41,21 @@ export function QuickOpenContent({
   onSelect,
 }: QuickOpenContentProps) {
   const { t } = useTranslation()
+  const encryptedPaths = useNoteEncryptionStore((state) => state.encryptedPaths)
+  const isEncrypted = (file: QuickOpenFile) =>
+    file.path ? encryptedPaths.includes(noteKey(file.path)) : false
   const [historyFiles] = useState(() => getRecentQuickOpenFiles(rootPath))
   const [openedFiles, setOpenedFiles] = useState(() => getOpenedQuickOpenFiles(rootPath))
   const [workspaceFiles, setWorkspaceFiles] = useState<QuickOpenFile[]>([])
   const [unavailableIds, setUnavailableIds] = useState<ReadonlySet<string>>(() => new Set())
   const [scanRequested, setScanRequested] = useState(false)
+  // The workspace scan may not have reached this note yet; the list asks the disk itself so
+  // a lock never depends on when the dialog was opened.
+  const refreshEncryptionState = (files: QuickOpenFile[]) => {
+    for (const file of files.slice(0, 60)) {
+      if (file.path) void readNoteEncryptionState(file.path)
+    }
+  }
   const [loading, setLoading] = useState(false)
   const [failed, setFailed] = useState(false)
   const [retry, setRetry] = useState(0)
@@ -97,6 +115,12 @@ export function QuickOpenContent({
     visibleCount,
     Math.ceil((selectedIndex + 1) / PAGE_SIZE) * PAGE_SIZE,
   )
+  useEffect(() => {
+    refreshEncryptionState(matches)
+    // Only the page on screen matters; the rest is asked when it appears.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [matches.length])
+
   const visibleFiles = matches.slice(0, renderedCount)
   const hasMore = matches.length > renderedCount
   const value =
@@ -181,8 +205,15 @@ export function QuickOpenContent({
           onSelect={() => onSelect(file)}
           title={file.path ?? file.name}
         >
-          <FileIcon aria-hidden='true' className='size-3.5 shrink-0 text-muted-foreground' />
-          <span className='min-w-0 shrink truncate'>{file.name}</span>
+          {isEncrypted(file) ? (
+            <LockIcon
+              aria-label={t('encryption.locked.tab')}
+              className='size-3.5 shrink-0 text-muted-foreground'
+            />
+          ) : (
+            <QuickOpenFileIcon file={file} />
+          )}
+          <span className='min-w-0 shrink truncate'>{stripNoteExtension(file.name)}</span>
           <span className='ml-auto min-w-0 max-w-[60%] truncate text-ui-caption text-muted-foreground'>
             {file.relativePath === file.name ? '' : file.relativePath}
           </span>

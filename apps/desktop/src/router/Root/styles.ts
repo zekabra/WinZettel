@@ -94,29 +94,47 @@ export const RootPageLayout = styled(PageLayout)`
 `
 
 export const StyleSeparator = styled(Separator)`
-  background-color: var(--mf-ui-border-subtle);
-  cursor: col-resize !important;
-  width: 1px;
-  transition: background-color var(--mf-motion-duration-fast, 120ms)
-    var(--mf-motion-ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  /* The handle is a painted strip the width of the gesture, not an invisible overlay: an
+     overlay wide enough to grab also covered the adjacent scrollbar, which then could not be
+     dragged. The visible rule is drawn inside it. */
+  width: 6px;
+  flex: 0 0 6px;
   position: relative;
+  z-index: 2;
+  border: 0;
+  cursor: col-resize !important;
+  touch-action: none;
+  user-select: none;
+  background-color: var(--mf-dock-surface, var(--mf-surface-panel, transparent));
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    left: 50%;
+    width: 1px;
+    transform: translateX(-50%);
+    background-color: var(--mf-ui-border-subtle);
+    transition: background-color var(--mf-motion-duration-fast, 120ms)
+      var(--mf-motion-ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  }
 
   &[data-mf-hidden] {
     display: none;
   }
 
+  &:hover::before,
+  &:focus-visible::before {
+    background-color: var(--mf-control-focus);
+  }
+
+  &[data-separator='hover']::before,
+  &[data-separator='active']::before {
+    background-color: ${(props) => props.theme.accentColor};
+  }
+
   &:focus-visible {
     outline: none;
-    background-color: var(--mf-control-focus);
-    box-shadow: 0 0 0 1px var(--mf-control-focus);
-  }
-
-  &[data-separator='hover'] {
-    background-color: ${(props) => props.theme.accentColor};
-  }
-
-  &[data-separator='active'] {
-    background-color: ${(props) => props.theme.accentColor};
   }
 
   @media (prefers-reduced-motion: reduce) {

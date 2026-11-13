@@ -1,9 +1,4 @@
-import {
-  EditorViewType,
-  isCapricornRuntimeAvailable,
-  type EditorViewTypeValue,
-} from '@/constants/editorViewType'
-import useAppSettingStore from '@/stores/useAppSettingStore'
+import { EditorViewType, type EditorViewTypeValue } from '@/constants/editorViewType'
 import type { IFile } from './filesys'
 
 export type FileType = 'markdown' | 'html' | 'pdf' | 'image' | 'json' | 'text' | 'unsupported'
@@ -223,6 +218,14 @@ function isImageExtension(ext: string): boolean {
   return IMAGE_EXTENSIONS.has(ext.toLowerCase())
 }
 
+/** Whether a file path points at something the preview can render as an image. */
+export function isImagePath(path: string | undefined): boolean {
+  if (!path) return false
+  const name = path.split(/[\\/]/).pop() || ''
+  const dot = name.lastIndexOf('.')
+  return dot >= 0 && isImageExtension(name.slice(dot + 1))
+}
+
 function isBinaryExtension(ext: string): boolean {
   if (!ext) return false
   return BINARY_EXTENSIONS.has(ext.toLowerCase())
@@ -250,34 +253,30 @@ const UNSUPPORTED_FILE_TYPE_CONFIG: FileTypeConfig = {
   defaultMode: EditorViewType.PREVIEW,
 }
 
-export function getMarkdownSupportedModes(
-  capricornAvailable = isCapricornRuntimeAvailable,
-): EditorViewTypeValue[] {
-  return capricornAvailable
-    ? [EditorViewType.PREVIEW, EditorViewType.WYSIWYG, EditorViewType.SOURCECODE]
-    : [EditorViewType.PREVIEW, EditorViewType.SOURCECODE]
+export function getMarkdownSupportedModes(): EditorViewTypeValue[] {
+  return [EditorViewType.PREVIEW, EditorViewType.SOURCECODE]
 }
 
-export function getMarkdownDefaultMode(
-  preferredMode: unknown,
-  capricornAvailable = isCapricornRuntimeAvailable,
-): EditorViewTypeValue {
-  const supportedModes = getMarkdownSupportedModes(capricornAvailable)
+export function getMarkdownDefaultMode(preferredMode: unknown): EditorViewTypeValue {
+  const supportedModes = getMarkdownSupportedModes()
   const preferred = supportedModes.find((mode) => mode === preferredMode)
   if (preferred) return preferred
-  return capricornAvailable ? EditorViewType.WYSIWYG : EditorViewType.SOURCECODE
+  // Reading is the default. "wysiwyg" is a leftover value from the removed runtime and must
+  // fall back to preview, not to source.
+  return EditorViewType.PREVIEW
 }
 
 export async function getFileTypeConfig(file: IFile): Promise<FileTypeConfig> {
   const extLower = (file.ext || file.name?.split('.').pop() || '').toLowerCase()
-  const { settingData } = useAppSettingStore.getState()
 
   if (extLower === 'md' || extLower === 'markdown') {
     const supportedModes = getMarkdownSupportedModes()
     return {
       type: 'markdown',
       supportedModes,
-      defaultMode: getMarkdownDefaultMode(settingData.md_editor_default_mode),
+      // Existing notes always open for reading. The preference below only decides the
+      // mode a newly created note starts in, so it cannot change how the app opens.
+      defaultMode: EditorViewType.PREVIEW,
       exporters: ['Html', 'Image'],
     }
   }
@@ -327,6 +326,26 @@ export async function getFileTypeConfig(file: IFile): Promise<FileTypeConfig> {
   }
 
   return TEXT_FILE_TYPE_CONFIG
+}
+
+/**
+ * Whether the app can open this file for editing, decided synchronously from its name.
+ *
+ * Mirrors `getFileTypeConfig`: markdown, HTML, JSON and every text extension are editable;
+ * PDFs, images and known binaries are not. Counts use this so a folder's number always
+ * matches the files the owner can actually open there.
+ */
+export function isEditableFile(fileName: string): boolean {
+  const dot = fileName.lastIndexOf('.')
+  if (dot <= 0) return isKnownNoExtFileName(fileName)
+  const ext = fileName.slice(dot + 1).toLowerCase()
+  if (ext === 'md' || ext === 'markdown') return true
+  if (ext === 'html' || ext === 'htm') return true
+  if (ext === 'json') return true
+  if (isImageExtension(ext) || isBinaryExtension(ext) || ext === 'pdf') return false
+  if (isTextExtension(ext)) return true
+  // getFileTypeConfig falls back to the text editor for anything unknown.
+  return true
 }
 
 export function isSupportedMode(config: FileTypeConfig, mode: string): boolean {

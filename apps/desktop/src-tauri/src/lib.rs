@@ -1,4 +1,4 @@
-#![cfg_attr(
+﻿#![cfg_attr(
     all(not(debug_assertions), target_os = "windows"),
     windows_subsystem = "windows"
 )]
@@ -6,7 +6,8 @@
 mod app;
 #[cfg(feature = "e2e")]
 mod e2e;
-mod fc;
+pub mod fc;
+pub mod repo;
 mod document_preview;
 mod file_copy;
 mod file_deletion;
@@ -52,7 +53,7 @@ lazy_static! {
         sync::Mutex::new(m)
     };
 
-    /// 窗口实例信息缓存，键为窗口标签，值为工作区路径
+    /// çª—å£å®žä¾‹ä¿¡æ¯ç¼“å­˜ï¼Œé”®ä¸ºçª—å£æ ‡ç­¾ï¼Œå€¼ä¸ºå·¥ä½œåŒºè·¯å¾„
     pub static ref WINDOW_INSTANCES: sync::Mutex<HashMap<String, PathBuf>> = {
         let m = HashMap::new();
         sync::Mutex::new(m)
@@ -341,7 +342,7 @@ fn print_version() {
 
 fn print_cli_help() {
     println!(
-        r#"MarkFlowy - AI-Powered Markdown Editor
+        r#"WinZettel - Markdown editor, fork of MarkFlowy
 
 Usage: markflowy [COMMAND] [OPTIONS]
        mf [COMMAND] [OPTIONS]
@@ -446,7 +447,7 @@ fn absolute_path_string(path: &str, cwd: Option<&str>) -> String {
     path.to_string_lossy().to_string()
 }
 
-fn runtime_dir() -> Option<PathBuf> {
+pub(crate) fn runtime_dir() -> Option<PathBuf> {
     #[cfg(feature = "e2e")]
     {
         Some(e2e::root().join("runtime"))
@@ -459,14 +460,14 @@ fn runtime_dir() -> Option<PathBuf> {
                 env::var_os("USERPROFILE")
                     .map(|home| PathBuf::from(home).join("AppData").join("Local"))
             })
-            .map(|dir| dir.join("MarkFlowy"))
+            .map(|dir| dir.join("WinZettel"))
     }
 
     #[cfg(all(not(windows), not(feature = "e2e")))]
     {
         env::var_os("HOME")
             .map(PathBuf::from)
-            .map(|home| home.join(".markflowy"))
+            .map(|home| home.join(".winzettel"))
     }
 }
 
@@ -966,7 +967,7 @@ fn spawn_cli_gui_child_and_exit(args: &[String]) {
     let exe = match env::current_exe() {
         Ok(exe) => exe,
         Err(error) => {
-            eprintln!("Failed to resolve MarkFlowy executable: {error}");
+            eprintln!("Failed to resolve the WinZettel executable: {error}");
             std::process::exit(1);
         }
     };
@@ -980,7 +981,7 @@ fn spawn_cli_gui_child_and_exit(args: &[String]) {
         .stderr(std::process::Stdio::null());
 
     if let Err(error) = command.spawn() {
-        eprintln!("Failed to start MarkFlowy GUI process: {error}");
+        eprintln!("Failed to start the WinZettel GUI process: {error}");
         std::process::exit(1);
     }
 
@@ -1061,7 +1062,7 @@ fn update_cli_command_state(commands: Vec<CliCommandState>) -> Result<(), String
     enqueue_cli_runtime_patch(CliRuntimePatch::Commands(commands))
 }
 
-/// CLI wrapper 的文件名
+/// CLI wrapper çš„æ–‡ä»¶å
 fn cli_wrapper_name() -> &'static str {
     #[cfg(windows)]
     {
@@ -1123,7 +1124,7 @@ fn current_exe_for_cli_wrapper() -> std::io::Result<PathBuf> {
     env::current_exe()
 }
 
-/// CLI wrapper 安装的目标目录（仅一个，不再猜测多个）
+/// CLI wrapper å®‰è£…çš„ç›®æ ‡ç›®å½•ï¼ˆä»…ä¸€ä¸ªï¼Œä¸å†çŒœæµ‹å¤šä¸ªï¼‰
 #[cfg(unix)]
 fn cli_install_dir(home_dir: &std::path::Path) -> PathBuf {
     home_dir.join(".local").join("bin")
@@ -1138,12 +1139,12 @@ fn cli_install_dir(home_dir: &std::path::Path) -> PathBuf {
         .join("bin")
 }
 
-/// 版本标记文件路径，与 wrapper 同目录
+/// ç‰ˆæœ¬æ ‡è®°æ–‡ä»¶è·¯å¾„ï¼Œä¸Ž wrapper åŒç›®å½•
 fn cli_version_file(dir: &std::path::Path) -> PathBuf {
     dir.join(".markflowy-cli-version")
 }
 
-/// 读取已安装 CLI 的版本标记
+/// è¯»å–å·²å®‰è£… CLI çš„ç‰ˆæœ¬æ ‡è®°
 fn read_installed_cli_version(dir: &std::path::Path) -> Option<String> {
     let version_path = cli_version_file(dir);
     fs::read_to_string(&version_path)
@@ -1151,12 +1152,12 @@ fn read_installed_cli_version(dir: &std::path::Path) -> Option<String> {
         .map(|v| v.trim().to_string())
 }
 
-/// 写入版本标记
+/// å†™å…¥ç‰ˆæœ¬æ ‡è®°
 fn write_installed_cli_version(dir: &std::path::Path, version: &str) -> std::io::Result<()> {
     fs::write(cli_version_file(dir), version)
 }
 
-/// 生成 Unix wrapper script 内容
+/// ç”Ÿæˆ Unix wrapper script å†…å®¹
 #[cfg(unix)]
 fn generate_wrapper_script(exe_path: &std::path::Path) -> String {
     let exe_str = exe_path.to_string_lossy();
@@ -1165,7 +1166,7 @@ fn generate_wrapper_script(exe_path: &std::path::Path) -> String {
     )
 }
 
-/// 生成 Windows wrapper .cmd 文件内容
+/// ç”Ÿæˆ Windows wrapper .cmd æ–‡ä»¶å†…å®¹
 #[cfg(any(windows, test))]
 fn generate_windows_wrapper_script(exe_path: &std::path::Path) -> String {
     let exe_str = exe_path.to_string_lossy();
@@ -1179,7 +1180,7 @@ fn generate_wrapper_script(exe_path: &std::path::Path) -> String {
     generate_windows_wrapper_script(exe_path)
 }
 
-/// 安装 CLI wrapper（替代原来的 symlink/copy）
+/// å®‰è£… CLI wrapperï¼ˆæ›¿ä»£åŽŸæ¥çš„ symlink/copyï¼‰
 fn install_cli_wrapper(
     target_path: &std::path::Path,
     current_exe: &std::path::Path,
@@ -1188,8 +1189,8 @@ fn install_cli_wrapper(
         return Ok(());
     }
 
-    // 先删除旧文件（可能是 symlink 或旧 wrapper）
-    // 必须先删除，否则 fs::write 会跟随 symlink 写入到目标文件
+    // å…ˆåˆ é™¤æ—§æ–‡ä»¶ï¼ˆå¯èƒ½æ˜¯ symlink æˆ–æ—§ wrapperï¼‰
+    // å¿…é¡»å…ˆåˆ é™¤ï¼Œå¦åˆ™ fs::write ä¼šè·Ÿéš symlink å†™å…¥åˆ°ç›®æ ‡æ–‡ä»¶
     #[cfg(windows)]
     match fs::symlink_metadata(target_path) {
         Ok(_) => fs::remove_file(target_path)?,
@@ -1240,7 +1241,7 @@ fn cli_installation_is_current(
     true
 }
 
-/// 检查已安装的 wrapper 是否是最新版本
+/// æ£€æŸ¥å·²å®‰è£…çš„ wrapper æ˜¯å¦æ˜¯æœ€æ–°ç‰ˆæœ¬
 #[cfg(windows)]
 fn is_cli_up_to_date(target_dir: &std::path::Path, current_exe: &std::path::Path) -> bool {
     let app_version = env!("CARGO_PKG_VERSION");
@@ -1422,7 +1423,7 @@ macro_rules! cli_debug {
     };
 }
 
-/// 清理旧版本安装的 symlink/copy（旧代码会在多个目录创建）
+/// æ¸…ç†æ—§ç‰ˆæœ¬å®‰è£…çš„ symlink/copyï¼ˆæ—§ä»£ç ä¼šåœ¨å¤šä¸ªç›®å½•åˆ›å»ºï¼‰
 #[cfg(unix)]
 fn cleanup_old_cli_symlinks(home_dir: &std::path::Path, current_exe: &std::path::Path) {
     let old_dirs: Vec<PathBuf> = vec![
@@ -1437,7 +1438,7 @@ fn cleanup_old_cli_symlinks(home_dir: &std::path::Path, current_exe: &std::path:
     let binary_name = cli_binary_name();
     for dir in old_dirs {
         let path = dir.join(binary_name);
-        // 只删除指向当前应用二进制的 symlink，不删除用户自己创建的
+        // åªåˆ é™¤æŒ‡å‘å½“å‰åº”ç”¨äºŒè¿›åˆ¶çš„ symlinkï¼Œä¸åˆ é™¤ç”¨æˆ·è‡ªå·±åˆ›å»ºçš„
         if path.is_symlink() {
             if let Ok(target) = fs::read_link(&path) {
                 if target == current_exe
@@ -1451,7 +1452,7 @@ fn cleanup_old_cli_symlinks(home_dir: &std::path::Path, current_exe: &std::path:
     }
 }
 
-/// Windows 上清理旧版本 copy 的二进制文件
+/// Windows ä¸Šæ¸…ç†æ—§ç‰ˆæœ¬ copy çš„äºŒè¿›åˆ¶æ–‡ä»¶
 #[cfg(any(windows, test))]
 fn remove_legacy_cli_binary(
     old_exe: &std::path::Path,
@@ -1619,7 +1620,7 @@ fn install_cli_in_background(app: &tauri::App) {
     tauri::async_runtime::spawn_blocking(move || {
         let install_dir = cli_install_dir(&home_dir);
 
-        // Unix 上目标目录需要在 PATH 中才安装。PATH 扫描放在后台，避免拖慢首屏窗口创建。
+        // Unix ä¸Šç›®æ ‡ç›®å½•éœ€è¦åœ¨ PATH ä¸­æ‰å®‰è£…ã€‚PATH æ‰«ææ”¾åœ¨åŽå°ï¼Œé¿å…æ‹–æ…¢é¦–å±çª—å£åˆ›å»ºã€‚
         #[cfg(unix)]
         if !path_contains_dir(&install_dir) {
             cli_debug!("install dir {:?} not in PATH, skipping", install_dir);
@@ -1657,7 +1658,7 @@ fn install_cli_in_background(app: &tauri::App) {
             }
         }
 
-        // 版本和路径都匹配，无需更新。版本标记读取也在后台执行。
+        // ç‰ˆæœ¬å’Œè·¯å¾„éƒ½åŒ¹é…ï¼Œæ— éœ€æ›´æ–°ã€‚ç‰ˆæœ¬æ ‡è®°è¯»å–ä¹Ÿåœ¨åŽå°æ‰§è¡Œã€‚
         if is_cli_up_to_date(&install_dir, &current_exe) {
             cli_debug!("CLI wrapper is up to date, skipping install");
             return;
@@ -1723,9 +1724,9 @@ fn install_cli_in_background(app: &tauri::App) {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     app::startup_timing::record_native_entry();
-    // 默认禁用 DMA-BUF，以兼容部分 Linux 图形驱动；保留用户预设值以便使用默认渲染路径。
-    // 相同的bug: https://github.com/tauri-apps/tauri/issues/10702
-    // 解决方案来源: https://github.com/clash-verge-rev/clash-verge-rev/blob/ae5b2cfb79423c7e76a281725209b812774367fa/src-tauri/src/lib.rs#L27-L28
+    // é»˜è®¤ç¦ç”¨ DMA-BUFï¼Œä»¥å…¼å®¹éƒ¨åˆ† Linux å›¾å½¢é©±åŠ¨ï¼›ä¿ç•™ç”¨æˆ·é¢„è®¾å€¼ä»¥ä¾¿ä½¿ç”¨é»˜è®¤æ¸²æŸ“è·¯å¾„ã€‚
+    // ç›¸åŒçš„bug: https://github.com/tauri-apps/tauri/issues/10702
+    // è§£å†³æ–¹æ¡ˆæ¥æº: https://github.com/clash-verge-rev/clash-verge-rev/blob/ae5b2cfb79423c7e76a281725209b812774367fa/src-tauri/src/lib.rs#L27-L28
     #[cfg(target_os = "linux")]
     if std::env::var_os("WEBKIT_DISABLE_DMABUF_RENDERER").is_none() {
         std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
@@ -1833,6 +1834,7 @@ pub fn run() {
             document_preview::read_html_preview_resource,
             fc::cmd::open_folder_async,
             fc::cmd::get_file_content,
+            fc::cmd::note_file_is_encrypted,
             fc::cmd::get_file_snapshot,
             fc::cmd::write_file,
             fc::cmd::get_file_write_revision,
@@ -1849,7 +1851,6 @@ pub fn run() {
             fc::cmd::move_files_to_target_folder,
             fc::cmd::path_join,
             fc::cmd::get_md_relative_path,
-            fc::cmd::convert_text,
             fc::cmd::rename_fs,
             fc::cmd::paths_refer_to_same_file,
             fc::cmd::paths_refer_to_same_directory_entry,
@@ -1867,6 +1868,7 @@ pub fn run() {
             fc::cmd::get_file_normal_info,
             fc::cmd::copy_file,
             conf::cmd::get_app_conf,
+            app::reset::reset_app_data,
             app::startup_timing::get_startup_timing,
             conf::cmd::reset_app_conf,
             conf::cmd::save_app_conf,
@@ -1905,10 +1907,15 @@ pub fn run() {
             workspace::cmd::is_git_repository,
             app::clipboard::get_clipboard_html,
             app::clipboard::get_clipboard_text,
+            app::clipboard::get_clipboard_image,
             fc::cmd::save_security_bookmark,
             fc::cmd::restore_security_bookmark,
             fc::cmd::release_security_scopes,
             fc::cmd::activate_workspace_root,
+            repo::cmd::repo_status,
+            repo::cmd::repo_unlock,
+            repo::cmd::repo_create,
+            repo::cmd::repo_lock,
             update_cli_window_state,
             update_cli_command_state,
             reliable_cli::cli_ready,
@@ -1920,6 +1927,8 @@ pub fn run() {
         ])
         .setup(|app: &mut tauri::App| {
             app::startup_timing::record_stage("setup-start", None);
+            // A reset requested from Settings finishes here, before the WebView profile is opened.
+            app::reset::apply_pending_reset(app.handle());
             cli_debug!("========================================");
             cli_debug!(
                 "cfg!(debug_assertions)={}, tauri::is_dev()={}",
@@ -2204,3 +2213,4 @@ pub fn run() {
         }
     });
 }
+

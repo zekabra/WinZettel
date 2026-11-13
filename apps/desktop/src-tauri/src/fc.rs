@@ -1,4 +1,4 @@
-use anyhow::Result as AnyResult;
+﻿use anyhow::Result as AnyResult;
 use chrono::{DateTime, Local};
 use mf_text_encoding::{TextEncoding, TextMetadata, TextWriteOptions};
 use mf_utils::is_supported_file_name;
@@ -27,7 +27,7 @@ use core_foundation_sys::url::{
 #[cfg(target_os = "macos")]
 lazy_static::lazy_static! {
     static ref ACTIVE_SECURITY_SCOPES: Mutex<HashSet<PathBuf>> = Mutex::new(HashSet::new());
-    /// 工作区根路径的安全范围，打开文件夹时预激活并持续保持
+    /// å·¥ä½œåŒºæ ¹è·¯å¾„çš„å®‰å…¨èŒƒå›´ï¼Œæ‰“å¼€æ–‡ä»¶å¤¹æ—¶é¢„æ¿€æ´»å¹¶æŒç»­ä¿æŒ
     static ref WORKSPACE_ROOT_SCOPE: Mutex<Option<PathBuf>> = Mutex::new(None);
 }
 
@@ -113,24 +113,24 @@ pub fn acquire_security_scope(_path: &Path) -> bool {
     true
 }
 
-/// 主动确保工作区根路径的安全范围已激活（读文件前调用，避免 PermissionDenied 重试）
+/// ä¸»åŠ¨ç¡®ä¿å·¥ä½œåŒºæ ¹è·¯å¾„çš„å®‰å…¨èŒƒå›´å·²æ¿€æ´»ï¼ˆè¯»æ–‡ä»¶å‰è°ƒç”¨ï¼Œé¿å… PermissionDenied é‡è¯•ï¼‰
 #[cfg(target_os = "macos")]
 pub(crate) fn ensure_workspace_scope_active(file_path: &Path) {
-    // 快速检查：路径是否已在活跃的 scope 下
+    // å¿«é€Ÿæ£€æŸ¥ï¼šè·¯å¾„æ˜¯å¦å·²åœ¨æ´»è·ƒçš„ scope ä¸‹
     if path_has_active_security_scope(&security_scope_key(file_path)) {
         return;
     }
-    // 检查工作区根范围是否覆盖此路径
+    // æ£€æŸ¥å·¥ä½œåŒºæ ¹èŒƒå›´æ˜¯å¦è¦†ç›–æ­¤è·¯å¾„
     if let Ok(root) = WORKSPACE_ROOT_SCOPE.lock() {
         if let Some(ref root_path) = *root {
             if file_path.starts_with(root_path) {
-                // 根范围应已激活，尝试重新 acquire 以防失效
+                // æ ¹èŒƒå›´åº”å·²æ¿€æ´»ï¼Œå°è¯•é‡æ–° acquire ä»¥é˜²å¤±æ•ˆ
                 let _ = acquire_security_scope(root_path);
                 return;
             }
         }
     }
-    // 兜底：直接对文件路径 acquire
+    // å…œåº•ï¼šç›´æŽ¥å¯¹æ–‡ä»¶è·¯å¾„ acquire
     acquire_security_scope(file_path);
 }
 
@@ -434,10 +434,53 @@ pub struct ConditionalWriteResult {
 }
 
 pub fn read_directory(dir_path: &str) -> Result<Vec<FileInfo>, FileResultCode> {
+    if crate::repo::is_locked_repository(dir_path) {
+        return Err(FileResultCode::PermissionDenied);
+    }
     read_directory_single_level(dir_path)
 }
 
 pub fn read_directory_single_level(dir_path: &str) -> Result<Vec<FileInfo>, FileResultCode> {
+    // A repository folder is never read from disk, whether it is locked or unlocked: an
+    // unlocked one whose path spelling does not match still must not show ciphertext.
+    if crate::repo::is_configured_repository(Path::new(dir_path))
+        && crate::repo::relative_path(dir_path).is_none()
+    {
+        return Err(FileResultCode::PermissionDenied);
+    }
+    if let Some(relative) = crate::repo::relative_path(dir_path) {
+        let entries = match crate::repo::list(&relative) {
+            Ok(entries) => entries,
+            Err(error) => {
+                return Err(match error.as_str() {
+                    "no repository is unlocked" => FileResultCode::PermissionDenied,
+                    _ => FileResultCode::UnknownError,
+                })
+            }
+        };
+        let mut files: Vec<FileInfo> = entries
+            .into_iter()
+            .filter(|entry| is_supported_file_name(&entry.name) || entry.is_dir)
+            .map(|entry| FileInfo {
+                name: entry.name.clone(),
+                kind: if entry.is_dir { "dir".into() } else { "file".into() },
+                path: Path::new(dir_path)
+                    .join(&entry.name)
+                    .to_str()
+                    .unwrap_or_default()
+                    .to_string(),
+                children: entry.is_dir.then(Vec::new),
+                ext: Path::new(&entry.name)
+                    .extension()
+                    .and_then(|ext| ext.to_str())
+                    .unwrap_or_default()
+                    .to_string(),
+            })
+            .collect();
+        sort_files_by_kind_and_name(&mut files);
+        return Ok(files);
+    }
+
     let new_path = Path::new(dir_path);
     acquire_security_scope(new_path);
 
@@ -506,7 +549,7 @@ pub fn sort_files_by_kind_and_name(files: &mut Vec<FileInfo>) {
     use std::cmp::Ordering;
 
     files.sort_by(|a, b| {
-        // 1. 首先按类型排序（文件夹优先）
+        // 1. é¦–å…ˆæŒ‰ç±»åž‹æŽ’åºï¼ˆæ–‡ä»¶å¤¹ä¼˜å…ˆï¼‰
         if a.kind != b.kind {
             return if a.kind == "dir" {
                 Ordering::Less
@@ -571,6 +614,27 @@ pub(crate) fn decode_text_bytes(bytes: Vec<u8>) -> Result<String, FileResult> {
 }
 
 pub fn read_file(path: &str) -> FileResult {
+    if crate::repo::is_locked_repository(path) || crate::repo::is_in_locked_repository(path) {
+        return FileResult {
+            code: FileResultCode::PermissionDenied,
+            content: "repository_locked".to_string(),
+        };
+    }
+    if let Some(relative) = crate::repo::relative_path(path) {
+        return match crate::repo::read(&relative)
+            .and_then(|bytes| decode_text_bytes(bytes).map_err(|result| result.content))
+        {
+            Ok(content) => FileResult {
+                code: FileResultCode::Success,
+                content,
+            },
+            Err(message) => FileResult {
+                code: FileResultCode::UnknownError,
+                content: message,
+            },
+        };
+    }
+
     match fs::read(path) {
         Ok(bytes) => match decode_text_bytes(bytes) {
             Ok(content) => FileResult {
@@ -596,7 +660,7 @@ pub fn read_file(path: &str) -> FileResult {
 pub async fn read_file_async(path: &str) -> FileResult {
     let file_path = Path::new(path);
 
-    // 主动确保安全范围已激活，避免 PermissionDenied → 重试 的双倍 I/O 路径
+    // ä¸»åŠ¨ç¡®ä¿å®‰å…¨èŒƒå›´å·²æ¿€æ´»ï¼Œé¿å… PermissionDenied â†’ é‡è¯• çš„åŒå€ I/O è·¯å¾„
     ensure_workspace_scope_active(file_path);
 
     let read_result = tokio::fs::read(file_path).await;
@@ -610,7 +674,7 @@ pub async fn read_file_async(path: &str) -> FileResult {
             Err(result) => result,
         },
         Err(e) => {
-            // 兜底：主动检查后仍然失败，再尝试一次 acquire 后重试
+            // å…œåº•ï¼šä¸»åŠ¨æ£€æŸ¥åŽä»ç„¶å¤±è´¥ï¼Œå†å°è¯•ä¸€æ¬¡ acquire åŽé‡è¯•
             if e.kind() == std::io::ErrorKind::PermissionDenied {
                 acquire_security_scope(file_path);
                 if let Ok(bytes) = tokio::fs::read(file_path).await {
@@ -662,6 +726,18 @@ pub fn is_text_file(path: &str) -> bool {
 // Legacy callers still use this entry point for new files. Existing text must obey
 // the same encoding preflight, revision check and history protection as editor saves.
 pub fn write_file(path: &str, content: &str) -> FileResult {
+    if let Some(relative) = crate::repo::relative_path(path) {
+        return match crate::repo::write(&relative, content.as_bytes()) {
+            Ok(()) => FileResult {
+                code: FileResultCode::Success,
+                content: content.to_string(),
+            },
+            Err(message) => FileResult {
+                code: FileResultCode::UnknownError,
+                content: message,
+            },
+        };
+    }
     let path = Path::new(path);
     let result = get_file_write_revision(path).and_then(|revision| {
         conditional_write_text_file(path, content, &revision, "save", None, None)
@@ -800,6 +876,9 @@ fn file_write_revision_unlocked(path: &Path) -> AnyResult<String> {
 }
 
 pub fn get_file_write_revision(path: &Path) -> AnyResult<String> {
+    if let Some(relative) = crate::repo::relative_path(&path.to_string_lossy()) {
+        return crate::repo::write_revision(&relative).map_err(anyhow::Error::msg);
+    }
     let _guard = FILE_WRITE_MUTEX
         .lock()
         .map_err(|_| anyhow::anyhow!("File write lock is unavailable"))?;
@@ -1093,6 +1172,23 @@ fn conditional_write_file_inner(
     text_options: Option<Option<&TextWriteOptions>>,
     history_workspace: Option<&str>,
 ) -> AnyResult<ConditionalWriteResult> {
+    // Encrypted notes skip the plaintext local-history machinery: writing history would
+    // leave decrypted copies outside the repository.
+    if let Some(relative) = crate::repo::relative_path(&path.to_string_lossy()) {
+        let current = crate::repo::write_revision(&relative).map_err(anyhow::Error::msg)?;
+        if current != expected_revision {
+            return Ok(ConditionalWriteResult {
+                status: ConditionalWriteStatus::Conflict,
+                revision: current,
+            });
+        }
+        crate::repo::write(&relative, content).map_err(anyhow::Error::msg)?;
+        let revision = crate::repo::plaintext_revision(content);
+        return Ok(ConditionalWriteResult {
+            status: ConditionalWriteStatus::Success,
+            revision,
+        });
+    }
     let _guard = FILE_WRITE_MUTEX
         .lock()
         .map_err(|_| anyhow::anyhow!("File write lock is unavailable"))?;
@@ -1189,6 +1285,18 @@ pub fn exists(path: &Path) -> bool {
 
 pub fn create_file<P: AsRef<Path>>(filename: P) -> FileResult {
     let filename = filename.as_ref();
+    if let Some(relative) = crate::repo::relative_path(&filename.to_string_lossy()) {
+        return match crate::repo::write(&relative, b"") {
+            Ok(()) => FileResult {
+                code: FileResultCode::Success,
+                content: String::from("File created successfully"),
+            },
+            Err(message) => FileResult {
+                code: FileResultCode::UnknownError,
+                content: message,
+            },
+        };
+    }
     if let Some(parent) = filename.parent() {
         if !parent.exists() {
             if let Err(e) = fs::create_dir_all(parent) {
@@ -1218,6 +1326,19 @@ pub fn create_file<P: AsRef<Path>>(filename: P) -> FileResult {
 }
 
 pub fn create_folder(path: &str) -> FileResult {
+    if let Some(relative) = crate::repo::relative_path(path) {
+        return match crate::repo::create_dir(&relative) {
+            Ok(()) => FileResult {
+                code: FileResultCode::Success,
+                content: String::new(),
+            },
+            Err(message) => FileResult {
+                code: FileResultCode::UnknownError,
+                content: message,
+            },
+        };
+    }
+
     let dir_path = Path::new(path);
     match fs::create_dir(dir_path) {
         Ok(()) => FileResult {
@@ -1290,6 +1411,19 @@ pub struct MoveFileInfo {
 }
 
 pub fn rename_fs(old_path: &Path, new_path: &Path) -> AnyResult<MoveFileInfo> {
+    if let (Some(from), Some(to)) = (
+        crate::repo::relative_path(&old_path.to_string_lossy()),
+        crate::repo::relative_path(&new_path.to_string_lossy()),
+    ) {
+        crate::repo::rename(&from, &to).map_err(anyhow::Error::msg)?;
+        return Ok(MoveFileInfo {
+            old_path: old_path.to_string_lossy().to_string(),
+            new_path: new_path.to_string_lossy().to_string(),
+            children: None,
+            is_folder: false,
+            is_replaced: Some(false),
+        });
+    }
     // Capture the kind before rename: after a successful move, querying old_path is invalid.
     let is_folder = fs::metadata(old_path)?.is_dir();
 
@@ -1460,6 +1594,31 @@ pub fn move_files_to_target_folder(
         };
         let target_path = Path::new(target_folder).join(file_name);
 
+        // Dragging into a repository is a copy through the volume plus a delete of the source,
+        // because the destination on disk is ciphertext.
+        match crate::repo::classify_write(&target_path.to_string_lossy()) {
+            crate::repo::WriteTarget::Volume(relative) => {
+                let bytes = fs::read(file_path)?;
+                crate::repo::write(&relative, &bytes).map_err(anyhow::Error::msg)?;
+                if !paths_refer_to_same_file(file_path, &target_path) {
+                    fs::remove_file(file_path)?;
+                }
+                path_map_old_to_new.push(MoveFileInfo {
+                    old_path: file_path.to_string_lossy().to_string(),
+                    new_path: target_path.to_string_lossy().to_string(),
+                    children: None,
+                    is_folder: false,
+                    is_replaced: Some(false),
+                });
+                continue;
+            }
+            crate::repo::WriteTarget::Locked => {
+                move_errors.push("repository_locked".to_string());
+                continue;
+            }
+            crate::repo::WriteTarget::Disk => {}
+        }
+
         if paths_refer_to_same_file(file_path, &target_path) {
             continue;
         }
@@ -1498,6 +1657,9 @@ pub fn move_files_to_target_folder(
 }
 
 pub fn is_dir(path: &str) -> bool {
+    if let Some(relative) = crate::repo::relative_path(path) {
+        return crate::repo::is_dir(&relative);
+    }
     let file_path = Path::new(path);
     file_path.is_dir()
 }
@@ -1546,16 +1708,16 @@ fn format_file_size(size: u64) -> String {
 pub fn get_file_normal_info(path_str: &str) -> FileNormalInfo {
     let path = Path::new(path_str);
 
-    // 尝试获取元数据
+    // å°è¯•èŽ·å–å…ƒæ•°æ®
     let metadata_result = fs::metadata(path);
 
     match metadata_result {
         Ok(metadata) => {
-            // 获取并格式化文件大小
+            // èŽ·å–å¹¶æ ¼å¼åŒ–æ–‡ä»¶å¤§å°
             let size = metadata.len();
             let formatted_size = format_file_size(size);
 
-            // 获取并格式化修改时间
+            // èŽ·å–å¹¶æ ¼å¼åŒ–ä¿®æ”¹æ—¶é—´
             let modified_time = match metadata.modified() {
                 Ok(time) => {
                     let datetime: DateTime<Local> = DateTime::from(time);
@@ -1565,7 +1727,7 @@ pub fn get_file_normal_info(path_str: &str) -> FileNormalInfo {
                     return FileNormalInfo {
                         size: "".to_string(),
                         last_modified: "".to_string(),
-                        error_msg: format!("无法获取修改时间: {}", e),
+                        error_msg: format!("æ— æ³•èŽ·å–ä¿®æ”¹æ—¶é—´: {}", e),
                     };
                 }
             };
@@ -1579,26 +1741,9 @@ pub fn get_file_normal_info(path_str: &str) -> FileNormalInfo {
         Err(e) => FileNormalInfo {
             size: "".to_string(),
             last_modified: "".to_string(),
-            error_msg: format!("无法获取文件元数据: {}", e),
+            error_msg: format!("æ— æ³•èŽ·å–æ–‡ä»¶å…ƒæ•°æ®: {}", e),
         },
     }
-}
-
-pub async fn convert_text_async(text: String, variant: String) -> Result<String, SystemError> {
-    use zhconv::{zhconv, Variant};
-
-    tokio::task::spawn_blocking(move || {
-        let variant = match variant.as_str() {
-            "zh-TW" => Variant::ZhTW,
-            "zh-HK" => Variant::ZhHK,
-            "zh-CN" => Variant::ZhCN,
-            "zh-Hans" => Variant::ZhHans,
-            _ => Variant::ZhTW,
-        };
-        zhconv(&text, variant)
-    })
-    .await
-    .map_err(|_| SystemError::TaskAborted(uuid::Uuid::nil()))
 }
 
 pub mod cmd {
@@ -1621,6 +1766,15 @@ pub mod cmd {
         file_exclude_patterns: Option<String>,
     ) -> DirectoryReadResult {
         let started_at = Instant::now();
+        // A locked repository answers with a marker instead of its ciphertext, so every entry
+        // path (startup restore, drag and drop, tree refresh) ends up asking for the password.
+        if crate::repo::is_locked_repository(&folder_path) {
+            return DirectoryReadResult {
+                code: FileResultCode::PermissionDenied,
+                entries: Vec::new(),
+                message: Some(String::from("repo_locked")),
+            };
+        }
         let task_folder_path = folder_path.clone();
         let result = match startup_io::run(move || match fc::read_directory(&task_folder_path) {
             Ok(files) => {
@@ -1668,6 +1822,23 @@ pub mod cmd {
         result
     }
 
+    /// Reads only the head of a note: enough to tell an encrypted note from a plain one
+    /// without loading every file in the tree. The marker is U+E000 U+E001 "ENC".
+    #[tauri::command]
+    pub async fn note_file_is_encrypted(file_path: String) -> Result<bool, String> {
+        tokio::task::spawn_blocking(move || {
+            const MAGIC: [u8; 9] = [0xEE, 0x80, 0x80, 0xEE, 0x80, 0x81, b'E', b'N', b'C'];
+            let path = Path::new(&file_path);
+            fc::ensure_workspace_scope_active(path);
+            let mut file = std::fs::File::open(path).map_err(|error| error.to_string())?;
+            let mut head = [0u8; MAGIC.len()];
+            let read = std::io::Read::read(&mut file, &mut head).map_err(|error| error.to_string())?;
+            Ok(read == MAGIC.len() && head == MAGIC)
+        })
+        .await
+        .map_err(|error| error.to_string())?
+    }
+
     #[tauri::command]
     pub async fn get_file_content(file_path: String) -> Result<FileResult, String> {
         Ok(fc::read_file_async(&file_path).await)
@@ -1678,6 +1849,19 @@ pub mod cmd {
         file_path: String,
         encoding: Option<mf_text_encoding::TextEncoding>,
     ) -> Result<fc::FileSnapshotResult, String> {
+        if let Some(relative) = crate::repo::relative_path(&file_path) {
+            let bytes = crate::repo::read(&relative)?;
+            return Ok(match mf_text_encoding::decode(&bytes, encoding) {
+                Ok(decoded) => fc::FileSnapshotResult::Success {
+                    content: decoded.content,
+                    revision: crate::repo::plaintext_revision(&bytes),
+                    text: decoded.metadata,
+                },
+                Err(error) => fc::FileSnapshotResult::Unavailable {
+                    result: fc::text_read_error(error),
+                },
+            });
+        }
         tokio::task::spawn_blocking(move || {
             let path = Path::new(&file_path);
             fc::ensure_workspace_scope_active(path);
@@ -1732,6 +1916,19 @@ pub mod cmd {
 
     #[tauri::command]
     pub fn read_u8_array_from_file(file_path: &str) -> FileResult {
+        // An attachment inside a repository is ciphertext on disk: read it through the volume.
+        if let Some(relative) = crate::repo::relative_path(file_path) {
+            return match crate::repo::read(&relative) {
+                Ok(bytes) => FileResult {
+                    code: FileResultCode::Success,
+                    content: BASE64_STANDARD.encode(bytes),
+                },
+                Err(message) => FileResult {
+                    code: FileResultCode::UnknownError,
+                    content: message,
+                },
+            };
+        }
         fc::acquire_security_scope(Path::new(file_path));
         match fs::read(file_path) {
             Ok(content) => FileResult {
@@ -1754,6 +1951,27 @@ pub mod cmd {
 
     #[tauri::command]
     pub fn write_u8_array_to_file(file_path: &str, content: Vec<u8>) -> FileResult {
+        match crate::repo::classify_write(file_path) {
+            crate::repo::WriteTarget::Volume(relative) => {
+                return match crate::repo::write(&relative, &content) {
+                    Ok(()) => FileResult {
+                        code: FileResultCode::Success,
+                        content: String::new(),
+                    },
+                    Err(message) => FileResult {
+                        code: FileResultCode::UnknownError,
+                        content: message,
+                    },
+                }
+            }
+            crate::repo::WriteTarget::Locked => {
+                return FileResult {
+                    code: FileResultCode::PermissionDenied,
+                    content: "repository_locked".to_string(),
+                }
+            }
+            crate::repo::WriteTarget::Disk => {}
+        }
         let file_path = Path::new(file_path);
 
         // Create parent directories if they don't exist
@@ -1794,6 +2012,12 @@ pub mod cmd {
 
     #[tauri::command]
     pub fn delete_file(file_path: &str) -> String {
+    if let Some(relative) = crate::repo::relative_path(file_path) {
+        return match crate::repo::remove_file(&relative) {
+            Ok(()) => String::new(),
+            Err(message) => message,
+        };
+    }
         fc::remove_file(file_path);
         String::from("OK")
     }
@@ -1805,11 +2029,26 @@ pub mod cmd {
 
     #[tauri::command]
     pub fn delete_folder(file_path: &str) -> FileResult {
+    if let Some(relative) = crate::repo::relative_path(file_path) {
+        return match crate::repo::remove_dir(&relative) {
+            Ok(()) => FileResult {
+                code: FileResultCode::Success,
+                content: String::new(),
+            },
+            Err(message) => FileResult {
+                code: FileResultCode::UnknownError,
+                content: message,
+            },
+        };
+    }
         fc::remove_folder(file_path)
     }
 
     #[tauri::command]
     pub fn file_exists(file_path: &str) -> bool {
+    if let Some(relative) = crate::repo::relative_path(file_path) {
+        return crate::repo::exists(&relative);
+    }
         fc::exists(Path::new(file_path))
     }
 
@@ -1916,11 +2155,11 @@ pub mod cmd {
                         components.push("..");
                     }
                     Component::Prefix(_) => {
-                        // Windows驱动器前缀，忽略
+                        // Windowsé©±åŠ¨å™¨å‰ç¼€ï¼Œå¿½ç•¥
                         continue;
                     }
                     Component::RootDir => {
-                        // Unix根目录，忽略
+                        // Unixæ ¹ç›®å½•ï¼Œå¿½ç•¥
                         continue;
                     }
                 }
@@ -1933,7 +2172,7 @@ pub mod cmd {
             components.join("/")
         };
 
-        // 确保返回的是Markdown语法的路径（使用正斜杠）
+        // ç¡®ä¿è¿”å›žçš„æ˜¯Markdownè¯­æ³•çš„è·¯å¾„ï¼ˆä½¿ç”¨æ­£æ–œæ ï¼‰
         let md_relative_path = relative_path.replace("\\", "/");
 
         FileResult {
@@ -1957,6 +2196,26 @@ pub mod cmd {
             if let Some(directory) = directory {
                 super::acquire_security_scope(directory);
             }
+            if let Some(directory) = directory {
+                let file_name = source
+                    .file_name()
+                    .map(|name| name.to_string_lossy().into_owned())
+                    .unwrap_or_default();
+                let destination = directory.join(&file_name);
+                match crate::repo::classify_write(&destination.to_string_lossy()) {
+                    crate::repo::WriteTarget::Volume(relative) => {
+                        let bytes = std::fs::read(source)
+                            .map_err(|error| format!("Could not read '{}': {}", from, error))?;
+                        crate::repo::write(&relative, &bytes)
+                            .map_err(|error| format!("Could not write '{}': {}", file_name, error))?;
+                        return Ok(destination.to_string_lossy().into_owned());
+                    }
+                    crate::repo::WriteTarget::Locked => {
+                        return Err("repository_locked".to_string())
+                    }
+                    crate::repo::WriteTarget::Disk => {}
+                }
+            }
             crate::file_copy::copy_file_without_overwrite(source, directory)
                 .map(|path| path.to_string_lossy().into_owned())
                 .map_err(|error| format!("Could not copy '{}': {}", from, error))
@@ -1977,6 +2236,9 @@ pub mod cmd {
 
     #[tauri::command]
     pub fn is_dir(path: &str) -> bool {
+    if let Some(relative) = crate::repo::relative_path(path) {
+        return crate::repo::is_dir(&relative);
+    }
         fc::is_dir(path)
     }
 
@@ -1992,6 +2254,39 @@ pub mod cmd {
 
     #[tauri::command]
     pub fn copy_file(from: &str, to: &str) -> FileResult {
+        // Attachments picked from disk end up here, so this is the write that must go through
+        // the volume: a plaintext copy inside a repository makes the volume unreadable.
+        match crate::repo::classify_write(to) {
+            crate::repo::WriteTarget::Volume(relative) => {
+                let bytes = match fs::read(from) {
+                    Ok(bytes) => bytes,
+                    Err(error) => {
+                        return FileResult {
+                            code: FileResultCode::NotFound,
+                            content: format!("Source file not found: {from} ({error})"),
+                        }
+                    }
+                };
+                return match crate::repo::write(&relative, &bytes) {
+                    Ok(()) => FileResult {
+                        code: FileResultCode::Success,
+                        content: to.to_string(),
+                    },
+                    Err(message) => FileResult {
+                        code: FileResultCode::UnknownError,
+                        content: message,
+                    },
+                };
+            }
+            crate::repo::WriteTarget::Locked => {
+                return FileResult {
+                    code: FileResultCode::PermissionDenied,
+                    content: "repository_locked".to_string(),
+                }
+            }
+            crate::repo::WriteTarget::Disk => {}
+        }
+
         let old_path = Path::new(from);
         let new_path = Path::new(to);
 
@@ -2052,20 +2347,6 @@ pub mod cmd {
     }
 
     #[tauri::command]
-    pub async fn convert_text(text: String, variant: String) -> FileResult {
-        match fc::convert_text_async(text, variant).await {
-            Ok(content) => FileResult {
-                code: FileResultCode::Success,
-                content,
-            },
-            Err(e) => FileResult {
-                code: FileResultCode::UnknownError,
-                content: e.to_string(),
-            },
-        }
-    }
-
-    #[tauri::command]
     pub fn save_security_bookmark(path: &str) -> bool {
         #[cfg(target_os = "macos")]
         {
@@ -2091,8 +2372,8 @@ pub mod cmd {
         }
     }
 
-    /// 预激活工作区根路径的安全范围，打开文件夹时调用
-    /// 后续该文件夹下所有文件的读取可直接命中缓存，避免 PermissionDenied
+    /// é¢„æ¿€æ´»å·¥ä½œåŒºæ ¹è·¯å¾„çš„å®‰å…¨èŒƒå›´ï¼Œæ‰“å¼€æ–‡ä»¶å¤¹æ—¶è°ƒç”¨
+    /// åŽç»­è¯¥æ–‡ä»¶å¤¹ä¸‹æ‰€æœ‰æ–‡ä»¶çš„è¯»å–å¯ç›´æŽ¥å‘½ä¸­ç¼“å­˜ï¼Œé¿å… PermissionDenied
     #[tauri::command]
     pub fn activate_workspace_root(root_path: &str) -> bool {
         #[cfg(target_os = "macos")]
@@ -2480,12 +2761,7 @@ mod tests {
         );
     }
 
-    #[tokio::test]
-    async fn converts_text_on_the_shared_blocking_pool() {
-        let converted = convert_text_async("汉语".to_string(), "zh-TW".to_string())
-            .await
-            .unwrap();
-
-        assert_eq!(converted, "漢語");
-    }
 }
+
+
+

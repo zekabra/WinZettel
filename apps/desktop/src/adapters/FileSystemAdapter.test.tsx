@@ -17,6 +17,14 @@ vi.mock('@/stores', () => ({
   useEditorStore: { getState: () => ({ getRootPath: () => '/workspace' }) },
 }))
 vi.mock('@/stores/useAppSettingStore', () => ({ default: () => '' }))
+
+vi.mock('@/stores/useRepoStore', () => {
+  const state = { isUnlocked: false, root: null, blockedRoot: null }
+  const store = Object.assign((selector: (value: typeof state) => unknown) => selector(state), {
+    getState: () => state,
+  })
+  return { default: store, isRepoUnlocked: () => false }
+})
 vi.mock('@/helper/logger', () => ({ logger: { error: vi.fn() } }))
 vi.mock('@/helper/files', () => ({
   getFileObject: vi.fn(),

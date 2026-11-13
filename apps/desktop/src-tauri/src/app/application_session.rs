@@ -263,7 +263,7 @@ struct UpdateSession {
 impl QuitState {
     fn begin_window_build(&mut self) -> Result<(), String> {
         if self.exit_code.is_some() || self.update_session.is_some() {
-            return Err("Cannot create a window while MarkFlowy is quitting or installing an update".into());
+            return Err("Cannot create a window while WinZettel is quitting or installing an update".into());
         }
         self.building_windows += 1;
         Ok(())

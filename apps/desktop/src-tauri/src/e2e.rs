@@ -47,7 +47,7 @@ pub fn root() -> PathBuf {
 
 pub fn identifier() -> String {
     format!(
-        "com.drl990114.markflowy.e2e.{}",
+        "pt.zekabra.winzettel.e2e.{}",
         ENVIRONMENT.get().unwrap().id.simple()
     )
 }

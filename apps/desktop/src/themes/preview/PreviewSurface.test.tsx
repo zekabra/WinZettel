@@ -1,17 +1,8 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { parseThemeDocument, resolveTheme } from '@markflowy/theme/semantic'
-const mocks = vi.hoisted(() => ({
-  create: vi.fn(),
-  update: vi.fn(),
-  destroy: vi.fn(),
-  factory: vi.fn(),
-}))
-vi.mock('@/components/EditorArea/capricornRuntimeAdapter', () => ({
-  loadCapricornRuntimeFactory: async () => mocks.factory,
-  createCapricornRuntimeAdapter: mocks.create,
-}))
 import { PreviewSurface } from './PreviewSurface'
+
 const labels = {
   preview: 'Preview',
   loadError: 'Failed',
@@ -35,13 +26,22 @@ function theme(color: string) {
   })
   return resolveTheme(document, document.variants[0])
 }
-beforeEach(() => {
-  vi.clearAllMocks()
-  mocks.create.mockReturnValue({ updateSettings: mocks.update, destroy: mocks.destroy })
-})
+
 afterEach(cleanup)
+
+function previewContent(container: HTMLElement) {
+  return waitFor(
+    () => {
+      const content = container.querySelector<HTMLElement>('.mf-preview-content')
+      expect(content?.textContent).toContain('A little structure')
+      return content!
+    },
+    { timeout: 10_000 },
+  )
+}
+
 describe('preview document surface', () => {
-  it('updates theme settings without replacing the interactive editor', async () => {
+  it('renders the Markdown document as a reading surface and keeps it across theme changes', async () => {
     const inspect = vi.fn()
     const view = render(
       <PreviewSurface
@@ -52,14 +52,10 @@ describe('preview document surface', () => {
         onInspect={inspect}
       />,
     )
-    await waitFor(() => expect(mocks.create).toHaveBeenCalledTimes(1))
-    const options = mocks.create.mock.calls[0][0].options
-    expect(options.handleLinkClick('https://example.com')).toBeUndefined()
-    expect(mocks.create.mock.calls[0][0].container).toBe(
-      view.container.querySelector('.mf-editor-content[data-mf-capricorn-runtime]'),
-    )
-    expect(options.markdown).toMatch(/- \[x\] .+\n {2}- \[ \]/)
-    expect(options.markdown).toMatch(/- \[ \] .+\n {2}- \[x\]/)
+    const content = await previewContent(view.container)
+    expect(content.textContent).toContain('A place for ideas')
+    expect(content.querySelector('h2')?.textContent).toBe('A little structure')
+
     view.rerender(
       <PreviewSurface
         theme={theme('#eeeeee')}
@@ -69,30 +65,15 @@ describe('preview document surface', () => {
         onInspect={inspect}
       />,
     )
-    expect(mocks.create).toHaveBeenCalledTimes(1)
     expect(view.container.querySelector('[aria-current="page"]')?.textContent).toBe('欢迎.md')
     fireEvent.click(screen.getByRole('button', { name: '搜索预览' }))
     expect(screen.getByRole('textbox', { name: '搜索预览' })).toBeTruthy()
-    expect(mocks.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        style: expect.objectContaining({
-          '--cap-surface': expect.stringContaining('--mf-theme-editor-background'),
-        }),
-      }),
-    )
-    view.unmount()
-    expect(mocks.destroy).toHaveBeenCalledTimes(1)
+    await previewContent(view.container)
+    expect(view.container.querySelector('.mf-preview-content')).toBe(content)
+    expect(content.textContent).toContain('A place for ideas')
   })
+
   it('applies draft CSS to the document scope without affecting preview controls or remounting', async () => {
-    mocks.create.mockImplementation(({ container }: { container: HTMLElement }) => {
-      const content = document.createElement('div')
-      content.setAttribute('data-cap-content', '')
-      const heading = document.createElement('h1')
-      heading.textContent = 'Document heading'
-      content.append(heading)
-      container.append(content)
-      return { updateSettings: mocks.update, destroy: mocks.destroy }
-    })
     const renderPreview = (spacing: string) => (
       <>
         <h1>Outside the document</h1>
@@ -101,7 +82,7 @@ describe('preview document surface', () => {
           snippets={[
             {
               id: 'draft',
-              css: `.mf-editor-content [data-cap-content] h1 { letter-spacing: ${spacing}; }`,
+              css: `.mf-editor-content .mf-preview-content h2 { letter-spacing: ${spacing}; }`,
             },
           ]}
           inspect={false}
@@ -111,8 +92,8 @@ describe('preview document surface', () => {
       </>
     )
     const view = render(renderPreview('1px'))
-    await waitFor(() => expect(mocks.create).toHaveBeenCalledTimes(1))
-    const heading = screen.getByRole('heading', { name: 'Document heading' })
+    await previewContent(view.container)
+    const heading = view.container.querySelector<HTMLElement>('.mf-preview-content h2')!
     expect(getComputedStyle(heading).letterSpacing).toBe('1px')
     expect(
       getComputedStyle(screen.getByRole('heading', { name: 'Outside the document' })).letterSpacing,
@@ -120,9 +101,9 @@ describe('preview document surface', () => {
 
     view.rerender(renderPreview('2px'))
     expect(getComputedStyle(heading).letterSpacing).toBe('2px')
-    expect(mocks.create).toHaveBeenCalledTimes(1)
-    expect(mocks.destroy).not.toHaveBeenCalled()
+    expect(view.container.querySelector('.mf-preview-content h2')).toBe(heading)
   })
+
   it('inspects roles and keeps personal CSS snippets in separate style sheets', async () => {
     const inspect = vi.fn()
     const view = render(
@@ -154,6 +135,6 @@ describe('preview document surface', () => {
         (style) => style.textContent,
       ),
     ).toEqual(['body{', 'body{color:red}'])
-    await waitFor(() => expect(mocks.create).toHaveBeenCalledTimes(1))
+    await previewContent(view.container)
   })
 })

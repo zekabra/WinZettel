@@ -35,7 +35,6 @@ afterEach(() => {
   stop?.()
   stop = undefined
   container.remove()
-  document.querySelectorAll('textarea[data-cap-input]').forEach((element) => element.remove())
   vi.restoreAllMocks()
 })
 
@@ -71,46 +70,3 @@ it('releases read-only documents without reporting editability', () => {
   expect(gate.getOutcome()).toBe('preview')
 })
 
-it('waits for the matching Capricorn portal input and visible embedded source editors', () => {
-  container.innerHTML = '<div data-cap-content><div data-cap-editable data-cap-key="document"><span data-cap-leaf>Markdown</span></div></div><div data-cap-source-editor-pending="true"></div>'
-  vi.spyOn(container.firstElementChild!, 'getBoundingClientRect').mockReturnValue(bounds)
-  const pending = container.lastElementChild!
-  vi.spyOn(pending, 'getBoundingClientRect').mockReturnValue(bounds)
-  const input = document.createElement('textarea')
-  input.setAttribute('data-cap-input', '')
-  input.setAttribute('data-cap-dockey', 'other')
-  document.body.append(input)
-  stop = observe(container, () => true)
-  frame()
-  frame()
-  expect(gate.getOutcome()).toBeUndefined()
-  input.setAttribute('data-cap-dockey', 'document')
-  frame()
-  frame()
-  expect(gate.getOutcome()).toBeUndefined()
-  pending.remove()
-  container.querySelector('[data-cap-leaf]')!.textContent = ''
-  frame()
-  frame()
-  expect(gate.getOutcome()).toBeUndefined()
-  container.querySelector('[data-cap-leaf]')!.textContent = 'Markdown'
-  frame()
-  frame()
-  expect(gate.getOutcome()).toBe('editable')
-})
-
-it('releases background recovery after a visible source module failure without claiming an editable document', () => {
-  const failed = document.createElement('div')
-  failed.setAttribute('data-cap-source-editor-pending', 'true')
-  failed.setAttribute('data-cap-source-editor-error', 'true')
-  container.append(failed)
-  vi.spyOn(failed, 'getBoundingClientRect').mockReturnValue({ ...bounds, top: 5000, bottom: 5400 })
-  const ready = vi.fn()
-  stop = observe(container, () => true, ready)
-  frame()
-  expect(gate.getOutcome()).toBeUndefined()
-  vi.spyOn(failed, 'getBoundingClientRect').mockReturnValue(bounds)
-  frame()
-  expect(gate.getOutcome()).toBe('error')
-  expect(ready).not.toHaveBeenCalled()
-})

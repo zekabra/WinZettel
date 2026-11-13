@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/core'
 import { writeText } from '@tauri-apps/plugin-clipboard-manager'
 import { revealItemInDir } from '@tauri-apps/plugin-opener'
-import { useMemo, type FC, type ReactNode } from 'react'
+import { useEffect, useMemo, type FC, type ReactNode } from 'react'
 import { flushSync } from 'react-dom'
 import {
   AppContext,
@@ -12,6 +12,15 @@ import {
   type RunFileMutation,
 } from '@markflowy/interface'
 import { logger } from '@/helper/logger'
+import { i18n } from '@/i18n'
+import { decryptNoteFileWithPassphrase, encryptNoteFile } from '@/services/note-encryption'
+import useNoteEncryptionStore, { isNoteEncrypted } from '@/stores/useNoteEncryptionStore'
+import useRepoStore from '@/stores/useRepoStore'
+import { useBookmarkStore } from '@/extensions/bookmarks/store'
+import { commandRegistry } from '@/commands'
+import { encryptNotesInFolder, setFolderReader } from '@/services/noteFolderEncryption'
+import { dialog } from '@/services/dialog'
+import { toast } from 'zens'
 import { resolveFileExcludePatterns } from '@/helper/file-exclude'
 import {
   FileResultCode,
@@ -31,7 +40,63 @@ interface FileSystemAdapterProps {
   children: ReactNode
 }
 
-const desktopAppContextValue = { copyText: writeText } satisfies AppContextValue
+const reportEncryptionResult = async (operation: () => Promise<void>, successKey: string) => {
+  try {
+    await operation()
+    toast.success(i18n.t(successKey))
+  } catch (error) {
+    toast.error(error instanceof Error ? error.message : String(error))
+  }
+}
+
+const buildDesktopAppContext = (repoUnlocked: boolean): AppContextValue => ({
+  copyText: writeText,
+  // The tree hides "Encrypt note" once the note carries the marker.
+  isNoteEncrypted: (path: string) => isNoteEncrypted(path),
+  toggleBookmarkNote: (path: string, name: string) => {
+    const existing = useBookmarkStore.getState().findBookmark(path)
+    if (existing) {
+      commandRegistry.execute('edit_bookmark_dialog', existing)
+      return
+    }
+    commandRegistry.execute('open_bookmark_dialog', { path, name })
+  },
+
+  // Inside an encrypted repository the files are already encrypted by the volume, so the
+  // per-note operations are not offered at all.
+  encryptNote: repoUnlocked ? undefined : async (path: string) => {
+    // Lock first, then encrypt: the pane unmounts the editor before the file changes, so no
+    // pending save can write the plaintext back over the freshly encrypted note. It uses the
+    // passphrase from Settings, without asking.
+    const store = useNoteEncryptionStore.getState()
+    store.markEncrypted(path)
+    store.lock(path)
+    try {
+      await encryptNoteFile(path)
+      toast.success(i18n.t('contextmenu.explorer.encrypt_note_done'))
+    } catch (error) {
+      // The file is unchanged, so the note opens again.
+      store.markDecrypted(path)
+      store.unlock(path)
+      toast.error(error instanceof Error ? error.message : String(error))
+    }
+  },
+  encryptNotesInFolder: repoUnlocked ? undefined : encryptNotesInFolder,
+  decryptNote: async (path: string) => {
+    const passphrase = await dialog.inputConfirm({
+      title: i18n.t('contextmenu.explorer.decrypt_note_passphrase'),
+      inputProps: {
+        type: 'password',
+        placeholder: i18n.t('settings.encryption.passphrase.placeholder'),
+      },
+    })
+    if (typeof passphrase !== 'string' || !passphrase) return
+    await reportEncryptionResult(
+      () => decryptNoteFileWithPassphrase(path, passphrase),
+      'contextmenu.explorer.decrypt_note_done',
+    )
+  },
+})
 
 const runFileMutation: RunFileMutation = (operation) =>
   savePathCoordinator.runFileMutation((lease) =>
@@ -46,15 +111,25 @@ export const TauriFileSystemProvider: FC<FileSystemAdapterProps> = ({ children }
     resolveFileExcludePatterns(state.settingData),
   )
 
+  const repoUnlocked = useRepoStore((state) => state.isUnlocked)
+  const appContextValue = useMemo(() => buildDesktopAppContext(repoUnlocked), [repoUnlocked])
+
   const value: FileSystemContextValue = useMemo(() => ({
     runFileMutation,
 
     readDirectory: async (folderPath: string): Promise<IFile[]> => {
-      const result = await invoke<DirectoryReadResult>('open_folder_async', {
-        folderPath,
-        rootPath: folderPath,
-        fileExcludePatterns,
-      })
+      const read = () =>
+        invoke<DirectoryReadResult>('open_folder_async', {
+          folderPath,
+          rootPath: folderPath,
+          fileExcludePatterns,
+        })
+
+      const result = await read()
+      if (result.message === 'repo_locked') {
+        useRepoStore.getState().setBlocked(folderPath)
+        return []
+      }
       return hydrateDirectoryEntries(unwrapDirectoryReadResult(result))
     },
 
@@ -65,6 +140,10 @@ export const TauriFileSystemProvider: FC<FileSystemAdapterProps> = ({ children }
         rootPath,
         fileExcludePatterns,
       })
+      if (result.message === 'repo_locked') {
+        useRepoStore.getState().setBlocked(folderPath)
+        return []
+      }
 
       let entries: DirectoryReadEntry[]
       try {
@@ -165,8 +244,14 @@ export const TauriFileSystemProvider: FC<FileSystemAdapterProps> = ({ children }
     },
   }), [fileExcludePatterns])
 
+  // Bulk actions read the folder from disk: a folder that was never expanded has no loaded
+  // children in the tree, and would report itself as empty.
+  useEffect(() => {
+    setFolderReader(value.readSubdirectory)
+  }, [value.readSubdirectory])
+
   return (
-    <AppContext.Provider value={desktopAppContextValue}>
+    <AppContext.Provider value={appContextValue}>
       <FileSystemContext.Provider value={value}>{children}</FileSystemContext.Provider>
     </AppContext.Provider>
   )

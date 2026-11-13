@@ -122,7 +122,7 @@ pub(crate) fn build_main_window(
 
     let mut window_builder = WebviewWindowBuilder::new(app, window_label.clone(), url)
         .initialization_script(&initialization_script)
-        .title("MarkFlowy")
+        .title("WinZettel")
         .resizable(true)
         .fullscreen(false)
         .theme(native_theme)

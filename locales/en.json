@@ -1,1705 +1,1519 @@
 {
-  "drafts": {
-    "reload_failed": "Could not preserve unsaved documents for reload. Save your files and try again.",
-    "restore_failed": "Could not restore unsaved documents. The cached drafts have been kept.",
-    "close_failed_description": "Retry recovery, or keep the affected drafts for recovery next time and close their documents.",
-    "keep_and_close": "Keep draft and close",
-    "keep_failed": "Could not preserve the draft for closing. The document has been kept open.",
-    "close_failed": "Could not safely close the window. Your documents have been kept open. Please try again.",
-    "error_details": "Error details",
-    "restored": "Recovered {{count}} unsaved documents."
-  },
-  "link_editing": {
-    "label": "Link editing",
-    "description": "Choose the default link editor. Each link can also be edited as Markdown.",
-    "popover": "Popover",
-    "markdown": "Markdown syntax",
-    "open_failed": "Unable to open the link or find its heading."
-  },
-  "command_palette": {
-    "title": "Command Palette",
-    "placeholder": "Search commands…",
-    "empty": "No matching commands",
-    "recent": "Recently Used",
-    "hints": "↑↓ Navigate · Enter Execute · Esc Close",
-    "failed": "Could not execute “{{command}}”.",
-    "categories": {
-      "file": "File",
-      "editor": "Editor",
-      "view": "View",
-      "app": "Application"
-    },
-    "reasons": {
-      "no_document": "Open a document first",
-      "unavailable": "Unavailable in the current context",
-      "preview": "Cannot edit in preview mode",
-      "read_only": "This document is read-only",
-      "stale_target": "The original editor has changed",
-      "selection_unavailable": "The original selection is no longer available",
-      "no_undo": "Nothing to undo",
-      "no_redo": "Nothing to redo",
-      "markdown_only": "Available for Markdown documents",
-      "wysiwyg_only": "Available only in WYSIWYG mode",
-      "no_headings": "The document has no headings",
-      "zen_mode": "Exit Zen Mode first"
-    }
-  },
-  "quick_open": {
-    "title": "Quick Open",
-    "placeholder": "Search files by name or path…",
-    "loading": "Loading workspace files…",
-    "load_error": "Couldn’t load workspace files",
-    "empty": "No matching files",
-    "no_recent": "No recently opened files. Type a filename to search the workspace.",
-    "no_workspace": "Open a workspace to search its files",
-    "show_more": "Show more ({{count}} remaining)",
-    "keyboard_hint": "↑ ↓ to navigate · Enter to open · Esc to close"
-  },
-  "app_name": "MarkFlowy",
-  "editor": {
-    "render_failed": "Unable to render the editor"
-  },
-  "find_replace": {
-    "navigation_unsupported": "This version does not support precise search navigation. Update the app and try again.",
-    "navigation_stale": "The search result has changed. Run the search again.",
-    "navigation_failed": "Unable to navigate to this result. Try again after the document loads.",
-    "find": "Find",
-    "replace": "Replace",
-    "replace_with": "Replace with",
-    "replace_all": "All",
-    "previous_match": "Find previous match",
-    "next_match": "Find next match",
-    "match_case": "Match case",
-    "close": "Close find and replace",
-    "result_count": "{{current}} of {{total}}"
-  },
-  "startup": {
-    "opening_workspace": "Opening workspace…",
-    "workspace_open_failed": "Unable to open the workspace"
-  },
-  "common": {
-    "none": "None",
-    "name": "name",
-    "ok": "ok",
-    "confirm": "confirm",
-    "cancel": "cancel",
-    "close": "close",
-    "copy": "copy",
-    "error": "error",
-    "delete": "delete",
-    "file": "file",
-    "folder": "folder",
-    "fetching": "Loading...",
-    "submit": "submit",
-    "addHeader": "Add Header",
-    "addPattern": "Add Pattern",
-    "key": "Key",
-    "value": "Value",
-    "success": "Success",
-    "import": "Import",
-    "menu": "Menu",
-    "or": "or",
-    "retry": "Retry"
-  },
-  "dialog": {
-    "remember_choice": "Remember this choice"
-  },
-  "external_file_change": {
-    "conflict": "External changes detected",
-    "conflict_description": "Auto-save is paused. Update loads the disk version; Overwrite replaces it with your current content.",
-    "update": "Update",
-    "overwrite": "Overwrite",
-    "reloaded": "Loaded external changes",
-    "overwritten": "Overwrote the disk version",
-    "read_failed": "The latest disk version could not be read. Try again.",
-    "resolve_failed": "The file change could not be resolved. Your current content was kept."
-  },
-  "view": {
-    "label": "View",
-    "theme": {
-      "label": "Theme"
-    },
-    "wysiwyg": "Wysiwyg",
-    "source_code": "Source Code",
-    "preview": "Preview"
-  },
-  "toolbar": {
-    "undo": "Undo",
-    "redo": "Redo",
-    "h1": "Heading 1",
-    "h2": "Heading 2",
-    "h3": "Heading 3",
-    "bold": "Bold",
-    "italic": "Italic",
-    "code": "Inline Code",
-    "strike": "Strikethrough",
-    "link": "Link",
-    "image": "Image",
-    "quote": "Blockquote",
-    "bulletList": "Bullet List",
-    "orderedList": "Ordered List",
-    "taskList": "Task List",
-    "insert": "Insert",
-    "codeBlock": "Code block",
-    "mathBlock": "Math block",
-    "headingNumbering": "Toggle document heading numbering"
-  },
-  "image_insert": {
-    "title": "Insert Image",
-    "description": "Enter an image URL or choose an image from your computer.",
-    "url_label": "Image URL",
-    "url_placeholder": "https://example.com/image.png",
-    "insert_url": "Insert",
-    "invalid_url": "Enter a valid HTTP or HTTPS image URL.",
-    "local_filter": "Images",
-    "select_local": "Choose Local Image",
-    "selecting_local": "Choosing...",
-    "local_error": "The selected image could not be opened or read. Try again.",
-    "local_behavior_hint": "Local images follow Settings > Image > Local image insertion behavior."
-  },
-  "image_preview": {
-    "toolbar": "Image preview controls",
-    "zoom_out": "Zoom out",
-    "zoom_in": "Zoom in",
-    "actual_size": "Actual size",
-    "fit_to_window": "Fit to window"
-  },
-  "action": {
-    "bookmark": "bookmark",
-    "bookmarked": "bookmarked",
-    "done": "done",
-    "edit": "edit",
-    "more": "more",
-    "save": "save",
-    "unsave": "unsave",
-    "create_file": "Create a new file",
-    "save_and_close": "Save and close",
-    "save_and_continue": "Save and continue",
-    "unsave_and_close": "Direct Close",
-    "continue_without_save": "Continue without saving",
-    "convert_text": "Simplified transformation",
-    "convert_simplified_to_traditional_tw": "Simplified → Traditional (Taiwan)",
-    "convert_simplified_to_traditional_hk": "Simplified → Traditional (Hong Kong)",
-    "convert_traditional_to_simplified": "Traditional → Simplified"
-  },
-  "confirm": {
-    "move": {
-      "description": "Are you sure you want to move the \"{{name}}\"?"
-    },
-    "replace": {
-      "description": "A file or folder with the name \"{{name}}\" already exists in the destination folder. Do you want to replace it?"
-    },
-    "delete": {
-      "description": "Are you sure you want to delete the \"{{name}}\" {{something}}?"
-    },
-    "trash": {
-      "description": "Are you sure you want to move the \"{{name}}\" to the trash?"
-    },
-    "edit_filename_cancel": {
-      "description": "Do you want to save the rename content?"
-    },
-    "close": {
-      "title": "Do you want to save the changes?",
-      "description": "You have unsaved files, are you sure you want to exit?"
-    },
-    "continue": {
-      "description": "You have unsaved changes. Do you want to save them before continuing?"
-    }
-  },
-  "error": {
-    "unsupported_file_format": "Unsupported file format"
-  },
-  "sidebar": {
-    "move_left": "Move to left",
-    "move_right": "Move to right",
-    "panel_actions": "Panel actions",
-    "reset_layout": "Restore default sidebar layout",
-    "drag_hint": "Drag to move · Right-click for options",
-    "move_explorer_command": "Files: Move to the other side",
-    "move_search_command": "Search: Move to the other side",
-    "move_bookmarks_command": "Bookmarks: Move to the other side",
-    "move_toc_command": "Outline: Move to the other side",
-    "move_ai_command": "AI: Move to the other side",
-    "outline_collapse": "Collapse",
-    "outline_expand": "Expand",
-    "outline_collapse_all": "Collapse all headings",
-    "outline_expand_all": "Expand all headings",
-    "outline_hide_generated_numbers": "Hide automatic numbering",
-    "outline_show_generated_numbers": "Show automatic numbering",
-    "explorer": "explorer",
-    "search": "search",
-    "bookmarks": "Bookmarks",
-    "leftDock": "Left Dock",
-    "rightDock": "Right Dock",
-    "table_of_contents": "Table of Contents",
-    "heading_numbering": "Toggle document heading numbering",
-    "heading_numbering_add": "Add document heading numbering",
-    "heading_numbering_remove": "Remove document heading numbering",
-    "heading_numbering_description": "Numbering is written to Markdown.",
-    "no_heading_lines": "No heading lines found"
-  },
-  "bookmarks": {
-    "path": "Path",
-    "name": "Name",
-    "tags": "Tags",
-    "tag_placeholder": "Add a tag",
-    "create_tag": "Create",
-    "remove_tag": "Remove {{tag}}",
-    "no_tags_found": "No tags found.",
-    "empty": "No bookmarks",
-    "loading": "Loading bookmarks…",
-    "loadError": "Couldn’t load bookmarks",
-    "retry": "Retry",
-    "viewByTags": "Group by tag",
-    "viewAsList": "Show as list",
-    "removed": "“{{title}}” removed",
-    "undo": "Undo",
-    "removeFailed": "Couldn’t delete the bookmark",
-    "saving": "Saving…",
-    "saveError": "Couldn’t save the bookmark.",
-    "sort": "Sort bookmarks",
-    "sortNameAsc": "Name: A to Z",
-    "sortNameDesc": "Name: Z to A",
-    "sortNewest": "Newest first",
-    "sortOldest": "Oldest first",
-    "untagged": "Untagged",
-    "saveConflict": "Bookmarks changed in another window. Your edits are still here. Reload before saving again.",
-    "noLongerExists": "This bookmark was deleted in another window. Your edits are still here.",
-    "reloadBookmark": "Reload and replace current edits",
-    "reloadLibrary": "Reload latest bookmarks",
-    "legacyCleanupWarning": "Your bookmarks were upgraded, but the previous bookmark file could not be removed. Retry to finish cleanup.",
-    "legacyConflictWarning": "A previous bookmark file has not been migrated or has changed. It has been kept, and your current bookmarks remain available."
-  },
-  "welcome": {
-    "title": "Welcome back to {{appName}}",
-    "subtitle": "A focused workspace for Markdown",
-    "getStarted": "Get Started",
-    "recentWorkspaces": "Recent Workspaces",
-    "emptyEditorDescription": "Choose a file from the sidebar or start a new document.",
-    "openWorkspaceError": "Couldn’t open this workspace"
-  },
-  "statusBar": {
-    "label": "Status bar",
-    "words": "words",
-    "chars": "chars",
-    "pureChars": "pure chars",
-    "pureCharsOption": "pure chars (no spaces or line breaks)",
-    "displaySettings": "Display Settings"
-  },
-  "titleBar": {
-    "label": "Window title bar",
-    "minimize": "Minimize window",
-    "maximize": "Maximize window",
-    "restore": "Restore window"
-  },
-  "zenMode": {
-    "openFileFirst": "Open a document to enter Zen Mode",
-    "exitHint": "Zen Mode · Press {{shortcut}} or Escape twice to exit",
-    "shortcutFallback": "Cmd/Ctrl+Shift+F"
-  },
-  "explorer": {
-    "collapse_folders": "Collapse folders",
-    "refresh_folder_data": "Refresh Folder Data",
-    "focus_active_file": "Focus on the current file",
-    "sort": "Sort files",
-    "sort_name_asc": "Name: A to Z",
-    "sort_name_desc": "Name: Z to A"
-  },
-  "file": {
-    "save_dialog_title": "Save File",
-    "read_failed": "Failed to read file content",
-    "binary_not_openable": "Binary files cannot be opened as text",
-    "untitled": "untitled",
-    "not_found": "File not found",
-    "openDir": "Open Folder",
-    "openFolderInNewWindow": "Open Folder in New Window",
-    "closeFolder": "Close Folder",
-    "closeDocument": "Close document",
-    "renameErrors": {
-      "empty": "Enter a file name.",
-      "invalid": "Use a valid file name without path separators or reserved characters.",
-      "exists": "A file with this name already exists."
-    },
-    "openFile": "Open a File",
-    "recentDir": "Recently opened folders",
-    "emptyOpened": "No files opened",
-    "emptyFolder": "Empty folder",
-    "unsupportedFileType": "Unsupported file type",
-    "unsupportedFileTypeDesc": "This file format is not currently supported for viewing or editing.",
-    "unsupportedFileTypeLink": "Request support on GitHub",
-    "lastModified": "Last Updated",
-    "size": "File Size",
-    "info": "File Information",
-    "newTab": "New Tab",
-    "path": "File Path",
-    "clearRecent": "Clear Recent",
-    "openFolderModal": {
-      "title": "How do I open a folder?",
-      "currentWindow": "Current Window",
-      "newWindow": "New Window"
-    }
-  },
-  "about": {
-    "description": "AI-powered cross-platform Markdown editor.",
-    "powered_by_tauri": "Powered by Tauri {{version}}",
-    "label": "About",
-    "version": "Version",
-    "newVersion": "New version",
-    "install": "Install",
-    "author": "Author",
-    "release": "Release",
-    "website": "Website",
-    "feedback": "feedback",
-    "issues": "Issues",
-    "license": "License",
-    "current": "current version"
-  },
-  "contextmenu": {
-    "label": "Context menu",
-    "explorer": {
-      "new": "New",
-      "add_file": "New file",
-      "add_folder": "New folder",
-      "rename": "Rename",
-      "delete_file": "Delete file",
-      "delete_folder": "Delete folder",
-      "moveto_trash": "Move to trash",
-      "copy": "Copy",
-      "duplicate_file": "Duplicate file",
-      "copy_to": "Copy to…",
-      "copy_to_title": "Copy to folder",
-      "absolute_path": "Absolute path",
-      "relative_path": "Relative path",
-      "duplicate_success": "Created copy: {{name}}",
-      "copy_to_success": "Copied {{name}} to {{folder}}",
-      "copy_failed": "Could not copy file: {{reason}}",
-      "copy_path": "Copy path",
-      "copy_relative_path": "Copy relative path",
-      "show_in_folder": "Show in Folder"
-    },
-    "editor_tab": {
-      "close": "Close",
-      "unsaved": "Unsaved changes",
-      "previous": "Previous tab",
-      "next": "Next tab",
-      "close_others": "Close others",
-      "close_right": "Close right",
-      "close_all": "Close all",
-      "export_html": "Export to HTML",
-      "export_pdf": "Print / Export PDF",
-      "export_pdf_failed": "Unable to prepare this document for printing.",
-      "export_pdf_image_warning": "{{count}} image(s) could not be loaded. Their alternative text will be printed instead.",
-      "export_pdf_embedded_media": "Interactive content",
-      "export_pandoc": "Export with Pandoc",
-      "export_pandoc_docx": "Word document (.docx)",
-      "export_pandoc_odt": "OpenDocument text (.odt)",
-      "export_pandoc_epub": "EPUB book (.epub)",
-      "export_pandoc_format": "Export to {{format}}",
-      "export_pandoc_exporting": "Exporting to {{format}}...",
-      "export_pandoc_success": "Exported to {{path}}",
-      "export_pandoc_warning": "Exported to {{path}}, but Pandoc returned {{count}} warning(s).",
-      "export_pandoc_setup_title": "Pandoc is not available",
-      "export_pandoc_setup_desc": "Install Pandoc or select its executable to export DOCX, ODT, and EPUB files.",
-      "export_pandoc_install": "Installation guide",
-      "export_pandoc_select": "Select executable",
-      "export_pandoc_error_not_found": "Pandoc was not found. Install it or configure its executable path in Export settings.",
-      "export_pandoc_error_invalid_executable": "The selected file is not a valid Pandoc executable.",
-      "export_pandoc_error_unsupported_format": "This Pandoc installation does not support the selected export format.",
-      "export_pandoc_error_conversion_failed": "Pandoc could not convert this document.",
-      "export_pandoc_error_timed_out": "Pandoc export timed out after 120 seconds.",
-      "export_pandoc_error_output_commit_failed": "The converted file could not replace the destination file.",
-      "export_pandoc_failed_title": "Pandoc export failed",
-      "export_pandoc_copy_error": "Copy error details",
-      "export_pandoc_copied": "Error details copied",
-      "export_pandoc_copy_failed": "Could not copy error details.",
-      "export_pandoc_error_code": "Error code",
-      "export_pandoc_exit_code": "Exit code",
-      "export_pandoc_error_message": "Message",
-      "export_pandoc_error_details": "Details",
-      "export_image": "Export to Image",
-      "keep_open": "Keep Open",
-      "preview": "Preview tab",
-      "preview_hint": "Preview tab — double-click to keep open"
-    }
-  },
-  "notification": {},
-  "search": {
-    "mode": "Search in",
-    "modeContent": "Contents",
-    "modeFilename": "File names",
-    "filename": "Search file names",
-    "filenameReadyDesc": "Enter a file name, then press Enter or click search",
-    "filenameSearchingDesc": "Searching file names in the current workspace",
-    "filenameSummary": "{{files}} files: {{keyword}}",
-    "filenameEmptyDesc": "Try another file name or check your search exclusions",
-    "line": "Line {{number}}:",
-    "search_empty": "Nothing found matching these search terms",
-    "text": "Search",
-    "caseSensitive": "Case sensitive",
-    "toggleExpandAll": "Toggle expand all",
-    "ready": "Ready to search",
-    "readyDesc": "Enter a keyword, then press Enter or click search",
-    "searching": "Searching",
-    "searchingDesc": "Scanning Markdown files in the current workspace",
-    "searchingWithKeyword": "Searching \"{{keyword}}\"...",
-    "resultSummary": "{{files}} files, {{matches}} matches: {{keyword}}",
-    "emptyDesc": "Try another keyword or turn off case sensitivity",
-    "search_failed": "Search failed"
-  },
-  "command": {
-    "id_descriptions": {
-      "app_outlineCollapseAll": "Collapse all headings",
-      "app_outlineExpandAll": "Expand all headings",
-      "app_commandPalette": "Command Palette",
-      "app_quickOpen": "Quick Open",
-      "app_openFolder": "Open a folder",
-      "app_openSetting": "Open the Settings window",
-      "app_toggleLeftsidebarVisible": "Toggle left sideBar visible",
-      "app_toggleRightsidebarVisible": "Toggle right sideBar visible",
-      "app_toggleZenMode": "Toggle Zen Mode",
-      "app_save": "Save current active edit file",
-      "app_findReplaceEditor": "Find and replace in editor",
-      "app_closeCurrentEditorTab": "Close current editor tab",
-      "app_hide": "Hide the application",
-      "app_toggleEditorType": "Toggle source code / WYSIWYG mode",
-      "app_splitEditorRight": "Split editor right",
-      "app_splitEditorDown": "Split editor down",
-      "editor_copy": "Copy selected text in editor",
-      "editor_cut": "Cut selected text in editor",
-      "editor_redo": "Redo",
-      "editor_undo": "Undo",
-      "editor_paste": "Paste selected text in editor",
-      "editor_toggleStrong": "toggle to bold mark",
-      "editor_toggleEmphasis": "toggle to italic mark",
-      "editor_toggleCodeText": "toggle to code mark",
-      "editor_toggleDelete": "toggle to delete mark",
-      "editor_insertCurrentDate": "Insert current date",
-      "editor_toggleH1": "toggle to H1",
-      "editor_toggleH2": "toggle to H2",
-      "editor_toggleH3": "toggle to H3",
-      "editor_toggleH4": "toggle to H4",
-      "editor_toggleH5": "toggle to H5",
-      "editor_toggleH6": "toggle to H6",
-      "app_keepEditorOpen": "Keep Open",
-      "editor_insertCodeBlock": "Insert code block",
-      "editor_insertMathBlock": "Insert math block",
-      "app_zoomIn": "Zoom in",
-      "app_zoomOut": "Zoom out",
-      "app_zoomReset": "Reset zoom to 100%"
-    }
-  },
-  "text_encoding": {
-    "label": "Text encoding and line endings",
-    "encoding": "Text encoding",
-    "description": "Reopen reads this file from disk using the selected encoding. Save with encoding converts the current text. Existing line endings are preserved.",
-    "mixed_endings": "Mixed line endings",
-    "no_endings": "No line endings",
-    "unconfirmed": "Unconfirmed",
-    "confirm_hint": "The encoding was inferred from the content or restored from an older draft. Check that the text looks correct before saving with the selected encoding.",
-    "roundtrip_hint": "This file contains nonstandard byte mappings. After editing, explicitly convert it to another encoding.",
-    "preview_hint": "Preview of the first 4,000 characters. A recovery draft of the current content will be kept before applying.",
-    "preview_reopen": "Preview reopening",
-    "apply_reopen": "Apply reopening",
-    "save_with_encoding": "Save with this encoding",
-    "save_failed": "Not saved yet. Your content and encoding selection have been kept. Check the save message and try again.",
-    "errors": {
-      "invalid_encoding": "This file cannot be read with the selected encoding. Preview another encoding and check the text before reopening it.",
-      "unsupported_encoding": "The file encoding could not be identified or is not supported. Open Text encoding and line endings, select an encoding, and preview it before reopening.",
-      "binary": "This file contains binary data and cannot be opened as text.",
-      "invalid_bom": "The file’s encoding marker (BOM) does not match the selected encoding. Choose the matching encoding and try again.",
-      "unmappable": "The current encoding cannot save some characters. Your content is still in the editor. Save as UTF-8, or remove the unsupported characters and try again.",
-      "unmappable_character": "{{encoding}} cannot save the character “{{character}}”. Your content is still in the editor. Save as UTF-8, or remove this character and try again.",
-      "confirm_encoding": "The detected encoding has not been confirmed. Your content is still in the editor. Open Text encoding and line endings, preview the text, then choose Save with this encoding.",
-      "noncanonical": "The original byte mapping cannot be preserved after editing. Choose a different encoding such as UTF-8, or save a copy.",
-      "not_reversible": "The selected encoding would change some characters. Choose UTF-8 or another encoding that preserves the complete text before saving.",
-      "ambiguous_bom": "The text begins with an invisible encoding marker. Choose the BOM variant of the current Unicode encoding before saving.",
-      "finish_input": "Finish the current text input before trying again.",
-      "save_first": "Save the file before previewing another encoding.",
-      "retry_read": "The file is changing. Wait for the changes to finish, then preview it again.",
-      "preview_again": "The document or its file has changed. Preview it again before applying the new encoding.",
-      "draft_pending": "The current content has not yet been protected by a recovery draft. Try again before reopening the file.",
-      "invalid_unicode": "The text contains an invalid character sequence. The original file was not written. Correct the affected text and try again.",
-      "save_failed": "Not saved yet. Your content is still in the editor. Check that the file is writable and try again, or save a copy.",
-      "read_failed": "Unable to read the file. Check that it still exists and you have permission to read it, then try again.",
-      "preview_failed": "The encoding operation could not be completed. Your current content has been kept. Please try again."
-    }
-  },
-  "settings": {
-    "select_placeholder": "Select an option",
-    "font_placeholder": "Select a font",
-    "select_folder": "Select Folder",
-    "value_placeholder": "Enter a value…",
-    "edit_item": "Edit item",
-    "delete_item": "Delete item",
-    "label": "Setting",
-    "back_to_app": "Back to app",
-    "back_to_settings": "Back to settings",
-    "search_placeholder": "Search settings...",
-    "search_empty": "No matching settings",
-    "search_results": "{{count}} results",
-    "navigation": {
-      "preferences": "Preferences",
-      "writing": "Writing & files",
-      "ai": "AI",
-      "help": "Help"
-    },
-    "general": {
-      "startup": {
-        "label": "Startup",
-        "left": "Left sidebar on startup",
-        "right": "Right sidebar on startup",
-        "restore": "Restore last state",
-        "description": "Applies the next time the app starts. Restore remembers the selected panel and whether the sidebar was open."
-      },
-      "label": "general",
-      "app": {
-        "label": "application",
-        "open_file_in_new_window": {
-          "label": "Open single files in a new window",
-          "desc": "Open standalone files outside the current workspace in a new window. Files in the current workspace stay in the current window. Turn off to open all files in the current window."
-        },
-        "automatic_updates": {
-          "label": "Automatic update",
-          "desc": "Automatically check for updates and install them when the application starts."
-        },
-        "error_reporting": {
-          "label": "Share error reports",
-          "desc": "Off by default. Send error types and app code locations to Sentry. Document content, file paths, credentials and browsing activity are excluded. You can turn this off at any time."
-        }
-      },
-      "autosave": {
-        "label": "Autosave",
-        "switch_auto_save": {
-          "label": "Autosave",
-          "desc": "Switch automatic saving. The current file will be automatically saved according to the set time interval."
-        },
-        "autosaveInterval": {
-          "label": "Auto save interval",
-          "desc": "Set the interval of auto save, in milliseconds."
-        }
-      },
-      "misc": {
-        "label": "Miscellaneous",
-        "language": {
-          "label": "Language",
-          "desc": "Set the language of the app."
-        },
-        "file_exclude_patterns": {
-          "label": "File exclusion list",
-          "desc": "Exclude matching files and folders from the explorer and search. One gitignore-style pattern per line.",
-          "placeholder": "e.g. **/node_modules/*"
-        }
-      },
-      "desc": "Common settings for the application."
-    },
-    "editor": {
-      "label": "Editor",
-      "style": {
-        "label": "Style",
-        "full_width": {
-          "label": "Full width",
-          "desc": "Set the editor to full width."
-        },
-        "font_size": {
-          "label": "Document font size",
-          "desc": "Font size for writing and reading."
-        },
-        "line_height": {
-          "label": "Document line height",
-          "desc": "Line height for writing and reading."
-        },
-        "source_font_size": {
-          "label": "Source font size",
-          "desc": "Font size in source mode. Separate from document text."
-        },
-        "source_line_height": {
-          "label": "Source line height",
-          "desc": "Line height in source mode."
-        },
-        "font_family": {
-          "label": "Font family",
-          "desc": "Set the root font family of the editor."
-        },
-        "code_font_family": {
-          "label": "Code font family",
-          "desc": "Set the code font family of the editor."
-        },
-        "first_line_indent": {
-          "label": "First-line indent",
-          "desc": "Indent body paragraphs by two characters in the editor, preview, and exports. Markdown stays unchanged."
-        }
-      },
-      "behavior": {
-        "label": "Behavior",
-        "md_default_mode": {
-          "label": "Markdown Default Mode",
-          "desc": "Sets the default editing mode when creating a new Markdown file."
-        },
-        "text_direction": {
-          "follow_global": "Follow global setting",
-          "label": "Text direction",
-          "desc": "Body text direction in WYSIWYG and Preview. Auto detects the direction of each paragraph.",
-          "auto": "Auto",
-          "ltr": "Left to right (LTR)",
-          "rtl": "Right to left (RTL)"
-        },
-        "typewriter_scroll": {
-          "label": "Typewriter Scroll",
-          "desc": "When enabled, the caret will be centered in the viewport during editing."
-        },
-        "caret_animation": {
-          "label": "Smooth cursor",
-          "desc": "Animate the body text cursor in WYSIWYG mode. Follows the system's reduced-motion preference."
-        },
-        "placeholder": {
-          "label": "Placeholder",
-          "desc": "When enabled, placeholder text will be displayed in empty paragraphs."
-        },
-        "insert_date_format": {
-          "label": "Insert date format",
-          "desc": "Date format used by the Insert current date command. Uses Day.js format tokens, such as YYYY-MM-DD or YYYY-MM-DD HH:mm.",
-          "preview": "Preview:"
-        }
-      },
-      "wysiwyg": {
-        "label": "Wysiwyg",
-        "codemirror_linewrap": {
-          "label": "Code block wrap",
-          "desc": "Whether the line breaks when the number of line words in the code block exceeds."
-        },
-        "live_preview_block_behavior": {
-          "label": "Live preview blocks",
-          "desc": "Choose when source code is shown for HTML, Mermaid, and block math.",
-          "options": {
-            "auto": "Show source only while editing",
-            "always_split": "Always show source and preview"
-          }
-        },
-        "spellcheck": {
-          "label": "Spellcheck",
-          "desc": "Whether to enable spellcheck in Wysiwyg mode."
-        }
-      },
-      "sourcecode": {
-        "label": "Source Code",
-        "spellcheck": {
-          "label": "Spellcheck",
-          "desc": "Whether to enable spellcheck in Source Code mode."
-        }
-      },
-      "desc": "Markdown configuration options for the editor, including settings for style, behavior, and WYSIWYG mode.",
-      "code_editing": {
-        "label": "Code editing",
-        "embedded_label": "Embedded code",
-        "default": "Default",
-        "custom": "Custom",
-        "on": "On",
-        "off": "Off",
-        "indent_style": {
-          "label": "Indentation",
-          "desc": "Shared by source mode and embedded code. The frontmatter source editor always uses spaces.",
-          "spaces": "Spaces",
-          "tabs": "Tabs"
-        },
-        "indent_size": {
-          "label": "Indent width",
-          "desc": "Space indentation defaults to 2 columns. Tabs display as 4 columns in source mode and 2 in embedded code. Choosing a width applies it to both.",
-          "default": "2 columns (tabs vary by mode)"
-        },
-        "auto_close": {
-          "label": "Auto-close brackets and quotes",
-          "desc": "Insert matching brackets and quotes while typing in source mode and embedded code."
-        },
-        "whitespace": {
-          "label": "Show whitespace",
-          "desc": "Display spaces and tabs without changing document content.",
-          "trailing": "Trailing whitespace",
-          "all": "All spaces and tabs"
-        },
-        "line_wrap": {
-          "label": "Wrap long lines",
-          "desc": "Wrap long lines at the edge of the editor without inserting line breaks. Extremely long lines may keep horizontal scrolling.",
-          "mixed_default": "By area (default)",
-          "mixed_desc": "By default, regular code blocks do not wrap; preview source and frontmatter do. Choose On or Off to apply one setting to all areas. Extremely long lines may keep horizontal scrolling."
-        },
-        "line_numbers": {
-          "label": "Line numbers",
-          "desc": "Sparse shows the first line and every tenth line.",
-          "all": "Every line",
-          "sparse": "Sparse"
-        },
-        "active_line": {
-          "label": "Highlight current line",
-          "desc": "Highlight the line containing the caret to make your editing position easier to find."
-        },
-        "font_size": {
-          "label": "Code font size",
-          "desc": "Defaults to 87.5% of the document font size and scales with it. Choose Custom to set a fixed size.",
-          "default": "Follow document ({{value}} px)",
-          "relative_default": "Follow document (87.5%)",
-          "unit": "{{value}} px"
-        },
-        "line_height": {
-          "label": "Code line height",
-          "desc": "Line height is a multiple of the font size. The default is 1.6×; choose Custom to adjust line spacing.",
-          "default": "1.6× (default)",
-          "unit": "{{value}}×"
-        },
-        "default_value": "{{value}} (default)",
-        "typography_disabled": "“Use personal fonts, size and line height” is off. Custom font size and line height are not currently applied."
-      },
-      "tabs": {
-        "label": "Tabs",
-        "enable_preview": {
-          "label": "Enable preview tabs",
-          "desc": "Single-click files in the Explorer or search results to reuse a preview tab. Double-click or edit to keep it open. Saved tabs stay open."
-        }
-      }
-    },
-    "keyboard": {
-      "label": "Keyboard Shortcuts",
-      "shortcut_conflict": "This shortcut is already occupied",
-      "desc": "Search commands and click a shortcut to change it.",
-      "table_label": "Keyboard shortcuts table",
-      "command": "Command",
-      "keybinding": "Keybinding",
-      "scope": "Context",
-      "edit": "Edit",
-      "edit_shortcut": "Edit Shortcut",
-      "shortcut": "Shortcut",
-      "save": "Save",
-      "load_failed": "Unable to load shortcuts. Check the configuration file and retry.",
-      "save_failed": "Unable to save the shortcut. Your previous configuration was kept. Please retry.",
-      "invalid_binding": "Press a valid combination that includes a primary key.",
-      "reserved_binding": "This combination is reserved for typing, navigation or the system clipboard. Choose another.",
-      "unsupported_binding": "The current editor does not support this combination. Choose another.",
-      "conflict_with": "Already used by “{{command}}”. Change that command’s shortcut first.",
-      "saving": "Saving…",
-      "unbound": "Unassigned",
-      "record_help": "Press keys · Enter to save · Esc to cancel",
-      "remove_binding": "Remove shortcut",
-      "reset_default": "Restore default",
-      "clipboard_note": "The system cut shortcut remains available. You can assign an additional cut shortcut here.",
-      "search": "Search commands or shortcuts",
-      "modified_only": "Modified only",
-      "retry": "Retry",
-      "scope_app": "Application",
-      "scope_editor": "Editor",
-      "modified": "Modified",
-      "system_binding": "System shortcut",
-      "no_results": "No matching shortcuts"
-    },
-    "ai": {
-      "label": "AI",
-      "model": {
-        "label": "AI Model"
-      },
-      "ChatGPT": {
-        "label": "ChatGPT",
-        "api_base": {
-          "label": "API Base",
-          "desc": "API Base for ChatGPT."
-        },
-        "api_key": {
-          "label": "API Key",
-          "desc": "API key for ChatGPT."
-        },
-        "models": {
-          "label": "Models",
-          "desc": "A model list separated by commas, default is \"gpt-3.5-turbo, gpt-4-32k, gpt-4\""
-        }
-      },
-      "DeepSeek": {
-        "label": "DeepSeek",
-        "api_base": {
-          "label": "API Base",
-          "desc": "API Base for DeepSeek."
-        },
-        "api_key": {
-          "label": "API Key",
-          "desc": "API key for DeepSeek."
-        },
-        "models": {
-          "label": "Models",
-          "desc": "A model list separated by commas, default is \"\""
-        }
-      },
-      "Ollama": {
-        "label": "Ollama",
-        "api_base": {
-          "label": "API Base",
-          "desc": "API Base for Ollama."
-        },
-        "models": {
-          "label": "Models",
-          "desc": "Available models are discovered automatically by default, so this usually does not need to be configured. Use a comma-separated list only for compatibility or as a fallback when discovery is unavailable."
-        }
-      },
-      "Google": {
-        "label": "Google",
-        "api_base": {
-          "label": "API Base",
-          "desc": "The API address AI by Google."
-        },
-        "api_key": {
-          "label": "API Key",
-          "desc": "Google's AI API key."
-        },
-        "models": {
-          "label": "Model List",
-          "desc": "Model list, separated by commas. The default value is \"\""
-        }
-      },
-      "desc": "AI the model configuration, when the baseUrl is empty, the official address will be requested by default, and the request header can be used to configure information such as keys, please refer to the documentation of the service provider."
-    },
-    "resetAppConf": {
-      "label": "Reset Application Configuration",
-      "desc": "Reset the application configuration to restore the default settings. This will reset all settings, including theme, language, autosave, etc., and cannot be restored.",
-      "success": "The app configuration has been reset to default values."
-    },
-    "image": {
-      "label": "Picture",
-      "paste_event": {
-        "label": "Editor Paste Event",
-        "when_paste_image": {
-          "label": "When pasted text contains a picture",
-          "desc": "Select the default behavior when pasting pictures in the editor.",
-          "options": {
-            "do_nothing": "No Operation",
-            "save_to_local_relative": "Save to workspace relative path",
-            "save_to_local_absolute": "Save to Global Absolute Path",
-            "paste_as_base64": "Paste as Base64 encoding",
-            "save_to_file_relative": "Save to a path relative to the current file"
-          }
-        },
-        "paste_image_save_absolute_path": {
-          "label": "Global Absolute Path",
-          "desc": "When you paste a picture, the picture is saved to this path."
-        },
-        "paste_image_save_relative_path": {
-          "label": "Workspace relative path",
-          "desc": "When \"Paste Picture\", the picture will be calculated relative to the current workspace path according to your rules and saved to this path"
-        },
-        "paste_image_save_relative_path_rule": {
-          "label": "Path Rules",
-          "desc": "Supported variables: ${documentPath} (parent folder path of current file), ${fileName} (current file name without extension). Example: ${documentPath}/photo/${fileName}"
-        }
-      },
-      "upload_img": {
-        "label": "Insert local image",
-        "when_upload_image": {
-          "label": "Local image insertion behavior",
-          "desc": "Choose the default behavior for local images selected from your computer, dropped into the editor, or pasted by screenshot software.",
-          "options": {
-            "insert_path": "Insert the original file path",
-            "save_to_local_absolute": "Save to Global Absolute Path",
-            "save_to_local_relative": "Save to workspace relative path",
-            "paste_as_base64": "Paste as Base64 encoding",
-            "save_to_file_relative": "Save to a path relative to the current file"
-          }
-        },
-        "upload_image_save_absolute_path": {
-          "label": "Global Absolute Path",
-          "desc": "When you upload an image, the image is saved to this path."
-        },
-        "upload_image_save_relative_path": {
-          "label": "Workspace relative path",
-          "desc": "When \"uploading an image\", the image will be calculated relative to the current workspace path according to your rules and saved to this path"
-        },
-        "upload_image_save_relative_path_rule": {
-          "label": "Path Rules",
-          "desc": "Supported variables: ${documentPath} (parent folder path of current file), ${fileName} (current file name without extension). Example: ${documentPath}/photo/${fileName}"
-        }
-      },
-      "desc": "Configuring image processing and upload, including pasting images, saving paths and behavior settings for uploading image files."
-    },
-    "export": {
-      "label": "Export",
-      "desc": "Configure optional tools used to export documents.",
-      "pandoc": {
-        "label": "Pandoc",
-        "executable": {
-          "label": "Pandoc executable",
-          "desc": "Pandoc is not bundled with MarkFlowy. Use automatic detection or select a local executable."
-        },
-        "status": {
-          "checking": "Checking for Pandoc...",
-          "ready": "Pandoc {{version}} is ready.",
-          "invalid_executable": "The configured path is not a valid Pandoc executable.",
-          "incompatible": "Pandoc was found, but it does not support all required formats.",
-          "not_found": "Pandoc was not found."
-        },
-        "select": "Select executable",
-        "automatic": "Use automatic detection",
-        "check_again": "Check again",
-        "install_guide": "Installation guide"
-      },
-      "pdf": {
-        "label": "PDF export",
-        "executable": {
-          "label": "PDF export browser",
-          "desc": "MarkFlowy uses a local Chrome, Chromium, or Edge browser to export PDF with heading bookmarks. Detect it automatically or select its executable."
-        },
-        "status": {
-          "checking": "Checking for a PDF export browser…",
-          "ready": "Browser {{version}} is ready.",
-          "invalid_executable": "The configured path is not a valid supported browser executable.",
-          "incompatible": "The browser was found, but its version does not support PDF heading bookmarks.",
-          "not_found": "No compatible PDF export browser was found.",
-          "save_failed": "The browser setting could not be saved. Try again."
-        },
-        "select": "Choose browser…",
-        "automatic": "Auto-detect",
-        "check_again": "Check again"
-      }
-    },
-    "display": {
-      "label": "Appearance",
-      "theme": {
-        "unavailable": "{{name}} (unavailable)",
-        "unavailable_help": "Selected themes are unavailable: {{names}}. Built-in themes are used temporarily and your selections are retained. Reimport the themes as JSON or choose another theme. Older JS themes and automatically loaded CSS need manual migration.",
-        "migration_guide": "Theme migration guide",
-        "label": "Theme",
-        "mode": {
-          "label": "Theme Mode",
-          "desc": "Choose how the app switches between light and dark themes",
-          "system": "Follow System",
-          "light": "Light",
-          "dark": "Dark"
-        },
-        "light_theme": {
-          "label": "Light Theme",
-          "desc": "Select the theme used in light mode"
-        },
-        "dark_theme": {
-          "label": "Dark Theme",
-          "desc": "Select the theme used in dark mode"
-        },
-        "accent_color": {
-          "label": "Theme Color",
-          "desc": "Override the selected theme's accent color",
-          "follow_theme": "Follow Theme",
-          "custom": "Custom"
-        }
-      },
-      "size": {
-        "label": "Dimensions",
-        "zoom": {
-          "label": "Scaling",
-          "desc": "Scales or enlarges the display scale of the entire page"
-        }
-      },
-      "desc": "Appearance and display settings for the application, including visually relevant configurations such as interface scaling and themes."
-    },
-    "updates": {
-      "label": "Updates",
-      "desc": "Check for updates at startup. Download and install only when you choose to.",
-      "checks": "Update checks",
-      "interval": "Check while the app is running",
-      "interval_desc": "Checks run only while MarkFlowy is open. Every launch also checks for updates.",
-      "interval_0": "At startup only",
-      "interval_60": "Every hour",
-      "interval_120": "Every 2 hours",
-      "interval_240": "Every 4 hours"
-    },
-    "support": {
-      "label": "Support",
-      "desc": "Your every support is important to us! To make this open source project better, you can participate in the following ways",
-      "github_star": "Light up Star on GitHub",
-      "github_star_desc": "If you like this project, please give us a Star on GitHub, this is our greatest encouragement!",
-      "github_issue": "Submit Issue or Proposal",
-      "github_issue_desc": "If you encounter problems or have any suggestions, please submit your Issue on GitHub."
-    },
-    "copilot": {
-      "label": "Copilot",
-      "desc": "AI the auxiliary writing configuration, select the AI supplier and model that you have configured. It is recommended to select a small model with a parameter amount of about 2b or less to improve the response speed.",
-      "enable": {
-        "label": "Enable Copilot",
-        "desc": "Enable AI-assisted writing"
-      },
-      "provider": {
-        "label": "Supplier",
-        "desc": "Select AI Service Provider"
-      },
-      "model": {
-        "label": "Model",
-        "desc": "Select the AI model to use"
-      }
-    },
-    "themeStore": {
-      "controls": {
-        "retryPreview": "Retry preview",
-        "loadingPreview": "Loading theme preview",
-        "reinstall": "Reinstall",
-        "builtIn": "Built-in themes",
-        "builtInDescription": "Included with MarkFlowy.",
-        "local": "Local themes",
-        "localDescription": "Themes you created or imported.",
-        "active": "In use",
-        "currentTheme": "Current theme",
-        "tools": "Theme tools",
-        "more": "More actions",
-        "customization": "Typography & CSS",
-        "unknownAuthor": "Author not specified",
-        "noInstalled": "No community themes installed yet.",
-        "installedOnly": "Installed only",
-        "title": "Themes",
-        "create": "Create theme",
-        "import": "Import JSON",
-        "export": "Export JSON",
-        "edit": "Edit",
-        "copy": "Copy and edit",
-        "remove": "Remove",
-        "apply": "Apply",
-        "save": "Save and apply",
-        "close": "Close",
-        "undo": "Undo",
-        "redo": "Redo",
-        "search": "Find a token…",
-        "modified": "Modified only",
-        "reset": "Reset",
-        "link": "Link to token",
-        "value": "Value",
-        "inspect": "Inspect preview",
-        "snippets": "Personal CSS snippets",
-        "addCss": "Import CSS",
-        "createCss": "New snippet",
-        "untitledCss": "Untitled snippet",
-        "disableAll": "Disable all",
-        "includeCss": "Include personal CSS",
-        "up": "Move up",
-        "down": "Move down",
-        "name": "Name",
-        "author": "Author",
-        "variant": "Variant",
-        "addLight": "Add light variant",
-        "addDark": "Add dark variant",
-        "advanced": "Advanced JSON / CSS",
-        "options": "Theme options",
-        "previewOptions": "Preview options",
-        "closeAdvanced": "Close advanced editor",
-        "noTokens": "No matching tokens",
-        "css": "Theme CSS",
-        "json": "Theme JSON",
-        "applyJson": "Update from JSON",
-        "revertJson": "Discard JSON edits",
-        "pendingJson": "Apply or discard the JSON edits to continue visual editing and export.",
-        "catalog": "Community themes",
-        "install": "Install",
-        "emptyCatalog": "No community themes available yet.",
-        "replace": "This theme ID already exists. Replace it?",
-        "replaceAction": "Replace",
-        "cancel": "Cancel",
-        "saveCopy": "Save a copy",
-        "draft": "A local draft is available.",
-        "resume": "Resume draft",
-        "discard": "Discard draft",
-        "preview": "Theme preview",
-        "loadError": "Could not load the editor preview.",
-        "retry": "Retry",
-        "linked": "Linked",
-        "inherited": "Default",
-        "customCss": "Custom CSS may override the inspected token.",
-        "preferences": "Preview shows only the theme. Your chosen personal preferences also apply when using it.",
-        "personalTypography": "Use personal fonts, size and line height",
-        "saved": "Saved",
-        "error": "Error",
-        "enabled": "Enabled",
-        "editCss": "Edit CSS",
-        "saveCss": "Save snippet",
-        "insertCssTemplate": "Insert template",
-        "cssSelectorReference": "Selector reference",
-        "cssPreviewHint": "Preview includes this draft and other enabled snippets. Save to apply your changes.",
-        "enableCssAfterSave": "Enable after saving",
-        "cssTemplateCompletedTasks": "Completed task strikethrough",
-        "cssTemplateHeadingDividers": "Heading dividers",
-        "cssTemplateCompactTables": "Compact tables",
-        "cssTemplateQuoteAccent": "Quote accent",
-        "noSnippets": "No personal CSS snippets.",
-        "deleteConfirm": "Remove this theme?",
-        "removeVariant": "Remove variant",
-        "schema": "Export JSON Schema",
-        "light": "Light",
-        "dark": "Dark",
-        "catalogMismatch": "The theme ID does not match the community catalog.",
-        "previewNotes": "Notes",
-        "previewIdeas": "Ideas",
-        "previewWelcome": "Welcome",
-        "previewSearch": "Search preview",
-        "previewSearchPlaceholder": "Search…",
-        "previewNewNote": "New note",
-        "changeTheme": "Change",
-        "changeLight": "Change light theme",
-        "changeDark": "Change dark theme",
-        "useInLight": "Used in light mode",
-        "useInDark": "Used in dark mode",
-        "browseThemes": "Browse all themes",
-        "backToAppearance": "Back to appearance",
-        "chooseLight": "Choose a light theme",
-        "chooseDark": "Choose a dark theme",
-        "preserveMode": "Selecting a theme keeps your current display mode.",
-        "selected": "Selected",
-        "setLight": "Set as light theme",
-        "setDark": "Set as dark theme",
-        "noLightVariant": "No light variant",
-        "noDarkVariant": "No dark variant",
-        "installAndSelect": "Install and select",
-        "noMatchingThemes": "No community themes available for this mode.",
-        "openCssDirectory": "Open CSS folder",
-        "cssDirectoryHint": "CSS files in this folder sync automatically. New files start disabled; edit or delete them in the folder.",
-        "externalCssFile": "External file",
-        "revealCssFile": "Show in folder"
-      },
-      "label": "Theme Store",
-      "desc": "Browse built-in and community themes, or customize your own.",
-      "submit_theme": "Submit theme",
-      "name": "Name",
-      "mode": "Mode",
-      "version": "Version",
-      "author": "Author",
-      "description": "Description",
-      "tags": "Label",
-      "action": "Operation",
-      "official": "Official",
-      "builtin": "Built-in",
-      "installed": "Installed",
-      "download": "Download",
-      "uninstall": "Unload",
-      "only_installed": "Only see installed",
-      "no_local_themes": "No local theme",
-      "remove_local_theme": "Are you sure you want to remove the local theme \"{{name}}\"? This will delete the files under the folder.",
-      "online_themes": "Online Themes",
-      "local_css_files": "Local CSS file",
-      "install_theme": "Install Theme",
-      "install_theme_confirm": "Are you sure you want to install {{name}}?",
-      "uninstall_theme": "Uninstall Theme",
-      "uninstall_theme_confirm": "Are you sure you want to uninstall {{name}}?"
-    }
-  },
-  "updater": {
-    "install": "install",
-    "download_and_install": "Download and install",
-    "view_release_notes": "View release notes",
-    "downloading": "Downloading new version…",
-    "install_success": "Update installed successfully.",
-    "restart": "Restart",
-    "install_failed": "Unable to install the update: {{error}}",
-    "check_failed": "Unable to check for updates: {{error}}",
-    "interrupted_title": "Update not completed",
-    "interrupted_description": "The previous update to {{version}} did not complete. Automatic installation is paused. You can retry, disable automatic updates, or cancel to continue using MarkFlowy.",
-    "disable_auto_update": "Disable automatic updates"
-  },
-  "workspace": {
-    "info": "Workspace Information",
-    "none": "Workspace is not open",
-    "searchPlaceholder": "Search recent workspaces and files…",
-    "open": "Open",
-    "openFileOrFolder": "Open File or Folder",
-    "recentFiles": "Recent Files",
-    "sync_mode": {
-      "git_local": {
-        "name": "Git Local",
-        "description": "Synchronize with local Git repository"
-      },
-      "git_remote": {
-        "name": "Git Remote",
-        "description": "Synchronize with remote Git repository"
-      },
-      "pure_local": {
-        "name": "Pure Local",
-        "description": "Local Workspace Only"
-      }
-    },
-    "label": "Book"
-  },
-  "request": {
-    "headers_config": {
-      "label": "Configure Request Header",
-      "desc": "Add custom HTTP request headers to support multiple key-value pairs."
-    }
-  },
-  "ai": {
-    "capabilities": "Function",
-    "export_conversation": "Export conversation",
-    "assistant": "Chat AI",
-    "you": "You",
-    "sources": "Sources",
-    "response_interrupted": "Response stopped",
-    "error": "Error",
-    "request_failed": "Request failed",
-    "settings": "Settings",
-    "new_chat": "New chat",
-    "welcome_title": "How can I help you today?",
-    "welcome_description": "Ask questions, explore ideas, or add the current document as context.",
-    "try_asking": "Try asking",
-    "prompt_document_title": "Summarize this document",
-    "prompt_document_description": "Use the active document as context",
-    "prompt_document_value": "Summarize the current document and highlight the key points.",
-    "prompt_explain_title": "Explain a topic",
-    "prompt_explain_description": "Break down something complex clearly",
-    "prompt_explain_value": "Explain this topic clearly with a practical example: ",
-    "ask_placeholder": "Ask anything… Use @ for context",
-    "current_document": "Current document",
-    "no_active_document": "No active document",
-    "select_model": "Select model",
-    "search_models": "Search models…",
-    "no_models_found": "No models found",
-    "no_models_configured": "No AI models configured",
-    "model_unavailable": "This model is unavailable",
-    "select_available_model": "Select an available model to send",
-    "provider_not_configured": "{{provider}} is not configured",
-    "configure_provider": "Configure {{provider}}",
-    "provider_settings": "{{provider}} settings",
-    "manage_providers": "Manage AI providers",
-    "ollama_connecting": "Connecting to Ollama…",
-    "ollama_offline": "Ollama is offline",
-    "ollama_empty": "No compatible Ollama models found",
-    "ollama_retry": "Retry",
-    "add_context": "Add context",
-    "add_active_file": "Add active file",
-    "add_open_tabs": "Add open tabs",
-    "search_open_tabs": "Search open tabs…",
-    "no_open_tabs": "No open tabs",
-    "no_context_files_available": "No more open files to add",
-    "selected_context_files": "Context files ({{count}}/8)",
-    "context_limit_reached": "You can add up to 8 files",
-    "remove_attachment": "Remove {{name}}",
-    "attachment_missing": "File no longer exists",
-    "attachment_unreadable": "File could not be read",
-    "attachment_binary": "Only text files can be used as context",
-    "attachment_too_many": "You can attach up to 8 files",
-    "attachment_truncated": "Content truncated to fit the context limit",
-    "attachment_errors": "Fix attachment errors before sending",
-    "send": "Send",
-    "stop": "Stop",
-    "working": "Assistant is working",
-    "scroll_to_bottom": "Scroll to bottom",
-    "edit": "Edit",
-    "save_edit": "Save changes",
-    "cancel_edit": "Cancel editing",
-    "regenerate": "Regenerate",
-    "previous_branch": "Previous branch",
-    "next_branch": "Next branch",
-    "branch_position": "{{current}} of {{total}}",
-    "copy": "Copy",
-    "copied": "Copied",
-    "delete": "Delete",
-    "new_chat_confirm_title": "Start a new conversation?",
-    "new_chat_confirm_description": "This clears the conversation in the current workspace.",
-    "new_chat_confirm": "Start new conversation",
-    "cancel": "Cancel",
-    "export_empty": "There is no conversation to export"
-  },
-  "capricorn": {
-    "heading": {
-      "collapseSection": "Collapse section",
-      "expandSection": "Expand section"
-    },
-    "blockTypeMenu": {
-      "title": "Convert to",
-      "multiple": "Convert {{count}} blocks",
-      "search": "Search block types…",
-      "noResults": "No matching block types",
-      "group": {
-        "text": "Text",
-        "list": "Lists",
-        "source": "Source"
-      },
-      "hint": "↑↓ Select · Enter Convert · Esc Cancel",
-      "reason": {
-        "readOnly": "This document cannot be edited.",
-        "unsupported": "The selection contains a block that cannot be converted.",
-        "containers": "Select consecutive blocks within the same container to combine them.",
-        "html": "The content must be a standalone HTML source block.",
-        "math": "A formula cannot preserve this source's delimiters or boundary blank lines.",
-        "stale": "The selected blocks have changed. Open the menu again."
-      }
-    },
-    "blockHandle": {
-      "convertOrMove": "Click to convert · Drag to move",
-      "convert": "Convert {{target}}",
-      "kind": {
-        "block": "block",
-        "blockquote": "quote",
-        "code": "code",
-        "footnote": "footnote",
-        "frontmatter": "front matter",
-        "heading1": "heading 1",
-        "heading2": "heading 2",
-        "heading3": "heading 3",
-        "heading4": "heading 4",
-        "heading5": "heading 5",
-        "heading6": "heading 6",
-        "horizontalRule": "separator",
-        "html": "HTML",
-        "listBullet": "bullet list item",
-        "listOrdered": "ordered list item",
-        "listTask": "task list item",
-        "math": "math",
-        "mermaid": "Mermaid diagram",
-        "paragraph": "paragraph",
-        "rawMarkdown": "raw Markdown",
-        "reference": "reference",
-        "table": "table"
-      },
-      "moveOrSelect": "Move or select {{target}}",
-      "select": "Select {{target}}"
-    },
-    "selection": {
-      "selectAllHint": "Press {{shortcut}} again to select the entire document",
-      "selectAllTableHint": "Press {{shortcut}} again to select the entire table"
-    },
-    "selectionToolbar": {
-      "label": "Text formatting",
-      "bold": "Bold",
-      "italic": "Italic",
-      "strike": "Strikethrough",
-      "highlight": "Highlight",
-      "link": "Insert link"
-    },
-    "placeholder": {
-      "default": "Type '/' for commands"
-    },
-    "clipboard": {
-      "copied_markdown": "Copied as Markdown",
-      "cut_markdown": "Cut as Markdown",
-      "retained": "Copied. The original content was kept.",
-      "failed": "Clipboard write failed. The original was kept."
-    },
-    "livePreview": {
-      "largeDeferred": "Large preview is paused. Full source remains available.",
-      "renderLarge": "Render large preview (may take a while)",
-      "actions": "{{kind}} block actions",
-      "copied": "Copied source",
-      "copy": "Copy source",
-      "copying": "Copying source…",
-      "editSource": "Edit source",
-      "editSourceForKind": "Edit {{kind}} source",
-      "hideSource": "Hide source",
-      "kind": {
-        "html": "HTML",
-        "math": "Math",
-        "mermaid": "Mermaid"
-      },
-      "preview": "{{kind}} preview",
-      "retryCopy": "Retry copying source",
-      "sourceEditor": "{{kind}} source editor"
-    },
-    "sourceFallback": {
-      "longLine": "Very long lines scroll horizontally to keep the source responsive.",
-      "loading": "Preparing source view…",
-      "truncated": "Only the initial excerpt is shown while the complete source view loads."
-    },
-    "link": {
-      "title": "Title",
-      "markdown": "Edit Markdown",
-      "remove": "Remove link",
-      "copy": "Copy address",
-      "copyFailed": "Could not copy address.",
-      "sharedReference": "Address and title changes apply to every link using this reference.",
-      "open": "Open link",
-      "actions": "Link actions",
-      "edit": "Edit link",
-      "text": "Text",
-      "address": "Address",
-      "save": "Save link",
-      "cancel": "Cancel",
-      "invalidAddress": "Enter a valid link address."
-    },
-    "image": {
-      "unavailable": "Image unavailable",
-      "loading": "Loading image…",
-      "edit": "Edit address",
-      "resetSize": "Restore automatic size"
-    },
-    "preview": {
-      "retry": "Retry"
-    },
-    "editor": {
-      "loading": "Loading Capricorn editor",
-      "opening": "Opening document",
-      "load_failed": "Unable to load the Capricorn editor",
-      "preparation_failed": "Background document preparation failed. Please retry."
-    },
-    "snippets": {
-      "title": "Insert snippet",
-      "search": "Search snippets…",
-      "manage": "Manage snippets…",
-      "blank": "New empty block",
-      "stale": "The insertion point changed. Please reopen the picker."
-    },
-    "table": {
-      "actions": "Table actions",
-      "alignment": "Column alignment",
-      "copy": "Copy",
-      "cut": "Cut",
-      "paste": "Paste",
-      "selectAll": "Select all",
-      "action": {
-        "column": "Column actions",
-        "columnAt": "Actions for column {{index}}",
-        "row": "Row actions",
-        "rowAt": "Actions for row {{index}}"
-      },
-      "addColumnAfter": "Insert column to the right",
-      "addColumnBefore": "Insert column to the left",
-      "addRowAfter": "Insert row below",
-      "addRowBefore": "Insert row above",
-      "alignCenter": "Center-align column",
-      "alignLeft": "Left-align column",
-      "alignNone": "Clear column alignment",
-      "alignRight": "Right-align column",
-      "deleteColumn": "Delete current column",
-      "deleteRow": "Delete current row",
-      "deleteTable": "Delete table",
-      "duplicateRow": "Duplicate row",
-      "duplicateColumn": "Duplicate column",
-      "moveRowUp": "Move row up",
-      "moveRowDown": "Move row down",
-      "moveColumnLeft": "Move column left",
-      "moveColumnRight": "Move column right",
-      "selectRow": "Select row",
-      "selectColumn": "Select column",
-      "dragRow": "Drag row to reorder",
-      "dragColumn": "Drag column to reorder",
-      "dragRowPosition": "Move row {{from}} to position {{to}}",
-      "dragColumnPosition": "Move column {{from}} to position {{to}}",
-      "movedRow": "Row moved to position {{position}}",
-      "movedColumn": "Column moved to position {{position}}"
-    }
-  },
-  "inline_insert": {
-    "insert_link": "Insert link",
-    "edit_link": "Edit link",
-    "insert_image": "Insert image",
-    "edit_image": "Edit image",
-    "address": "Address",
-    "text": "Text",
-    "alt": "Description",
-    "optional": "Optional",
-    "choose_image": "Choose local image…",
-    "change": "Change",
-    "replace_image": "Replace image",
-    "edit_alt": "Edit description",
-    "remove": "Remove",
-    "unlink": "Remove link",
-    "insert": "Insert",
-    "save": "Save",
-    "close": "Close",
-    "inserting": "Inserting…",
-    "open": "Open link",
-    "copy": "Copy address",
-    "invalid_address": "Enter a valid address or file path.",
-    "local_error": "Unable to select this image. Try again.",
-    "insert_error": "Unable to insert. Your input has been kept.",
-    "open_error": "Unable to open this link.",
-    "copy_error": "Unable to copy this address.",
-    "single_block": "Select text within one paragraph or table cell."
-  },
-  "history": {
-    "title": "Local history",
-    "description": "Review changes and restore a version as an unsaved draft.",
-    "enabled": "Enable local history",
-    "enabled_description": "Keep versions of documents opened in MarkFlowy. Unsaved draft protection continues when this is off.",
-    "retention": "Ordinary history: 30 days, up to 100 versions per document, with a 1 GB target budget. Unsaved drafts and active editing sessions are protected.",
-    "count": "{{count}} versions",
-    "clear_title": "Manage stored history",
-    "clear_description": "Delete history without deleting your files or unsaved drafts. New changes can create new history while the feature is enabled.",
-    "clear_workspace": "Delete current workspace history",
-    "clear_loose": "Delete independent document history",
-    "clear_all": "Delete all workspace history",
-    "clear_confirm": "Permanently delete {{count}} versions? Up to {{size}} MB of unshared content can be reclaimed. Files and unsaved drafts are kept.",
-    "all_workspaces": "All workspaces and independent documents",
-    "loose": "Independent documents",
-    "delete": "Delete history",
-    "empty": "No history yet.",
-    "previous": "Previous",
-    "next": "Next",
-    "before": "Before changes",
-    "after": "Latest result",
-    "refresh": "New changes available · refresh comparison",
-    "loading": "Loading comparison…",
-    "compare_failed": "Unable to load the comparison. Showing the original text; you can still restore this version.",
-    "select": "Select a version to inspect its changes.",
-    "restore_before": "Restore before changes",
-    "restore": "Restore this version",
-    "merging": "Changes being grouped",
-    "kind_save": "Saved",
-    "kind_external": "External changes",
-    "kind_ai": "AI edit",
-    "kind_checkpoint": "Draft checkpoint",
-    "kind_restore": "Before restore",
-    "kind_discard": "Before discard",
-    "kind_overwrite": "Before overwrite",
-    "kind_autosave": "Auto saved",
-    "kind_opened": "Initial version",
-    "protected": "Draft protected",
-    "pending": "Protecting draft…",
-    "failed": "Draft protection failed",
-    "paused": "Restored draft · save manually",
-    "large": "Large document: showing original text.",
-    "compare_current": "Compare with current draft",
-    "compare_version": "Compare with another version",
-    "compare_batch": "Compare before / after",
-    "snapshot": "Selected version",
-    "current": "Current draft",
-    "versions": "Versions",
-    "split": "Split view",
-    "unified": "Unified view",
-    "full_context": "Show full context",
-    "previous_change": "Previous change",
-    "next_change": "Next change",
-    "no_changes": "No differences",
-    "change_position": "{{current}} / {{total}} changes",
-    "added_lines": "Added lines: {{count}}",
-    "removed_lines": "Removed lines: {{count}}",
-    "unchanged_lines": "$ unchanged lines · click to expand",
-    "retry": "Retry protection",
-    "coarse": "Differences are simplified within the computation budget; full text is preserved.",
-    "compute_large": "Compute large-document differences",
-    "deleted": "Deleted {{count}} history versions.",
-    "kind_write-pending": "Interrupted file write",
-    "budget_limited": "History storage has reached its target budget. Automatic checkpoints and new AI sessions are paused; draft protection and safety copies continue. Delete unneeded history to resume.",
-    "kind_recovered-save": "Recovered save"
-  },
-  "document_preview": {
-    "html_title": "HTML preview",
-    "pdf_title": "PDF reader",
-    "refresh": "Refresh",
-    "run_scripts": "Run scripts",
-    "loading": "Loading…",
-    "load_failed": "Unable to load this file.",
-    "retry": "Retry",
-    "resources_blocked": "Resources not loaded",
-    "resource_folder_hint": "Open the folder containing this document and its resources as a workspace, then refresh the preview.",
-    "resource_errors": {
-      "not_found": "File not found.",
-      "permission_denied": "Permission to read this file was denied.",
-      "outside_root": "Outside this document’s folder or workspace.",
-      "too_large": "Resource or expanded preview exceeds the size limit.",
-      "unsupported": "Unsupported resource type or URL.",
-      "invalid_css": "Unable to parse this stylesheet.",
-      "resource_limit": "Circular import or resource count/depth limit reached.",
-      "read_failed": "Unable to read this resource."
-    },
-    "previous_page": "Previous page",
-    "next_page": "Next page",
-    "page": "Page number",
-    "zoom_out": "Zoom out",
-    "zoom_in": "Zoom in",
-    "fit_width": "Fit width",
-    "search": "Search PDF",
-    "previous_match": "Previous match",
-    "next_match": "Next match",
-    "password_required": "Enter the PDF password",
-    "password_incorrect": "Incorrect password. Try again.",
-    "unlock": "Unlock",
-    "cancel": "Cancel"
-  },
-  "snippets": {
-    "library": "Snippet library",
-    "description": "Reuse formulas, diagrams and code across local workspaces.",
-    "kind": "Type",
-    "kinds": {
-      "math": "Math",
-      "mermaid": "Mermaid",
-      "code": "Code"
-    },
-    "search": "Search snippets…",
-    "new": "New snippet",
-    "copy": "Duplicate",
-    "copyCustom": "Copy as custom",
-    "copySuffix": "(copy)",
-    "show": "Show",
-    "hide": "Hide",
-    "hidden": "Hidden",
-    "delete": "Delete",
-    "deleteTitle": "Delete “{{title}}”?",
-    "builtin": "Built-in",
-    "custom": "Custom",
-    "unsaved": "Unsaved changes",
-    "name": "Name",
-    "language": "Code language",
-    "languagePlaceholder": "e.g. typescript; leave empty for plain text",
-    "source": "Source",
-    "sourceHelp": "Enter only the source, without outer ``` or $$ delimiters. Text and whitespace are inserted literally; variables are not expanded.",
-    "save": "Save",
-    "discard": "Discard",
-    "unsavedTitle": "Save snippet changes?",
-    "unsavedDescription": "Save or discard your changes before leaving this snippet.",
-    "loadError": "Could not load snippets",
-    "saveError": "Could not save changes",
-    "retry": "Retry",
-    "noResults": "No matching snippets",
-    "conflict": "The library changed in another window. Your draft is preserved. Duplicate it as a new snippet, or discard the draft and select the original again.",
-    "preview": "Preview",
-    "previewAgain": "Refresh preview",
-    "previewStale": "Source changed. Refresh the preview.",
-    "previewError": "Preview unavailable. You can still save the source.",
-    "builtins": {
-      "math-fraction": "Fraction",
-      "math-root": "Square root",
-      "math-sum": "Summation",
-      "math-matrix": "Matrix",
-      "mermaid-flow": "Flowchart",
-      "mermaid-sequence": "Sequence diagram",
-      "mermaid-class": "Class diagram",
-      "mermaid-state": "State diagram",
-      "code-json": "JSON object",
-      "code-typescript": "TypeScript function",
-      "code-python": "Python function",
-      "code-bash": "Bash script"
-    }
-  },
-  "pdf_export": {
-    "title": "Export PDF",
-    "description": "Uses Chrome, Chromium, or Edge on your computer.",
-    "method_description": "Choose how to export this document as a PDF.",
-    "method": "Export method",
-    "method_browser": "Browser export",
-    "method_native": "In-app export",
-    "native_hint": "No browser installation required. Supports heading bookmarks.",
-    "native_ready": "Ready to export within the app.",
-    "paper_size": "Paper size",
-    "orientation": "Orientation",
-    "portrait": "Portrait",
-    "landscape": "Landscape",
-    "include_outline": "Include heading bookmarks",
-    "outline_hint": "Turn document headings into a navigable PDF outline. Documents without headings have no bookmarks.",
-    "export": "Export PDF",
-    "print": "Print…",
-    "exporting": "Exporting PDF…",
-    "success": "PDF saved to {{path}}.",
-    "failed": "PDF export failed. Your document has been preserved.",
-    "image_warning": "{{count}} images could not be loaded. Check the exported PDF.",
-    "browser_check_failed": "Browser detection failed. Please try again.",
-    "cancelled": "PDF export cancelled.",
-    "system_print": "System print…",
-    "system_print_hint": "System print is also available. Saving as PDF through the print dialog does not guarantee heading bookmarks.",
-    "browser": {
-      "error_details": "Error details",
-      "checking": "Checking the PDF export browser…",
-      "ready": "Browser {{version}} is ready.",
-      "not_found": "No compatible PDF export browser was found.",
-      "incompatible": "The browser version does not support PDF export with heading bookmarks.",
-      "settings_hint": "Choose an installed Chrome, Chromium, or Edge browser here."
-    }
-  },
-  "file_deletion": {
-    "permanent_title": "Permanently delete “{{name}}”?",
-    "trash_title": "Move “{{name}}” to trash?",
-    "permanent_action": "Permanently delete",
-    "trash_action": "Move to trash",
-    "counting": "Counting…",
-    "counts": "{{files}} files · {{folders}} subfolders",
-    "files_only": "{{files}} files",
-    "folders_only": "{{folders}} subfolders",
-    "short_scope": "Includes hidden and excluded items",
-    "short_partial": "At least {{files}} files · {{folders}} subfolders",
-    "partial_hint": "Counting is incomplete. There may be more items.",
-    "empty": "Empty folder",
-    "symlink": "Only the link will be removed. Its target is unaffected.",
-    "count_failed": "Unable to count contents. Try again.",
-    "permanent_warning": "Permanent deletion cannot be undone."
-  }
+    "drafts":  {
+                   "reload_failed":  "Could not preserve unsaved documents for reload. Save your files and try again.",
+                   "restore_failed":  "Could not restore unsaved documents. The cached drafts have been kept.",
+                   "close_failed_description":  "Retry recovery, or keep the affected drafts for recovery next time and close their documents.",
+                   "keep_and_close":  "Keep draft and close",
+                   "keep_failed":  "Could not preserve the draft for closing. The document has been kept open.",
+                   "close_failed":  "Could not safely close the window. Your documents have been kept open. Please try again.",
+                   "error_details":  "Error details",
+                   "restored":  "Recovered {{count}} unsaved documents."
+               },
+    "link_editing":  {
+                         "label":  "Link editing",
+                         "description":  "Choose the default link editor. Each link can also be edited as Markdown.",
+                         "popover":  "Popover",
+                         "markdown":  "Markdown syntax",
+                         "open_failed":  "Unable to open the link or find its heading."
+                     },
+    "command_palette":  {
+                            "title":  "Command Palette",
+                            "placeholder":  "Search commands…",
+                            "empty":  "No matching commands",
+                            "recent":  "Recently Used",
+                            "hints":  "↑↓ Navigate · Enter Execute · Esc Close",
+                            "failed":  "Could not execute “{{command}}”.",
+                            "categories":  {
+                                               "file":  "File",
+                                               "editor":  "Editor",
+                                               "view":  "View",
+                                               "app":  "Application"
+                                           },
+                            "reasons":  {
+                                            "no_document":  "Open a document first",
+                                            "unavailable":  "Unavailable in the current context",
+                                            "preview":  "Cannot edit in preview mode",
+                                            "read_only":  "This document is read-only",
+                                            "stale_target":  "The original editor has changed",
+                                            "no_undo":  "Nothing to undo",
+                                            "no_redo":  "Nothing to redo",
+                                            "markdown_only":  "Available for Markdown documents",
+                                            "zen_mode":  "Exit Zen Mode first"
+                                        }
+                        },
+    "quick_open":  {
+                       "title":  "Quick Open",
+                       "placeholder":  "Search files by name or path…",
+                       "loading":  "Loading workspace files…",
+                       "load_error":  "Couldn’t load workspace files",
+                       "empty":  "No matching files",
+                       "no_recent":  "No recently opened files. Type a filename to search the workspace.",
+                       "no_workspace":  "Open a workspace to search its files",
+                       "show_more":  "Show more ({{count}} remaining)",
+                       "keyboard_hint":  "↑ ↓ to navigate · Enter to open · Esc to close"
+                   },
+    "app_name":  "WinZettel",
+    "editor":  {
+                   "render_failed":  "Unable to render the editor",
+                   "split_limit":  "The editor splits into two panes. Close one before splitting again."
+               },
+    "find_replace":  {
+                         "navigation_unsupported":  "This version does not support precise search navigation. Update the app and try again.",
+                         "navigation_stale":  "The search result has changed. Run the search again.",
+                         "navigation_failed":  "Unable to navigate to this result. Try again after the document loads.",
+                         "find":  "Find",
+                         "replace":  "Replace",
+                         "replace_with":  "Replace with",
+                         "replace_all":  "All",
+                         "previous_match":  "Find previous match",
+                         "next_match":  "Find next match",
+                         "match_case":  "Match case",
+                         "close":  "Close find and replace",
+                         "result_count":  "{{current}} of {{total}}",
+                         "open":  "Find in document"
+                     },
+    "startup":  {
+                    "opening_workspace":  "Opening workspace…",
+                    "workspace_open_failed":  "Unable to open the workspace"
+                },
+    "common":  {
+                   "none":  "None",
+                   "name":  "name",
+                   "ok":  "ok",
+                   "confirm":  "confirm",
+                   "cancel":  "cancel",
+                   "close":  "close",
+                   "copy":  "copy",
+                   "error":  "error",
+                   "delete":  "delete",
+                   "file":  "file",
+                   "folder":  "folder",
+                   "fetching":  "Loading...",
+                   "submit":  "submit",
+                   "addHeader":  "Add Header",
+                   "addPattern":  "Add Pattern",
+                   "key":  "Key",
+                   "value":  "Value",
+                   "success":  "Success",
+                   "import":  "Import",
+                   "menu":  "Menu",
+                   "or":  "or",
+                   "retry":  "Retry"
+               },
+    "dialog":  {
+                   "remember_choice":  "Remember this choice"
+               },
+    "external_file_change":  {
+                                 "conflict":  "External changes detected",
+                                 "conflict_description":  "Auto-save is paused. Update loads the disk version; Overwrite replaces it with your current content.",
+                                 "update":  "Update",
+                                 "overwrite":  "Overwrite",
+                                 "reloaded":  "Loaded external changes",
+                                 "overwritten":  "Overwrote the disk version",
+                                 "read_failed":  "The latest disk version could not be read. Try again.",
+                                 "resolve_failed":  "The file change could not be resolved. Your current content was kept."
+                             },
+    "view":  {
+                 "label":  "View",
+                 "theme":  {
+                               "label":  "Theme"
+                           },
+                 "source_code":  "Source Code",
+                 "preview":  "Preview"
+             },
+    "toolbar":  {
+                    "undo":  "Undo",
+                    "redo":  "Redo",
+                    "h1":  "Heading 1",
+                    "h2":  "Heading 2",
+                    "h3":  "Heading 3",
+                    "bold":  "Bold",
+                    "italic":  "Italic",
+                    "strike":  "Strikethrough",
+                    "link":  "Link",
+                    "image":  "File",
+                    "quote":  "Blockquote",
+                    "bulletList":  "Bullet List",
+                    "orderedList":  "Ordered List",
+                    "taskList":  "Task List",
+                    "insert":  "Insert",
+                    "codeBlock":  "Code block",
+                    "mathBlock":  "Math block",
+                    "headings":  "Heading",
+                    "h4":  "Heading 4",
+                    "h5":  "Heading 5",
+                    "h6":  "Heading 6",
+                    "formatting":  "Text",
+                    "underline":  "Underline",
+                    "table":  "Table",
+                    "hr":  "Horizontal rule",
+                    "date":  "Today’s date",
+                    "highlight":  "Highlight",
+                    "link_text":  "Text",
+                    "link_url":  "Address",
+                    "link_insert":  "Insert link",
+                    "code":  "Code",
+                    "inline_code":  "Inline code",
+                    "table_columns":  "Columns",
+                    "table_rows":  "Rows",
+                    "table_insert":  "Insert table",
+                    "lists":  "Lists",
+                    "line_break":  "Line break",
+                    "file":  "File"
+                },
+    "image_insert":  {
+                         "title":  "Insert File",
+                         "description":  "Enter a URL or choose a file from your computer.",
+                         "url_label":  "URL",
+                         "url_placeholder":  "https://example.com/image.png",
+                         "insert_url":  "Insert",
+                         "invalid_url":  "Enter a valid HTTP or HTTPS image URL.",
+                         "local_filter":  "Images",
+                         "select_local":  "Choose Local File",
+                         "selecting_local":  "Choosing...",
+                         "local_error":  "The selected file could not be opened or read. Try again.",
+                         "local_behavior_hint":  "Local files follow Settings \u003e File \u003e Local file insertion behavior."
+                     },
+    "image_preview":  {
+                          "toolbar":  "Image preview controls",
+                          "zoom_out":  "Zoom out",
+                          "zoom_in":  "Zoom in",
+                          "actual_size":  "Actual size",
+                          "fit_to_window":  "Fit to window"
+                      },
+    "action":  {
+                   "bookmark":  "bookmark",
+                   "bookmarked":  "bookmarked",
+                   "done":  "done",
+                   "edit":  "edit",
+                   "more":  "more",
+                   "save":  "save",
+                   "unsave":  "unsave",
+                   "create_file":  "Create a new file",
+                   "save_and_close":  "Save and close",
+                   "save_and_continue":  "Save and continue",
+                   "unsave_and_close":  "Direct Close",
+                   "continue_without_save":  "Continue without saving"
+               },
+    "confirm":  {
+                    "move":  {
+                                 "description":  "Are you sure you want to move the \"{{name}}\"?"
+                             },
+                    "replace":  {
+                                    "description":  "A file or folder with the name \"{{name}}\" already exists in the destination folder. Do you want to replace it?"
+                                },
+                    "delete":  {
+                                   "description":  "Are you sure you want to delete the \"{{name}}\" {{something}}?"
+                               },
+                    "trash":  {
+                                  "description":  "Are you sure you want to move the \"{{name}}\" to the trash?"
+                              },
+                    "edit_filename_cancel":  {
+                                                 "description":  "Do you want to save the rename content?"
+                                             },
+                    "close":  {
+                                  "title":  "Do you want to save the changes?",
+                                  "description":  "You have unsaved files, are you sure you want to exit?"
+                              },
+                    "continue":  {
+                                     "description":  "You have unsaved changes. Do you want to save them before continuing?",
+                                     "title":  "Continue?"
+                                 }
+                },
+    "error":  {
+                  "unsupported_file_format":  "Unsupported file format"
+              },
+    "sidebar":  {
+                    "move_left":  "Move to left",
+                    "move_right":  "Move to right",
+                    "panel_actions":  "Panel actions",
+                    "reset_layout":  "Restore default sidebar layout",
+                    "drag_hint":  "Drag to move · Right-click for options",
+                    "move_explorer_command":  "Files: Move to the other side",
+                    "move_search_command":  "Search: Move to the other side",
+                    "move_bookmarks_command":  "Bookmarks: Move to the other side",
+                    "move_toc_command":  "Outline: Move to the other side",
+                    "move_ai_command":  "AI: Move to the other side",
+                    "outline_collapse":  "Collapse",
+                    "outline_expand":  "Expand",
+                    "outline_collapse_all":  "Collapse all headings",
+                    "outline_expand_all":  "Expand all headings",
+                    "outline_hide_generated_numbers":  "Hide automatic numbering",
+                    "outline_show_generated_numbers":  "Show automatic numbering",
+                    "explorer":  "explorer",
+                    "search":  "search",
+                    "bookmarks":  "Bookmarks",
+                    "leftDock":  "Left Dock",
+                    "rightDock":  "Right Dock",
+                    "table_of_contents":  "Table of Contents",
+                    "heading_numbering":  "Toggle document heading numbering",
+                    "heading_numbering_add":  "Add document heading numbering",
+                    "heading_numbering_remove":  "Remove document heading numbering",
+                    "heading_numbering_description":  "Numbering is written to Markdown.",
+                    "no_heading_lines":  "No heading lines found"
+                },
+    "bookmarks":  {
+                      "path":  "Path",
+                      "name":  "Name",
+                      "tags":  "Tags",
+                      "tag_placeholder":  "Add a tag",
+                      "create_tag":  "Create",
+                      "remove_tag":  "Remove {{tag}}",
+                      "no_tags_found":  "No tags found.",
+                      "empty":  "No bookmarks",
+                      "loading":  "Loading bookmarks…",
+                      "loadError":  "Couldn’t load bookmarks",
+                      "retry":  "Retry",
+                      "viewByTags":  "Group by tag",
+                      "viewAsList":  "Show as list",
+                      "removed":  "“{{title}}” removed",
+                      "undo":  "Undo",
+                      "removeFailed":  "Couldn’t delete the bookmark",
+                      "saving":  "Saving…",
+                      "saveError":  "Couldn’t save the bookmark.",
+                      "sort":  "Sort bookmarks",
+                      "sortNameAsc":  "Name: A to Z",
+                      "sortNameDesc":  "Name: Z to A",
+                      "sortNewest":  "Newest first",
+                      "sortOldest":  "Oldest first",
+                      "untagged":  "Untagged",
+                      "saveConflict":  "Bookmarks changed in another window. Your edits are still here. Reload before saving again.",
+                      "noLongerExists":  "This bookmark was deleted in another window. Your edits are still here.",
+                      "reloadBookmark":  "Reload and replace current edits",
+                      "reloadLibrary":  "Reload latest bookmarks",
+                      "legacyCleanupWarning":  "Your bookmarks were upgraded, but the previous bookmark file could not be removed. Retry to finish cleanup.",
+                      "legacyConflictWarning":  "A previous bookmark file has not been migrated or has changed. It has been kept, and your current bookmarks remain available.",
+                      "add":  "Add to favourites",
+                      "edit":  "Edit favourite"
+                  },
+    "welcome":  {
+                    "title":  "Welcome back to {{appName}}",
+                    "subtitle":  "A focused workspace for Markdown",
+                    "getStarted":  "Get Started",
+                    "recentWorkspaces":  "Recent Workspaces",
+                    "emptyEditorDescription":  "Choose a file from the sidebar or start a new document.",
+                    "openWorkspaceError":  "Couldn’t open this workspace"
+                },
+    "statusBar":  {
+                      "label":  "Status bar",
+                      "words":  "words",
+                      "chars":  "chars",
+                      "pureChars":  "pure chars",
+                      "pureCharsOption":  "pure chars (no spaces or line breaks)",
+                      "displaySettings":  "Display Settings"
+                  },
+    "titleBar":  {
+                     "label":  "Window title bar",
+                     "minimize":  "Minimize window",
+                     "maximize":  "Maximize window",
+                     "restore":  "Restore window"
+                 },
+    "zenMode":  {
+                    "openFileFirst":  "Open a document to enter Zen Mode",
+                    "exitHint":  "Zen Mode · Press {{shortcut}} or Escape twice to exit",
+                    "shortcutFallback":  "Cmd/Ctrl+Shift+F"
+                },
+    "explorer":  {
+                     "collapse_folders":  "Collapse folders",
+                     "refresh_folder_data":  "Refresh Folder Data",
+                     "focus_active_file":  "Focus on the current file",
+                     "sort":  "Sort files",
+                     "sort_name_asc":  "Name: A to Z",
+                     "sort_name_desc":  "Name: Z to A"
+                 },
+    "file":  {
+                 "save_dialog_title":  "Save File",
+                 "read_failed":  "Failed to read file content",
+                 "binary_not_openable":  "Binary files cannot be opened as text",
+                 "untitled":  "untitled",
+                 "not_found":  "File not found",
+                 "openDir":  "Open Folder",
+                 "openFolderInNewWindow":  "Open Folder in New Window",
+                 "closeFolder":  "Close Folder",
+                 "closeDocument":  "Close document",
+                 "renameErrors":  {
+                                      "empty":  "Enter a file name.",
+                                      "invalid":  "Use a valid file name without path separators or reserved characters.",
+                                      "exists":  "A file with this name already exists."
+                                  },
+                 "openFile":  "Open a File",
+                 "recentDir":  "Recently opened folders",
+                 "emptyOpened":  "No files opened",
+                 "emptyFolder":  "Empty folder",
+                 "unsupportedFileType":  "Unsupported file type",
+                 "unsupportedFileTypeDesc":  "This file format is not currently supported for viewing or editing.",
+                 "lastModified":  "Last Updated",
+                 "size":  "File Size",
+                 "info":  "File Information",
+                 "newTab":  "New Tab",
+                 "path":  "File Path",
+                 "clearRecent":  "Clear Recent",
+                 "openFolderModal":  {
+                                         "title":  "How do I open a folder?",
+                                         "currentWindow":  "Current Window",
+                                         "newWindow":  "New Window"
+                                     },
+                 "closeAllTabs":  "Close all tabs"
+             },
+    "about":  {
+                  "newVersion":  "New version",
+                  "install":  "Install"
+              },
+    "contextmenu":  {
+                        "label":  "Context menu",
+                        "explorer":  {
+                                         "new":  "New",
+                                         "add_file":  "New file",
+                                         "add_folder":  "New folder",
+                                         "rename":  "Rename",
+                                         "delete_file":  "Delete file",
+                                         "delete_folder":  "Delete folder",
+                                         "moveto_trash":  "Move to trash",
+                                         "copy":  "Copy",
+                                         "duplicate_file":  "Duplicate file",
+                                         "copy_to":  "Copy to…",
+                                         "copy_to_title":  "Copy to folder",
+                                         "absolute_path":  "Absolute path",
+                                         "relative_path":  "Relative path",
+                                         "duplicate_success":  "Created copy: {{name}}",
+                                         "copy_to_success":  "Copied {{name}} to {{folder}}",
+                                         "copy_failed":  "Could not copy file: {{reason}}",
+                                         "copy_path":  "Copy path",
+                                         "copy_relative_path":  "Copy relative path",
+                                         "show_in_folder":  "Show in Folder",
+                                         "encrypt_note":  "Encrypt note",
+                                         "decrypt_note":  "Decrypt note",
+                                         "encrypt_note_done":  "Note encrypted",
+                                         "decrypt_note_done":  "Note decrypted",
+                                         "decrypt_note_passphrase":  "Passphrase",
+                                         "encrypt_folder":  "Encrypt all notes",
+                                         "encrypt_folder_title":  "Encrypt the notes in this folder",
+                                         "encrypt_folder_confirm":  "{{count}} note(s) in “{{folder}}” will be encrypted. {{skipped}} already encrypted will be skipped.",
+                                         "encrypt_folder_summary":  "{{encrypted}} encrypted, {{skipped}} skipped",
+                                         "encrypt_folder_summary_failed":  "{{encrypted}} encrypted, {{failed}} failed, {{skipped}} skipped",
+                                         "encrypt_folder_empty":  "This folder has no notes",
+                                         "encrypt_folder_all_done":  "Nothing to encrypt: {{skipped}} note(s) already encrypted"
+                                     },
+                        "editor_tab":  {
+                                           "close":  "Close",
+                                           "unsaved":  "Unsaved changes",
+                                           "previous":  "Previous tab",
+                                           "next":  "Next tab",
+                                           "close_others":  "Close others",
+                                           "close_right":  "Close right",
+                                           "close_all":  "Close all",
+                                           "export_html":  "Export to HTML",
+                                           "export_pdf":  "Print / Export PDF",
+                                           "export_pdf_failed":  "Unable to prepare this document for printing.",
+                                           "export_pdf_image_warning":  "{{count}} image(s) could not be loaded. Their alternative text will be printed instead.",
+                                           "export_pdf_embedded_media":  "Interactive content",
+                                           "export_pandoc":  "Export with Pandoc",
+                                           "export_pandoc_docx":  "Word document (.docx)",
+                                           "export_pandoc_odt":  "OpenDocument text (.odt)",
+                                           "export_pandoc_epub":  "EPUB book (.epub)",
+                                           "export_pandoc_format":  "Export to {{format}}",
+                                           "export_pandoc_exporting":  "Exporting to {{format}}...",
+                                           "export_pandoc_success":  "Exported to {{path}}",
+                                           "export_pandoc_warning":  "Exported to {{path}}, but Pandoc returned {{count}} warning(s).",
+                                           "export_pandoc_setup_title":  "Pandoc is not available",
+                                           "export_pandoc_setup_desc":  "Install Pandoc or select its executable to export DOCX, ODT, and EPUB files.",
+                                           "export_pandoc_install":  "Installation guide",
+                                           "export_pandoc_select":  "Select executable",
+                                           "export_pandoc_error_not_found":  "Pandoc was not found. Install it or configure its executable path in Export settings.",
+                                           "export_pandoc_error_invalid_executable":  "The selected file is not a valid Pandoc executable.",
+                                           "export_pandoc_error_unsupported_format":  "This Pandoc installation does not support the selected export format.",
+                                           "export_pandoc_error_conversion_failed":  "Pandoc could not convert this document.",
+                                           "export_pandoc_error_timed_out":  "Pandoc export timed out after 120 seconds.",
+                                           "export_pandoc_error_output_commit_failed":  "The converted file could not replace the destination file.",
+                                           "export_pandoc_failed_title":  "Pandoc export failed",
+                                           "export_pandoc_copy_error":  "Copy error details",
+                                           "export_pandoc_copied":  "Error details copied",
+                                           "export_pandoc_copy_failed":  "Could not copy error details.",
+                                           "export_pandoc_error_code":  "Error code",
+                                           "export_pandoc_exit_code":  "Exit code",
+                                           "export_pandoc_error_message":  "Message",
+                                           "export_pandoc_error_details":  "Details",
+                                           "export_image":  "Export to Image",
+                                           "keep_open":  "Keep Open",
+                                           "preview":  "Preview tab",
+                                           "preview_hint":  "Preview tab — double-click to keep open"
+                                       }
+                    },
+    "notification":  {
+
+                     },
+    "search":  {
+                   "mode":  "Search in",
+                   "modeContent":  "Contents",
+                   "modeFilename":  "File names",
+                   "filename":  "Search file names",
+                   "filenameReadyDesc":  "Enter a file name, then press Enter or click search",
+                   "filenameSearchingDesc":  "Searching file names in the current workspace",
+                   "filenameSummary":  "{{files}} files: {{keyword}}",
+                   "filenameEmptyDesc":  "Try another file name or check your search exclusions",
+                   "line":  "Line {{number}}:",
+                   "search_empty":  "Nothing found matching these search terms",
+                   "text":  "Search",
+                   "caseSensitive":  "Case sensitive",
+                   "toggleExpandAll":  "Toggle expand all",
+                   "ready":  "Ready to search",
+                   "readyDesc":  "Enter a keyword, then press Enter or click search",
+                   "searching":  "Searching",
+                   "searchingDesc":  "Scanning Markdown files in the current workspace",
+                   "searchingWithKeyword":  "Searching \"{{keyword}}\"...",
+                   "resultSummary":  "{{files}} files, {{matches}} matches: {{keyword}}",
+                   "emptyDesc":  "Try another keyword or turn off case sensitivity",
+                   "search_failed":  "Search failed"
+               },
+    "command":  {
+                    "id_descriptions":  {
+                                            "app_outlineCollapseAll":  "Collapse all headings",
+                                            "app_outlineExpandAll":  "Expand all headings",
+                                            "app_commandPalette":  "Command Palette",
+                                            "app_quickOpen":  "Quick Open",
+                                            "app_openFolder":  "Open a folder",
+                                            "app_openSetting":  "Open the Settings window",
+                                            "app_toggleLeftsidebarVisible":  "Toggle left sideBar visible",
+                                            "app_toggleRightsidebarVisible":  "Toggle right sideBar visible",
+                                            "app_toggleZenMode":  "Toggle Zen Mode",
+                                            "app_save":  "Save current active edit file",
+                                            "app_findReplaceEditor":  "Find and replace in editor",
+                                            "app_closeCurrentEditorTab":  "Close current editor tab",
+                                            "app_hide":  "Hide the application",
+                                            "app_toggleEditorType":  "Toggle source code / WYSIWYG mode",
+                                            "app_splitEditorRight":  "Split editor right",
+                                            "app_splitEditorDown":  "Split editor down",
+                                            "editor_copy":  "Copy selected text in editor",
+                                            "editor_cut":  "Cut selected text in editor",
+                                            "editor_redo":  "Redo",
+                                            "editor_undo":  "Undo",
+                                            "editor_paste":  "Paste selected text in editor",
+                                            "editor_toggleStrong":  "toggle to bold mark",
+                                            "editor_toggleEmphasis":  "toggle to italic mark",
+                                            "editor_toggleCodeText":  "toggle to code mark",
+                                            "editor_toggleDelete":  "toggle to delete mark",
+                                            "editor_insertCurrentDate":  "Insert current date",
+                                            "editor_toggleH1":  "toggle to H1",
+                                            "editor_toggleH2":  "toggle to H2",
+                                            "editor_toggleH3":  "toggle to H3",
+                                            "editor_toggleH4":  "toggle to H4",
+                                            "editor_toggleH5":  "toggle to H5",
+                                            "editor_toggleH6":  "toggle to H6",
+                                            "app_keepEditorOpen":  "Keep Open",
+                                            "editor_insertCodeBlock":  "Insert code block",
+                                            "editor_insertMathBlock":  "Insert math block",
+                                            "app_zoomIn":  "Zoom in",
+                                            "app_zoomOut":  "Zoom out",
+                                            "app_zoomReset":  "Reset zoom to 100%"
+                                        }
+                },
+    "text_encoding":  {
+                          "label":  "Text encoding and line endings",
+                          "encoding":  "Text encoding",
+                          "description":  "Reopen reads this file from disk using the selected encoding. Save with encoding converts the current text. Existing line endings are preserved.",
+                          "mixed_endings":  "Mixed line endings",
+                          "no_endings":  "No line endings",
+                          "unconfirmed":  "Unconfirmed",
+                          "confirm_hint":  "The encoding was inferred from the content or restored from an older draft. Check that the text looks correct before saving with the selected encoding.",
+                          "roundtrip_hint":  "This file contains nonstandard byte mappings. After editing, explicitly convert it to another encoding.",
+                          "preview_hint":  "Preview of the first 4,000 characters. A recovery draft of the current content will be kept before applying.",
+                          "preview_reopen":  "Preview reopening",
+                          "apply_reopen":  "Apply reopening",
+                          "save_with_encoding":  "Save with this encoding",
+                          "save_failed":  "Not saved yet. Your content and encoding selection have been kept. Check the save message and try again.",
+                          "errors":  {
+                                         "invalid_encoding":  "This file cannot be read with the selected encoding. Preview another encoding and check the text before reopening it.",
+                                         "unsupported_encoding":  "The file encoding could not be identified or is not supported. Open Text encoding and line endings, select an encoding, and preview it before reopening.",
+                                         "binary":  "This file contains binary data and cannot be opened as text.",
+                                         "invalid_bom":  "The file’s encoding marker (BOM) does not match the selected encoding. Choose the matching encoding and try again.",
+                                         "unmappable":  "The current encoding cannot save some characters. Your content is still in the editor. Save as UTF-8, or remove the unsupported characters and try again.",
+                                         "unmappable_character":  "{{encoding}} cannot save the character “{{character}}”. Your content is still in the editor. Save as UTF-8, or remove this character and try again.",
+                                         "confirm_encoding":  "The detected encoding has not been confirmed. Your content is still in the editor. Open Text encoding and line endings, preview the text, then choose Save with this encoding.",
+                                         "noncanonical":  "The original byte mapping cannot be preserved after editing. Choose a different encoding such as UTF-8, or save a copy.",
+                                         "not_reversible":  "The selected encoding would change some characters. Choose UTF-8 or another encoding that preserves the complete text before saving.",
+                                         "ambiguous_bom":  "The text begins with an invisible encoding marker. Choose the BOM variant of the current Unicode encoding before saving.",
+                                         "finish_input":  "Finish the current text input before trying again.",
+                                         "save_first":  "Save the file before previewing another encoding.",
+                                         "retry_read":  "The file is changing. Wait for the changes to finish, then preview it again.",
+                                         "preview_again":  "The document or its file has changed. Preview it again before applying the new encoding.",
+                                         "draft_pending":  "The current content has not yet been protected by a recovery draft. Try again before reopening the file.",
+                                         "invalid_unicode":  "The text contains an invalid character sequence. The original file was not written. Correct the affected text and try again.",
+                                         "save_failed":  "Not saved yet. Your content is still in the editor. Check that the file is writable and try again, or save a copy.",
+                                         "read_failed":  "Unable to read the file. Check that it still exists and you have permission to read it, then try again.",
+                                         "preview_failed":  "The encoding operation could not be completed. Your current content has been kept. Please try again."
+                                     }
+                      },
+    "settings":  {
+                     "select_placeholder":  "Select an option",
+                     "font_placeholder":  "Select a font",
+                     "select_folder":  "Select Folder",
+                     "value_placeholder":  "Enter a value…",
+                     "edit_item":  "Edit item",
+                     "delete_item":  "Delete item",
+                     "label":  "Settings",
+                     "back_to_app":  "Back to app",
+                     "back_to_settings":  "Back to settings",
+                     "search_placeholder":  "Search settings...",
+                     "search_empty":  "No matching settings",
+                     "search_results":  "{{count}} results",
+                     "navigation":  {
+                                        "preferences":  "Preferences",
+                                        "writing":  "Writing \u0026 files",
+                                        "ai":  "AI",
+                                        "help":  "Help"
+                                    },
+                     "general":  {
+                                     "startup":  {
+                                                     "label":  "Startup",
+                                                     "left":  "Left sidebar on startup",
+                                                     "right":  "Right sidebar on startup",
+                                                     "restore":  "Restore last state",
+                                                     "description":  "Applies the next time the app starts. Restore remembers the selected panel and whether the sidebar was open.",
+                                                     "closed":  "Closed"
+                                                 },
+                                     "label":  "general",
+                                     "app":  {
+                                                 "label":  "application",
+                                                 "open_file_in_new_window":  {
+                                                                                 "label":  "Open single files in a new window",
+                                                                                 "desc":  "Open standalone files outside the current workspace in a new window. Files in the current workspace stay in the current window. Turn off to open all files in the current window."
+                                                                             },
+                                                 "automatic_updates":  {
+                                                                           "label":  "Automatic update",
+                                                                           "desc":  "Automatically check for updates and install them when the application starts."
+                                                                       }
+                                             },
+                                     "workspace":  {
+                                                       "label":  "Workspace",
+                                                       "folder":  {
+                                                                      "label":  "Notes folder location",
+                                                                      "desc":  "The folder this window opens as your notes workspace. Changing it switches this window to the selected folder.",
+                                                                      "change":  "Change folder",
+                                                                      "empty":  "No folder open"
+                                                                  },
+                                                       "show_note_counts":  {
+                                                                                "label":  "Show note counts",
+                                                                                "desc":  "Shows how many notes each folder holds, next to its name. Attachments are not counted."
+                                                                            }
+                                                   },
+                                     "autosave":  {
+                                                      "label":  "Autosave",
+                                                      "switch_auto_save":  {
+                                                                               "label":  "Autosave",
+                                                                               "desc":  "Switch automatic saving. The current file will be automatically saved according to the set time interval."
+                                                                           },
+                                                      "autosaveInterval":  {
+                                                                               "label":  "Auto save interval",
+                                                                               "desc":  "Set the interval of auto save, in milliseconds."
+                                                                           }
+                                                  },
+                                     "misc":  {
+                                                  "label":  "Miscellaneous",
+                                                  "language":  {
+                                                                   "label":  "Language",
+                                                                   "desc":  "Set the language of the app."
+                                                               },
+                                                  "file_exclude_patterns":  {
+                                                                                "label":  "File exclusion list",
+                                                                                "desc":  "Exclude matching files and folders from the explorer and search. One gitignore-style pattern per line.",
+                                                                                "placeholder":  "e.g. **/node_modules/*"
+                                                                            }
+                                              },
+                                     "desc":  "Common settings for the application."
+                                 },
+                     "editor":  {
+                                    "label":  "Editor",
+                                    "style":  {
+                                                  "label":  "Style",
+                                                  "full_width":  {
+                                                                     "label":  "Full width",
+                                                                     "desc":  "Set the editor to full width."
+                                                                 },
+                                                  "font_size":  {
+                                                                    "label":  "Document font size",
+                                                                    "desc":  "Font size for writing and reading."
+                                                                },
+                                                  "line_height":  {
+                                                                      "label":  "Document line height",
+                                                                      "desc":  "Line height for writing and reading."
+                                                                  },
+                                                  "source_font_size":  {
+                                                                           "label":  "Source font size",
+                                                                           "desc":  "Font size in source mode. Separate from document text."
+                                                                       },
+                                                  "source_line_height":  {
+                                                                             "label":  "Source line height",
+                                                                             "desc":  "Line height in source mode."
+                                                                         },
+                                                  "font_family":  {
+                                                                      "label":  "Font family",
+                                                                      "desc":  "Set the root font family of the editor."
+                                                                  },
+                                                  "code_font_family":  {
+                                                                           "label":  "Code font family",
+                                                                           "desc":  "Set the code font family of the editor."
+                                                                       },
+                                                  "first_line_indent":  {
+                                                                            "label":  "First-line indent",
+                                                                            "desc":  "Indent body paragraphs by two characters in the editor, preview, and exports. Markdown stays unchanged."
+                                                                        }
+                                              },
+                                    "behavior":  {
+                                                     "label":  "Behavior",
+                                                     "md_default_mode":  {
+                                                                             "label":  "Markdown Default Mode",
+                                                                             "desc":  "Sets the default editing mode when creating a new Markdown file."
+                                                                         },
+                                                     "typewriter_scroll":  {
+                                                                               "label":  "Typewriter Scroll",
+                                                                               "desc":  "When enabled, the caret will be centered in the viewport during editing."
+                                                                           },
+                                                     "placeholder":  {
+                                                                         "label":  "Placeholder",
+                                                                         "desc":  "When enabled, placeholder text will be displayed in empty paragraphs."
+                                                                     },
+                                                     "insert_date_format":  {
+                                                                                "label":  "Insert date format",
+                                                                                "desc":  "Date format used by the Insert current date command. Uses Day.js format tokens, such as YYYY-MM-DD or YYYY-MM-DD HH:mm.",
+                                                                                "preview":  "Preview:"
+                                                                            }
+                                                 },
+                                    "sourcecode":  {
+                                                       "label":  "Source Code",
+                                                       "spellcheck":  {
+                                                                          "label":  "Spellcheck",
+                                                                          "desc":  "Whether to enable spellcheck in Source Code mode."
+                                                                      }
+                                                   },
+                                    "desc":  "Markdown configuration options for the editor, including settings for style, behavior, and WYSIWYG mode.",
+                                    "code_editing":  {
+                                                         "label":  "Code editing",
+                                                         "embedded_label":  "Embedded code",
+                                                         "default":  "Default",
+                                                         "custom":  "Custom",
+                                                         "on":  "On",
+                                                         "off":  "Off",
+                                                         "indent_style":  {
+                                                                              "label":  "Indentation",
+                                                                              "desc":  "Shared by source mode and embedded code. The frontmatter source editor always uses spaces.",
+                                                                              "spaces":  "Spaces",
+                                                                              "tabs":  "Tabs"
+                                                                          },
+                                                         "indent_size":  {
+                                                                             "label":  "Indent width",
+                                                                             "desc":  "Space indentation defaults to 2 columns. Tabs display as 4 columns in source mode and 2 in embedded code. Choosing a width applies it to both.",
+                                                                             "default":  "2 columns (tabs vary by mode)"
+                                                                         },
+                                                         "auto_close":  {
+                                                                            "label":  "Auto-close brackets and quotes",
+                                                                            "desc":  "Insert matching brackets and quotes while typing in source mode and embedded code."
+                                                                        },
+                                                         "whitespace":  {
+                                                                            "label":  "Show whitespace",
+                                                                            "desc":  "Display spaces and tabs without changing document content.",
+                                                                            "trailing":  "Trailing whitespace",
+                                                                            "all":  "All spaces and tabs"
+                                                                        },
+                                                         "line_wrap":  {
+                                                                           "label":  "Wrap long lines",
+                                                                           "desc":  "Wrap long lines at the edge of the editor without inserting line breaks. Extremely long lines may keep horizontal scrolling.",
+                                                                           "mixed_default":  "By area (default)",
+                                                                           "mixed_desc":  "By default, regular code blocks do not wrap; preview source and frontmatter do. Choose On or Off to apply one setting to all areas. Extremely long lines may keep horizontal scrolling."
+                                                                       },
+                                                         "line_numbers":  {
+                                                                              "label":  "Line numbers",
+                                                                              "desc":  "Sparse shows the first line and every tenth line.",
+                                                                              "all":  "Every line",
+                                                                              "sparse":  "Sparse"
+                                                                          },
+                                                         "active_line":  {
+                                                                             "label":  "Highlight current line",
+                                                                             "desc":  "Highlight the line containing the caret to make your editing position easier to find."
+                                                                         },
+                                                         "font_size":  {
+                                                                           "label":  "Code font size",
+                                                                           "desc":  "Defaults to 87.5% of the document font size and scales with it. Choose Custom to set a fixed size.",
+                                                                           "default":  "Follow document ({{value}} px)",
+                                                                           "relative_default":  "Follow document (87.5%)",
+                                                                           "unit":  "{{value}} px"
+                                                                       },
+                                                         "line_height":  {
+                                                                             "label":  "Code line height",
+                                                                             "desc":  "Line height is a multiple of the font size. The default is 1.6×; choose Custom to adjust line spacing.",
+                                                                             "default":  "1.6× (default)",
+                                                                             "unit":  "{{value}}×"
+                                                                         },
+                                                         "default_value":  "{{value}} (default)",
+                                                         "typography_disabled":  "“Use personal fonts, size and line height” is off. Custom font size and line height are not currently applied."
+                                                     },
+                                    "tabs":  {
+                                                 "label":  "Tabs",
+                                                 "enable_preview":  {
+                                                                        "label":  "Enable preview tabs",
+                                                                        "desc":  "Single-click files in the Explorer or search results to reuse a preview tab. Double-click or edit to keep it open. Saved tabs stay open."
+                                                                    }
+                                             }
+                                },
+                     "keyboard":  {
+                                      "label":  "Keyboard Shortcuts",
+                                      "shortcut_conflict":  "This shortcut is already occupied",
+                                      "desc":  "Search commands and click a shortcut to change it.",
+                                      "table_label":  "Keyboard shortcuts table",
+                                      "command":  "Command",
+                                      "keybinding":  "Keybinding",
+                                      "scope":  "Context",
+                                      "edit":  "Edit",
+                                      "edit_shortcut":  "Edit Shortcut",
+                                      "shortcut":  "Shortcut",
+                                      "save":  "Save",
+                                      "load_failed":  "Unable to load shortcuts. Check the configuration file and retry.",
+                                      "save_failed":  "Unable to save the shortcut. Your previous configuration was kept. Please retry.",
+                                      "invalid_binding":  "Press a valid combination that includes a primary key.",
+                                      "reserved_binding":  "This combination is reserved for typing, navigation or the system clipboard. Choose another.",
+                                      "conflict_with":  "Already used by “{{command}}”. Change that command’s shortcut first.",
+                                      "saving":  "Saving…",
+                                      "unbound":  "Unassigned",
+                                      "record_help":  "Press keys · Enter to save · Esc to cancel",
+                                      "remove_binding":  "Remove shortcut",
+                                      "reset_default":  "Restore default",
+                                      "clipboard_note":  "The system cut shortcut remains available. You can assign an additional cut shortcut here.",
+                                      "search":  "Search commands or shortcuts",
+                                      "modified_only":  "Modified only",
+                                      "retry":  "Retry",
+                                      "scope_app":  "Application",
+                                      "scope_editor":  "Editor",
+                                      "modified":  "Modified",
+                                      "system_binding":  "System shortcut",
+                                      "no_results":  "No matching shortcuts"
+                                  },
+                     "ai":  {
+                                "label":  "AI",
+                                "model":  {
+                                              "label":  "AI Model"
+                                          },
+                                "ChatGPT":  {
+                                                "label":  "ChatGPT",
+                                                "api_base":  {
+                                                                 "label":  "API Base",
+                                                                 "desc":  "API Base for ChatGPT."
+                                                             },
+                                                "api_key":  {
+                                                                "label":  "API Key",
+                                                                "desc":  "API key for ChatGPT."
+                                                            },
+                                                "models":  {
+                                                               "label":  "Models",
+                                                               "desc":  "A model list separated by commas, default is \"gpt-3.5-turbo, gpt-4-32k, gpt-4\""
+                                                           }
+                                            },
+                                "DeepSeek":  {
+                                                 "label":  "DeepSeek",
+                                                 "api_base":  {
+                                                                  "label":  "API Base",
+                                                                  "desc":  "API Base for DeepSeek."
+                                                              },
+                                                 "api_key":  {
+                                                                 "label":  "API Key",
+                                                                 "desc":  "API key for DeepSeek."
+                                                             },
+                                                 "models":  {
+                                                                "label":  "Models",
+                                                                "desc":  "A model list separated by commas, default is \"\""
+                                                            }
+                                             },
+                                "Ollama":  {
+                                               "label":  "Ollama",
+                                               "api_base":  {
+                                                                "label":  "API Base",
+                                                                "desc":  "API Base for Ollama."
+                                                            },
+                                               "models":  {
+                                                              "label":  "Models",
+                                                              "desc":  "Available models are discovered automatically by default, so this usually does not need to be configured. Use a comma-separated list only for compatibility or as a fallback when discovery is unavailable."
+                                                          }
+                                           },
+                                "Google":  {
+                                               "label":  "Google",
+                                               "api_base":  {
+                                                                "label":  "API Base",
+                                                                "desc":  "The API address AI by Google."
+                                                            },
+                                               "api_key":  {
+                                                               "label":  "API Key",
+                                                               "desc":  "Google\u0027s AI API key."
+                                                           },
+                                               "models":  {
+                                                              "label":  "Model List",
+                                                              "desc":  "Model list, separated by commas. The default value is \"\""
+                                                          }
+                                           },
+                                "desc":  "AI the model configuration, when the baseUrl is empty, the official address will be requested by default, and the request header can be used to configure information such as keys, please refer to the documentation of the service provider."
+                            },
+                     "image":  {
+                                   "label":  "File",
+                                   "paste_event":  {
+                                                       "label":  "Editor Paste Event",
+                                                       "when_paste_image":  {
+                                                                                "label":  "When pasted text contains a file",
+                                                                                "desc":  "Select the default behavior when pasting pictures in the editor.",
+                                                                                "options":  {
+                                                                                                "do_nothing":  "No Operation",
+                                                                                                "save_to_local_relative":  "Save to workspace relative path",
+                                                                                                "save_to_file_relative":  "Save to a path relative to the current file"
+                                                                                            }
+                                                                            },
+                                                       "paste_image_save_relative_path":  {
+                                                                                              "label":  "Workspace relative path",
+                                                                                              "desc":  "When pasting a file, the file will be calculated relative to the current workspace path according to your rules and saved to this path"
+                                                                                          },
+                                                       "paste_image_save_relative_path_rule":  {
+                                                                                                   "label":  "Path Rules",
+                                                                                                   "desc":  "Supported variables: ${documentPath} (parent folder path of current file), ${fileName} (current file name without extension). Example: ${documentPath}/photo/${fileName}"
+                                                                                               }
+                                                   },
+                                   "upload_img":  {
+                                                      "label":  "Insert local file",
+                                                      "when_upload_image":  {
+                                                                                "label":  "Local file insertion behavior",
+                                                                                "desc":  "Choose the default behavior for local files selected from your computer, dropped into the editor, or pasted by screenshot software.",
+                                                                                "options":  {
+                                                                                                "save_to_local_relative":  "Save to workspace relative path",
+                                                                                                "save_to_file_relative":  "Save to a path relative to the current file"
+                                                                                            }
+                                                                            },
+                                                      "upload_image_save_relative_path":  {
+                                                                                              "label":  "Workspace relative path",
+                                                                                              "desc":  "When uploading a file, the file will be calculated relative to the current workspace path according to your rules and saved to this path"
+                                                                                          },
+                                                      "upload_image_save_relative_path_rule":  {
+                                                                                                   "label":  "Path Rules",
+                                                                                                   "desc":  "Supported variables: ${documentPath} (parent folder path of current file), ${fileName} (current file name without extension). Example: ${documentPath}/photo/${fileName}"
+                                                                                               }
+                                                  },
+                                   "desc":  "Configuring file processing and upload, including pasting files, saving paths and behavior settings for uploading files."
+                               },
+                     "export":  {
+                                    "label":  "Export",
+                                    "desc":  "Configure optional tools used to export documents.",
+                                    "pandoc":  {
+                                                   "label":  "Pandoc",
+                                                   "executable":  {
+                                                                      "label":  "Pandoc executable",
+                                                                      "desc":  "Pandoc is not bundled with WinZettel. Use automatic detection or select a local executable."
+                                                                  },
+                                                   "status":  {
+                                                                  "checking":  "Checking for Pandoc...",
+                                                                  "ready":  "Pandoc {{version}} is ready.",
+                                                                  "invalid_executable":  "The configured path is not a valid Pandoc executable.",
+                                                                  "incompatible":  "Pandoc was found, but it does not support all required formats.",
+                                                                  "not_found":  "Pandoc was not found."
+                                                              },
+                                                   "select":  "Select executable",
+                                                   "automatic":  "Use automatic detection",
+                                                   "check_again":  "Check again",
+                                                   "install_guide":  "Installation guide"
+                                               },
+                                    "pdf":  {
+                                                "label":  "PDF export",
+                                                "executable":  {
+                                                                   "label":  "PDF export browser",
+                                                                   "desc":  "WinZettel uses a local Chrome, Chromium, or Edge browser to export PDF with heading bookmarks. Detect it automatically or select its executable."
+                                                               },
+                                                "status":  {
+                                                               "checking":  "Checking for a PDF export browser…",
+                                                               "ready":  "Browser {{version}} is ready.",
+                                                               "invalid_executable":  "The configured path is not a valid supported browser executable.",
+                                                               "incompatible":  "The browser was found, but its version does not support PDF heading bookmarks.",
+                                                               "not_found":  "No compatible PDF export browser was found.",
+                                                               "save_failed":  "The browser setting could not be saved. Try again."
+                                                           },
+                                                "select":  "Choose browser…",
+                                                "automatic":  "Auto-detect",
+                                                "check_again":  "Check again"
+                                            }
+                                },
+                     "display":  {
+                                     "label":  "Appearance",
+                                     "theme":  {
+                                                   "unavailable":  "{{name}} (unavailable)",
+                                                   "unavailable_help":  "Selected themes are unavailable: {{names}}. Built-in themes are used temporarily and your selections are retained. Reimport the themes as JSON or choose another theme. Older JS themes and automatically loaded CSS need manual migration.",
+                                                   "migration_guide":  "Theme migration guide",
+                                                   "label":  "Theme",
+                                                   "mode":  {
+                                                                "label":  "Theme Mode",
+                                                                "desc":  "Choose how the app switches between light and dark themes",
+                                                                "system":  "Follow System",
+                                                                "light":  "Light",
+                                                                "dark":  "Dark"
+                                                            },
+                                                   "light_theme":  {
+                                                                       "label":  "Light Theme",
+                                                                       "desc":  "Select the theme used in light mode"
+                                                                   },
+                                                   "dark_theme":  {
+                                                                      "label":  "Dark Theme",
+                                                                      "desc":  "Select the theme used in dark mode"
+                                                                  },
+                                                   "accent_color":  {
+                                                                        "label":  "Theme Color",
+                                                                        "desc":  "Override the selected theme\u0027s accent color",
+                                                                        "follow_theme":  "Follow Theme",
+                                                                        "custom":  "Custom"
+                                                                    }
+                                               },
+                                     "size":  {
+                                                  "label":  "Dimensions",
+                                                  "zoom":  {
+                                                               "label":  "Scaling",
+                                                               "desc":  "Scales or enlarges the display scale of the entire page"
+                                                           }
+                                              },
+                                     "desc":  "Appearance and display settings for the application, including visually relevant configurations such as interface scaling and themes."
+                                 },
+                     "encryption":  {
+                                        "repository":  {"label":"Encrypted repository","title":"Create an encrypted repository","desc":"Creates a gocryptfs repository the Android app can open too. Do not add, rename or delete files with the file manager: doing so breaks the repository and it may stop opening.","create":"New repository…","hint":"Choose an empty folder to hold the repository."},
+"label":  "Encryption",
+                                        "desc":  "Note encryption compatible with Zettel Notes for Android.",
+                                        "end_to_end":  {
+                                                           "label":  "End-to-end encryption"
+                                                       },
+                                        "passphrase":  {
+                                                           "label":  "Passphrase",
+                                                           "desc":  "Used to encrypt and decrypt notes. It is stored in this app’s settings file; if it is lost, the encrypted notes cannot be recovered.",
+                                                           "placeholder":  "Passphrase",
+                                                           "set":  "Set passphrase",
+                                                           "reset":  "Reset passphrase",
+                                                           "configured":  "Passphrase is set",
+                                                           "not_configured":  "No passphrase set",
+                                                           "reset_confirm_title":  "Reset passphrase?",
+                                                           "reset_confirm":  "Notes already encrypted with the current passphrase will no longer be readable. Continue?"
+                                                       },
+                                        "unavailable_in_repository":  "Not available inside an encrypted repository: the repository already encrypts every note."
+                                    },
+                     "updates":  {
+                                     "label":  "Updates",
+                                     "desc":  "Check for updates at startup. Download and install only when you choose to.",
+                                     "current_version":  "Current version",
+                                     "manual_hint":  "Updates are checked only when you ask. Nothing runs at launch.",
+                                     "check_now":  "Check for updates",
+                                     "checking":  "Checking…",
+                                     "up_to_date":  "You are on the latest version.",
+                                     "available":  "Version {{version}} is available.",
+                                     "install_version":  "Install {{version}}"
+                                 },
+                     "copilot":  {
+                                     "label":  "Copilot",
+                                     "desc":  "AI the auxiliary writing configuration, select the AI supplier and model that you have configured. It is recommended to select a small model with a parameter amount of about 2b or less to improve the response speed.",
+                                     "enable":  {
+                                                    "label":  "Enable Copilot",
+                                                    "desc":  "Enable AI-assisted writing"
+                                                },
+                                     "provider":  {
+                                                      "label":  "Supplier",
+                                                      "desc":  "Select AI Service Provider"
+                                                  },
+                                     "model":  {
+                                                   "label":  "Model",
+                                                   "desc":  "Select the AI model to use"
+                                               }
+                                 },
+                     "themeStore":  {
+                                        "controls":  {
+                                                         "retryPreview":  "Retry preview",
+                                                         "loadingPreview":  "Loading theme preview",
+                                                         "reinstall":  "Reinstall",
+                                                         "builtIn":  "Built-in themes",
+                                                         "builtInDescription":  "Included with WinZettel.",
+                                                         "local":  "Local themes",
+                                                         "localDescription":  "Themes you created or imported.",
+                                                         "active":  "In use",
+                                                         "currentTheme":  "Current theme",
+                                                         "tools":  "Theme tools",
+                                                         "more":  "More actions",
+                                                         "customization":  "Typography \u0026 CSS",
+                                                         "unknownAuthor":  "Author not specified",
+                                                         "noInstalled":  "No community themes installed yet.",
+                                                         "installedOnly":  "Installed only",
+                                                         "title":  "Themes",
+                                                         "create":  "Create theme",
+                                                         "import":  "Import JSON",
+                                                         "export":  "Export JSON",
+                                                         "edit":  "Edit",
+                                                         "copy":  "Copy and edit",
+                                                         "remove":  "Remove",
+                                                         "apply":  "Apply",
+                                                         "save":  "Save and apply",
+                                                         "close":  "Close",
+                                                         "undo":  "Undo",
+                                                         "redo":  "Redo",
+                                                         "search":  "Find a token…",
+                                                         "modified":  "Modified only",
+                                                         "reset":  "Reset",
+                                                         "link":  "Link to token",
+                                                         "value":  "Value",
+                                                         "inspect":  "Inspect preview",
+                                                         "snippets":  "Personal CSS snippets",
+                                                         "addCss":  "Import CSS",
+                                                         "createCss":  "New snippet",
+                                                         "untitledCss":  "Untitled snippet",
+                                                         "disableAll":  "Disable all",
+                                                         "includeCss":  "Include personal CSS",
+                                                         "up":  "Move up",
+                                                         "down":  "Move down",
+                                                         "name":  "Name",
+                                                         "author":  "Author",
+                                                         "variant":  "Variant",
+                                                         "addLight":  "Add light variant",
+                                                         "addDark":  "Add dark variant",
+                                                         "advanced":  "Advanced JSON / CSS",
+                                                         "options":  "Theme options",
+                                                         "previewOptions":  "Preview options",
+                                                         "closeAdvanced":  "Close advanced editor",
+                                                         "noTokens":  "No matching tokens",
+                                                         "css":  "Theme CSS",
+                                                         "json":  "Theme JSON",
+                                                         "applyJson":  "Update from JSON",
+                                                         "revertJson":  "Discard JSON edits",
+                                                         "pendingJson":  "Apply or discard the JSON edits to continue visual editing and export.",
+                                                         "catalog":  "Community themes",
+                                                         "install":  "Install",
+                                                         "emptyCatalog":  "No community themes available yet.",
+                                                         "replace":  "This theme ID already exists. Replace it?",
+                                                         "replaceAction":  "Replace",
+                                                         "cancel":  "Cancel",
+                                                         "saveCopy":  "Save a copy",
+                                                         "draft":  "A local draft is available.",
+                                                         "resume":  "Resume draft",
+                                                         "discard":  "Discard draft",
+                                                         "preview":  "Theme preview",
+                                                         "loadError":  "Could not load the editor preview.",
+                                                         "retry":  "Retry",
+                                                         "linked":  "Linked",
+                                                         "inherited":  "Default",
+                                                         "customCss":  "Custom CSS may override the inspected token.",
+                                                         "preferences":  "Preview shows only the theme. Your chosen personal preferences also apply when using it.",
+                                                         "personalTypography":  "Use personal fonts, size and line height",
+                                                         "saved":  "Saved",
+                                                         "error":  "Error",
+                                                         "enabled":  "Enabled",
+                                                         "editCss":  "Edit CSS",
+                                                         "saveCss":  "Save snippet",
+                                                         "insertCssTemplate":  "Insert template",
+                                                         "cssSelectorReference":  "Selector reference",
+                                                         "cssPreviewHint":  "Preview includes this draft and other enabled snippets. Save to apply your changes.",
+                                                         "enableCssAfterSave":  "Enable after saving",
+                                                         "cssTemplateCompletedTasks":  "Completed task strikethrough",
+                                                         "cssTemplateHeadingDividers":  "Heading dividers",
+                                                         "cssTemplateCompactTables":  "Compact tables",
+                                                         "cssTemplateQuoteAccent":  "Quote accent",
+                                                         "noSnippets":  "No personal CSS snippets.",
+                                                         "deleteConfirm":  "Remove this theme?",
+                                                         "removeVariant":  "Remove variant",
+                                                         "schema":  "Export JSON Schema",
+                                                         "light":  "Light",
+                                                         "dark":  "Dark",
+                                                         "catalogMismatch":  "The theme ID does not match the community catalog.",
+                                                         "previewNotes":  "Notes",
+                                                         "previewIdeas":  "Ideas",
+                                                         "previewWelcome":  "Welcome",
+                                                         "previewSearch":  "Search preview",
+                                                         "previewSearchPlaceholder":  "Search…",
+                                                         "previewNewNote":  "New note",
+                                                         "changeTheme":  "Change",
+                                                         "changeLight":  "Change light theme",
+                                                         "changeDark":  "Change dark theme",
+                                                         "useInLight":  "Used in light mode",
+                                                         "useInDark":  "Used in dark mode",
+                                                         "browseThemes":  "Browse all themes",
+                                                         "backToAppearance":  "Back to appearance",
+                                                         "chooseLight":  "Choose a light theme",
+                                                         "chooseDark":  "Choose a dark theme",
+                                                         "preserveMode":  "Selecting a theme keeps your current display mode.",
+                                                         "selected":  "Selected",
+                                                         "setLight":  "Set as light theme",
+                                                         "setDark":  "Set as dark theme",
+                                                         "noLightVariant":  "No light variant",
+                                                         "noDarkVariant":  "No dark variant",
+                                                         "installAndSelect":  "Install and select",
+                                                         "noMatchingThemes":  "No community themes available for this mode.",
+                                                         "openCssDirectory":  "Open CSS folder",
+                                                         "cssDirectoryHint":  "CSS files in this folder sync automatically. New files start disabled; edit or delete them in the folder.",
+                                                         "externalCssFile":  "External file",
+                                                         "revealCssFile":  "Show in folder"
+                                                     },
+                                        "label":  "Theme Store",
+                                        "desc":  "Browse built-in and community themes, or customize your own.",
+                                        "submit_theme":  "Submit theme",
+                                        "name":  "Name",
+                                        "mode":  "Mode",
+                                        "version":  "Version",
+                                        "author":  "Author",
+                                        "description":  "Description",
+                                        "tags":  "Label",
+                                        "action":  "Operation",
+                                        "official":  "Official",
+                                        "builtin":  "Built-in",
+                                        "installed":  "Installed",
+                                        "download":  "Download",
+                                        "uninstall":  "Unload",
+                                        "only_installed":  "Only see installed",
+                                        "no_local_themes":  "No local theme",
+                                        "remove_local_theme":  "Are you sure you want to remove the local theme \"{{name}}\"? This will delete the files under the folder.",
+                                        "online_themes":  "Online Themes",
+                                        "local_css_files":  "Local CSS file",
+                                        "install_theme":  "Install Theme",
+                                        "install_theme_confirm":  "Are you sure you want to install {{name}}?",
+                                        "uninstall_theme":  "Uninstall Theme",
+                                        "uninstall_theme_confirm":  "Are you sure you want to uninstall {{name}}?"
+                                    },
+                     "about":  {
+                                   "label":  "About",
+                                   "desc":  "Where this app comes from and what it changes.",
+                                   "fork":  "This app is a fork of MarkFlowy, located at",
+                                   "compatibility":  "It has some changes to make it partially compatible with Zettel Notes for Android.",
+                                   "reset":  {
+                                                 "label":  "Reset settings",
+                                                 "hint":  "Deletes the application settings and the saved layout. Notes in your workspace are not touched.",
+                                                 "action":  "Reset settings…",
+                                                 "title":  "Reset the application?",
+                                                 "description":  "Settings, layout and remembered tabs will be deleted. Notes in your workspace stay exactly where they are.",
+                                                 "restart":  "Reset and restart",
+                                                 "plain":  "Reset without restarting",
+                                                 "done":  "Settings reset.",
+                                                 "partial":  "Reset partly done — some files are in use.",
+                                                 "failed":  "Reset failed."
+                                             }
+                               }
+                 },
+    "updater":  {
+                    "install":  "install",
+                    "download_and_install":  "Download and install",
+                    "view_release_notes":  "View release notes",
+                    "downloading":  "Downloading new version…",
+                    "install_success":  "Update installed successfully.",
+                    "restart":  "Restart",
+                    "install_failed":  "Unable to install the update: {{error}}",
+                    "check_failed":  "Unable to check for updates: {{error}}",
+                    "interrupted_title":  "Update not completed",
+                    "interrupted_description":  "The previous update to {{version}} did not complete. Automatic installation is paused. You can retry, disable automatic updates, or cancel to continue using WinZettel.",
+                    "disable_auto_update":  "Disable automatic updates"
+                },
+    "workspace":  {
+                      "info":  "Workspace Information",
+                      "none":  "Workspace is not open",
+                      "searchPlaceholder":  "Search recent workspaces and files…",
+                      "open":  "Open",
+                      "openFileOrFolder":  "Open File or Folder",
+                      "recentFiles":  "Recent Files",
+                      "sync_mode":  {
+                                        "git_local":  {
+                                                          "name":  "Git Local",
+                                                          "description":  "Synchronize with local Git repository"
+                                                      },
+                                        "git_remote":  {
+                                                           "name":  "Git Remote",
+                                                           "description":  "Synchronize with remote Git repository"
+                                                       },
+                                        "pure_local":  {
+                                                           "name":  "Pure Local",
+                                                           "description":  "Local Workspace Only"
+                                                       }
+                                    },
+                      "label":  "Book"
+                  },
+    "request":  {
+                    "headers_config":  {
+                                           "label":  "Configure Request Header",
+                                           "desc":  "Add custom HTTP request headers to support multiple key-value pairs."
+                                       }
+                },
+    "ai":  {
+               "capabilities":  "Function",
+               "export_conversation":  "Export conversation",
+               "assistant":  "Chat AI",
+               "you":  "You",
+               "sources":  "Sources",
+               "response_interrupted":  "Response stopped",
+               "error":  "Error",
+               "request_failed":  "Request failed",
+               "settings":  "Settings",
+               "new_chat":  "New chat",
+               "welcome_title":  "How can I help you today?",
+               "welcome_description":  "Ask questions, explore ideas, or add the current document as context.",
+               "try_asking":  "Try asking",
+               "prompt_document_title":  "Summarize this document",
+               "prompt_document_description":  "Use the active document as context",
+               "prompt_document_value":  "Summarize the current document and highlight the key points.",
+               "prompt_explain_title":  "Explain a topic",
+               "prompt_explain_description":  "Break down something complex clearly",
+               "prompt_explain_value":  "Explain this topic clearly with a practical example: ",
+               "ask_placeholder":  "Ask anything… Use @ for context",
+               "current_document":  "Current document",
+               "no_active_document":  "No active document",
+               "select_model":  "Select model",
+               "search_models":  "Search models…",
+               "no_models_found":  "No models found",
+               "no_models_configured":  "No AI models configured",
+               "model_unavailable":  "This model is unavailable",
+               "select_available_model":  "Select an available model to send",
+               "provider_not_configured":  "{{provider}} is not configured",
+               "configure_provider":  "Configure {{provider}}",
+               "provider_settings":  "{{provider}} settings",
+               "manage_providers":  "Manage AI providers",
+               "ollama_connecting":  "Connecting to Ollama…",
+               "ollama_offline":  "Ollama is offline",
+               "ollama_empty":  "No compatible Ollama models found",
+               "ollama_retry":  "Retry",
+               "add_context":  "Add context",
+               "add_active_file":  "Add active file",
+               "add_open_tabs":  "Add open tabs",
+               "search_open_tabs":  "Search open tabs…",
+               "no_open_tabs":  "No open tabs",
+               "no_context_files_available":  "No more open files to add",
+               "selected_context_files":  "Context files ({{count}}/8)",
+               "context_limit_reached":  "You can add up to 8 files",
+               "remove_attachment":  "Remove {{name}}",
+               "attachment_missing":  "File no longer exists",
+               "attachment_unreadable":  "File could not be read",
+               "attachment_binary":  "Only text files can be used as context",
+               "attachment_too_many":  "You can attach up to 8 files",
+               "attachment_truncated":  "Content truncated to fit the context limit",
+               "attachment_errors":  "Fix attachment errors before sending",
+               "send":  "Send",
+               "stop":  "Stop",
+               "working":  "Assistant is working",
+               "scroll_to_bottom":  "Scroll to bottom",
+               "edit":  "Edit",
+               "save_edit":  "Save changes",
+               "cancel_edit":  "Cancel editing",
+               "regenerate":  "Regenerate",
+               "previous_branch":  "Previous branch",
+               "next_branch":  "Next branch",
+               "branch_position":  "{{current}} of {{total}}",
+               "copy":  "Copy",
+               "copied":  "Copied",
+               "delete":  "Delete",
+               "new_chat_confirm_title":  "Start a new conversation?",
+               "new_chat_confirm_description":  "This clears the conversation in the current workspace.",
+               "new_chat_confirm":  "Start new conversation",
+               "cancel":  "Cancel",
+               "export_empty":  "There is no conversation to export"
+           },
+    "history":  {
+                    "title":  "Local history",
+                    "description":  "Review changes and restore a version as an unsaved draft.",
+                    "enabled":  "Enable local history",
+                    "enabled_description":  "Keep versions of documents opened in WinZettel. Unsaved draft protection continues when this is off.",
+                    "retention":  "Ordinary history: 30 days, up to 100 versions per document, with a 1 GB target budget. Unsaved drafts and active editing sessions are protected.",
+                    "count":  "{{count}} versions",
+                    "clear_title":  "Manage stored history",
+                    "clear_description":  "Delete history without deleting your files or unsaved drafts. New changes can create new history while the feature is enabled.",
+                    "clear_workspace":  "Delete current workspace history",
+                    "clear_loose":  "Delete independent document history",
+                    "clear_all":  "Delete all workspace history",
+                    "clear_confirm":  "Permanently delete {{count}} versions? Up to {{size}} MB of unshared content can be reclaimed. Files and unsaved drafts are kept.",
+                    "all_workspaces":  "All workspaces and independent documents",
+                    "loose":  "Independent documents",
+                    "delete":  "Delete history",
+                    "empty":  "No history yet.",
+                    "previous":  "Previous",
+                    "next":  "Next",
+                    "before":  "Before changes",
+                    "after":  "Latest result",
+                    "refresh":  "New changes available · refresh comparison",
+                    "loading":  "Loading comparison…",
+                    "compare_failed":  "Unable to load the comparison. Showing the original text; you can still restore this version.",
+                    "select":  "Select a version to inspect its changes.",
+                    "restore_before":  "Restore before changes",
+                    "restore":  "Restore this version",
+                    "merging":  "Changes being grouped",
+                    "kind_save":  "Saved",
+                    "kind_external":  "External changes",
+                    "kind_ai":  "AI edit",
+                    "kind_checkpoint":  "Draft checkpoint",
+                    "kind_restore":  "Before restore",
+                    "kind_discard":  "Before discard",
+                    "kind_overwrite":  "Before overwrite",
+                    "kind_autosave":  "Auto saved",
+                    "kind_opened":  "Initial version",
+                    "protected":  "Draft protected",
+                    "pending":  "Protecting draft…",
+                    "failed":  "Draft protection failed",
+                    "paused":  "Restored draft · save manually",
+                    "large":  "Large document: showing original text.",
+                    "compare_current":  "Compare with current draft",
+                    "compare_version":  "Compare with another version",
+                    "compare_batch":  "Compare before / after",
+                    "snapshot":  "Selected version",
+                    "current":  "Current draft",
+                    "versions":  "Versions",
+                    "split":  "Split view",
+                    "unified":  "Unified view",
+                    "full_context":  "Show full context",
+                    "previous_change":  "Previous change",
+                    "next_change":  "Next change",
+                    "no_changes":  "No differences",
+                    "change_position":  "{{current}} / {{total}} changes",
+                    "added_lines":  "Added lines: {{count}}",
+                    "removed_lines":  "Removed lines: {{count}}",
+                    "unchanged_lines":  "$ unchanged lines · click to expand",
+                    "retry":  "Retry protection",
+                    "coarse":  "Differences are simplified within the computation budget; full text is preserved.",
+                    "compute_large":  "Compute large-document differences",
+                    "deleted":  "Deleted {{count}} history versions.",
+                    "kind_write-pending":  "Interrupted file write",
+                    "budget_limited":  "History storage has reached its target budget. Automatic checkpoints and new AI sessions are paused; draft protection and safety copies continue. Delete unneeded history to resume.",
+                    "kind_recovered-save":  "Recovered save"
+                },
+    "document_preview":  {
+                             "html_title":  "HTML preview",
+                             "pdf_title":  "PDF reader",
+                             "refresh":  "Refresh",
+                             "run_scripts":  "Run scripts",
+                             "loading":  "Loading…",
+                             "load_failed":  "Unable to load this file.",
+                             "retry":  "Retry",
+                             "resources_blocked":  "Resources not loaded",
+                             "resource_folder_hint":  "Open the folder containing this document and its resources as a workspace, then refresh the preview.",
+                             "resource_errors":  {
+                                                     "not_found":  "File not found.",
+                                                     "permission_denied":  "Permission to read this file was denied.",
+                                                     "outside_root":  "Outside this document’s folder or workspace.",
+                                                     "too_large":  "Resource or expanded preview exceeds the size limit.",
+                                                     "unsupported":  "Unsupported resource type or URL.",
+                                                     "invalid_css":  "Unable to parse this stylesheet.",
+                                                     "resource_limit":  "Circular import or resource count/depth limit reached.",
+                                                     "read_failed":  "Unable to read this resource."
+                                                 },
+                             "previous_page":  "Previous page",
+                             "next_page":  "Next page",
+                             "page":  "Page number",
+                             "zoom_out":  "Zoom out",
+                             "zoom_in":  "Zoom in",
+                             "fit_width":  "Fit width",
+                             "search":  "Search PDF",
+                             "previous_match":  "Previous match",
+                             "next_match":  "Next match",
+                             "password_required":  "Enter the PDF password",
+                             "password_incorrect":  "Incorrect password. Try again.",
+                             "unlock":  "Unlock",
+                             "cancel":  "Cancel"
+                         },
+    "pdf_export":  {
+                       "title":  "Export PDF",
+                       "description":  "Uses Chrome, Chromium, or Edge on your computer.",
+                       "method_description":  "Choose how to export this document as a PDF.",
+                       "method":  "Export method",
+                       "method_browser":  "Browser export",
+                       "method_native":  "In-app export",
+                       "native_hint":  "No browser installation required. Supports heading bookmarks.",
+                       "native_ready":  "Ready to export within the app.",
+                       "paper_size":  "Paper size",
+                       "orientation":  "Orientation",
+                       "portrait":  "Portrait",
+                       "landscape":  "Landscape",
+                       "include_outline":  "Include heading bookmarks",
+                       "outline_hint":  "Turn document headings into a navigable PDF outline. Documents without headings have no bookmarks.",
+                       "export":  "Export PDF",
+                       "print":  "Print…",
+                       "exporting":  "Exporting PDF…",
+                       "success":  "PDF saved to {{path}}.",
+                       "failed":  "PDF export failed. Your document has been preserved.",
+                       "image_warning":  "{{count}} images could not be loaded. Check the exported PDF.",
+                       "browser_check_failed":  "Browser detection failed. Please try again.",
+                       "cancelled":  "PDF export cancelled.",
+                       "system_print":  "System print…",
+                       "system_print_hint":  "System print is also available. Saving as PDF through the print dialog does not guarantee heading bookmarks.",
+                       "browser":  {
+                                       "error_details":  "Error details",
+                                       "checking":  "Checking the PDF export browser…",
+                                       "ready":  "Browser {{version}} is ready.",
+                                       "not_found":  "No compatible PDF export browser was found.",
+                                       "incompatible":  "The browser version does not support PDF export with heading bookmarks.",
+                                       "settings_hint":  "Choose an installed Chrome, Chromium, or Edge browser here."
+                                   }
+                   },
+    "file_deletion":  {
+                          "permanent_title":  "Permanently delete “{{name}}”?",
+                          "trash_title":  "Move “{{name}}” to trash?",
+                          "permanent_action":  "Permanently delete",
+                          "trash_action":  "Move to trash",
+                          "counting":  "Counting…",
+                          "counts":  "{{files}} files · {{folders}} subfolders",
+                          "files_only":  "{{files}} files",
+                          "folders_only":  "{{folders}} subfolders",
+                          "short_scope":  "Includes hidden and excluded items",
+                          "short_partial":  "At least {{files}} files · {{folders}} subfolders",
+                          "partial_hint":  "Counting is incomplete. There may be more items.",
+                          "empty":  "Empty folder",
+                          "symlink":  "Only the link will be removed. Its target is unaffected.",
+                          "count_failed":  "Unable to count contents. Try again.",
+                          "permanent_warning":  "Permanent deletion cannot be undone."
+                      },
+    "editor_context":  {
+                           "cut":  "Cut",
+                           "copy":  "Copy",
+                           "paste":  "Paste","paste_plain":  "Paste as plain text","paste_empty":  "Nothing to paste: the clipboard has no text.","paste_rich":  "Paste",
+                           "select_all":  "Select all"
+                       },
+    "find":  {
+                 "mode_find":  "Find in document",
+                 "placeholder":  "Search in this note",
+                 "previous":  "Previous match",
+                 "next":  "Next match",
+                 "no_matches":  "No matches"
+             },
+    "encryption":  {
+                       "unlock":  {
+"title":  "Passphrase for this note",
+                                      "done":  "Note decrypted",
+                                      "wrong":  "That passphrase does not match"
+                                  },
+                       "locked":  {
+                                      "tab":  "Encrypted note",
+                                      "notice":  "This note is encrypted. Enter the passphrase to read and edit it.",
+                                      "editor_blocked":  "Decrypt the note before editing it.",
+                                      "unlock":  "Unlock",
+                                      "toolbar_hint":  "Encrypted note. Unlock it to use these tools."
+                                  }
+                   },
+    "repo":  {
+                 "unlock":  {
+                                "attachments_fallback":  "Attachments inside an encrypted repository must live in the workspace, so “assets” was used instead.",
+                                "title":  "Encrypted repository",
+                                "description":  "Enter the password to open this repository.",
+                                "placeholder":  "Repository password",
+                                "wrong_password":  "That password does not open this repository.",
+                                "failed":  "The repository could not be opened: {{message}}",
+                                "previous_locked":  "The previous repository was locked.",
+                                "blocked_title":  "Repository locked",
+                                "action":  "Unlock repository",
+                                "blocked_description":  "This folder is an encrypted repository. Unlock it to see the notes."
+                            },
+                 "create":  {
+                                "menu":  "New encrypted repository…",
+                                "title":  "New repository",
+                                "description":  "Creates a gocryptfs repository that the Android app can also open.",
+                                "folder":  "Folder",
+                                "folder_placeholder":  "Choose an empty folder",
+                                "choose_folder":  "Choose…",
+                                "password":  "Password",
+                                "password_confirmation":  "Confirm password",
+                                "plaintext_names":  "Keep file names readable (not encrypted)",
+                                "cipher":  "Content cipher",
+                                "cipher_auto":  "Auto",
+                                "cipher_aes":  "AES-GCM",
+                                "cipher_xchacha":  "XChaCha20-Poly1305",
+                                "strength":  "Key strength",
+                                "strength_14":  "Fast",
+                                "strength_16":  "Standard",
+                                "strength_18":  "Strong",
+                                "warning":  "This password cannot be recovered. If you lose it, the notes cannot be decrypted.",
+                                "folder_required":  "Choose the folder for the repository.",
+                                "password_too_short":  "Use at least four characters.",
+                                "password_mismatch":  "The passwords do not match.",
+                                "failed":  "The repository could not be created: {{message}}",
+                                "submit":  "Create"
+                            }
+             }
 }

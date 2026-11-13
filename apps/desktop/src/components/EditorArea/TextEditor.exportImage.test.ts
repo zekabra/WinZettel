@@ -1,5 +1,4 @@
 import { runInNewContext } from 'node:vm'
-import { isCapricornView } from '@/constants/editorViewType'
 import ts from 'typescript'
 import { describe, expect, it, vi } from 'vitest'
 import textEditorSource from './TextEditor.tsx?raw'
@@ -56,12 +55,10 @@ describe('TextEditor image export ownership', () => {
         active: true,
         id: 'file',
         currentViewType: 'preview',
-        isCapricornView,
-        getFileObject: () => ({ name: 'note.md' }),
+            getFileObject: () => ({ name: 'note.md' }),
         remoteImages: { retain: () => releaseImages },
         useEditorStore: { getState: () => ({ getEditorContent: () => 'snapshot' }) },
-        capricornEditorRef: { current: null },
-        save: async () => {
+          save: async () => {
           if (outcome === 'failure') throw new Error('Dialog failed')
           return null
         },
@@ -110,7 +107,7 @@ describe('TextEditor image export ownership', () => {
   })
 
   it.each(
-    ['wysiwyg', 'preview', 'sourceCode'].flatMap((mode) =>
+    ['preview', 'sourceCode'].flatMap((mode) =>
       ['success', 'surface', 'resources', 'render', 'write'].map((outcome) => ({ mode, outcome })),
     ),
   )(
@@ -140,10 +137,9 @@ describe('TextEditor image export ownership', () => {
         active: true,
         remoteImages,
         id: 'file',
-        EditorViewType: { WYSIWYG: 'wysiwyg' },
+        EditorViewType: { SOURCECODE: 'sourceCode', PREVIEW: 'preview' },
         currentViewType: mode,
-        isCapricornView,
-        getFileObject: () => ({ name: 'note.md', path: '/notes/note.md' }),
+            getFileObject: () => ({ name: 'note.md', path: '/notes/note.md' }),
         useEditorStore: { getState: () => ({ getEditorContent: () => markdown }) },
         fileTypeConfig: { type: 'markdown' },
         createMarkdownImageSurface,
@@ -177,7 +173,7 @@ describe('TextEditor image export ownership', () => {
     },
   )
 
-  it.each(['wysiwyg', 'preview', 'sourceCode'])(
+  it.each(['preview', 'sourceCode'])(
     'CLI JPG waits for the same static snapshot in %s mode',
     async (mode) => {
       const element = document.createElement('div')
@@ -196,9 +192,7 @@ describe('TextEditor image export ownership', () => {
         id: 'file',
         automationHandleRef: { current: { readContent: () => 'CLI snapshot' } },
         currentViewType: mode,
-        isCapricornView,
-        capricornEditorRef: { current: null },
-        fileTypeConfig: { type: 'markdown' },
+              fileTypeConfig: { type: 'markdown' },
         remoteImages: { retain: () => releaseImages },
         createMarkdownImageSurface,
         prepareResourcesForExport: async () => restore,

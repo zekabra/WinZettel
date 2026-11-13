@@ -1,0 +1,22 @@
+﻿[package]
+name = "mf_gocryptfs"
+version = "0.1.0"
+edition = "2021"
+description = "gocryptfs volume reader/writer, compatible with Zettel Notes encrypted repositories"
+license = "MIT"
+
+[dependencies]
+# AES-ECB, AES-256-GCM with 128-bit nonces and ChaCha20-Poly1305 come from Windows CNG,
+# HKDF/PBKDF2/SHA-256 from `ring`. Neither needs to be downloaded at build time.
+ring = "0.17"
+base64 = "0.21"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0.8"
+zeroize = "1"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = ["Win32_Security_Cryptography"] }
+
+[dev-dependencies]
+tempfile = "3"

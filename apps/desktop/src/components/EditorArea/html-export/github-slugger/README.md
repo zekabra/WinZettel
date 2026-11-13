@@ -1,6 +1,6 @@
 # github-slugger 2.0.0
 
-Minimal vendored files from [Flet/github-slugger, tag 2.0.0](https://github.com/Flet/github-slugger/tree/2.0.0), used to match Capricorn heading anchors without adding a dependency. `index.js` and `regex.js` are unchanged and byte-verified against the upstream tag. `index.d.ts` and `license` come from the installed npm 2.0.0 package; the declaration has only its class-property semicolon removed to satisfy the host lint rule, and the license is unchanged. The upstream license is ISC (see `license`).
+Minimal vendored files from [Flet/github-slugger, tag 2.0.0](https://github.com/Flet/github-slugger/tree/2.0.0), used to match heading anchors without adding a dependency. `index.js` and `regex.js` are unchanged and byte-verified against the upstream tag. `index.d.ts` and `license` come from the installed npm 2.0.0 package; the declaration has only its class-property semicolon removed to satisfy the host lint rule, and the license is unchanged. The upstream license is ISC (see `license`).
 
 SHA-256 of the upstream runtime files:
 

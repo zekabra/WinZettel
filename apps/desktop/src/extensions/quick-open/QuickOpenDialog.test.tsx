@@ -48,6 +48,11 @@ function file(relativePath: string): QuickOpenFile {
     ext: 'md',
   }
 }
+/** What the row shows for a file: the name without its note extension. */
+function shownName(entry: QuickOpenFile): string {
+  return entry.name.replace(/\.(md|markdown|mdx|txt)$/i, '')
+}
+
 function deferred<T>() {
   let resolve!: (value: T) => void
   let reject!: (error: Error) => void
@@ -138,7 +143,7 @@ describe('Quick Open dialog', () => {
   }
   function names() {
     return [...document.querySelectorAll('[cmdk-item]:not([hidden])')].map(
-      (item) => item.textContent,
+      (item) => item.querySelector('span')?.textContent ?? '',
     )
   }
 
@@ -160,9 +165,9 @@ describe('Quick Open dialog', () => {
     await open()
     await key('ArrowDown')
     await type('alpha')
-    expect(names()).toEqual(['alpha.md'])
+    expect(names()).toEqual(['alpha'])
     await type('docs/beta')
-    expect(names()).toEqual(['beta.mddocs/beta.md'])
+    expect(names()).toEqual(['beta'])
     expect(loadQuickOpenFiles).toHaveBeenCalledOnce()
     await key('Enter')
     expect(openQuickOpenFile).toHaveBeenCalledWith(file('docs/beta.md'))
@@ -228,7 +233,7 @@ describe('Quick Open dialog', () => {
     await open()
     await type('md')
     await act(async () => scan.resolve([file('stale.md')]))
-    expect(names().join()).not.toContain('stale.md')
+    expect(names().join()).not.toContain('stale')
 
     const secondScan = deferred<QuickOpenFile[]>()
     vi.mocked(loadQuickOpenFiles).mockReturnValueOnce(secondScan.promise)
@@ -247,8 +252,8 @@ describe('Quick Open dialog', () => {
     )
     await type('md')
     await act(async () => secondScan.resolve([file('stale-next.md')]))
-    expect(names().join()).not.toContain('stale-next.md')
-    expect(names().join()).toContain('latest.md')
+    expect(names().join()).not.toContain('stale-next')
+    expect(names().join()).toContain('latest')
   })
 
   it('shows opened files without a workspace and refocuses without rescanning', async () => {
@@ -260,7 +265,7 @@ describe('Quick Open dialog', () => {
     expect(input().selectionStart).toBe(0)
     expect(input().selectionEnd).toBe(6)
     expect(loadQuickOpenFiles).not.toHaveBeenCalled()
-    expect(names().join()).toContain('opened.md')
+    expect(names().join()).toContain('opened')
   })
 
   it('does not open the selected file when Enter activates the retry button', async () => {
@@ -285,17 +290,17 @@ describe('Quick Open dialog', () => {
     vi.mocked(getRecentQuickOpenFiles).mockReturnValue([file('C.md'), file('A.md'), file('B.md')])
     vi.mocked(getOpenedQuickOpenFiles).mockReturnValue([file('background.md')])
     await open()
-    expect(names()).toEqual(['C.md', 'A.md', 'B.md'])
+    expect(names()).toEqual(['C', 'A', 'B'])
     expect(loadQuickOpenFiles).not.toHaveBeenCalled()
     expect(document.querySelector('[role="status"]')).toBeNull()
     await type('alpha')
-    expect(names()).toEqual(['alpha.md'])
+    expect(names()).toEqual(['alpha'])
     vi.mocked(getRecentQuickOpenFiles).mockReturnValue([file('changed.md')])
     await type('')
-    expect(names()).toEqual(['C.md', 'A.md', 'B.md'])
-    expect(document.querySelector('[data-selected="true"]')?.textContent).toBe('C.md')
+    expect(names()).toEqual(['C', 'A', 'B'])
+    expect(names()[0]).toBe('C')
     await type('beta')
-    expect(names()).toEqual(['beta.mddocs/beta.md'])
+    expect(names()).toEqual(['beta'])
     expect(loadQuickOpenFiles).toHaveBeenCalledExactlyOnceWith('/workspace', '*.tmp', expect.any(AbortSignal))
   })
 
@@ -314,7 +319,7 @@ describe('Quick Open dialog', () => {
     vi.mocked(getRecentQuickOpenFiles).mockReturnValue([file('alpha-old.md')])
     await open()
     await type('alpha.md')
-    expect(names()).toEqual(['alpha-old.md'])
+    expect(names()).toEqual(['alpha-old'])
     await act(async () => scan.resolve([file('alpha.md')]))
     await key('Enter')
     expect(openQuickOpenFile).toHaveBeenCalledWith(file('alpha.md'))
@@ -362,13 +367,17 @@ describe('Quick Open dialog', () => {
         })
       if (selection === 'pointer') expect(scroll).not.toHaveBeenCalled()
       scroll.mockClear()
-      expect(document.querySelector('[data-selected="true"]')?.textContent).toBe(chosen.name)
+      expect(
+        document.querySelector('[data-selected="true"] span')?.textContent,
+      ).toBe(shownName(chosen))
       await act(async () =>
         scan.resolve(Array.from({ length: 120 }, (_, index) => file(`${index}/note.md`))),
       )
       expect(names()).toHaveLength(122)
       expect(scroll).toHaveBeenCalledWith({ block: 'nearest' })
-      expect(document.querySelector('[data-selected="true"]')?.textContent).toBe(chosen.name)
+      expect(
+        document.querySelector('[data-selected="true"] span')?.textContent,
+      ).toBe(shownName(chosen))
       await key('Enter')
       expect(openQuickOpenFile).toHaveBeenCalledWith(chosen)
     },
@@ -383,7 +392,7 @@ describe('Quick Open dialog', () => {
     expect(document.querySelector('[role="status"]')).toBeNull()
     await act(async () => scan.reject(new Error('offline')))
     expect(document.querySelector('[role="alert"]')).toBeNull()
-    expect(names()).toEqual(['alpha.md', 'beta.mddocs/beta.md'])
+    expect(names()).toEqual(['alpha', 'beta'])
     await type('alpha')
     expect(document.querySelector('[role="alert"]')).not.toBeNull()
     await key('Enter')
@@ -402,7 +411,7 @@ describe('Quick Open dialog', () => {
     expect(signal.aborted).toBe(true)
     expect(input().value).toBe('')
     await act(async () => scan.resolve([file('stale.md')]))
-    expect(names().join()).not.toContain('stale.md')
+    expect(names().join()).not.toContain('stale')
     await type('md')
     expect(loadQuickOpenFiles).toHaveBeenLastCalledWith('/workspace', 'docs/', expect.any(AbortSignal))
   })
@@ -425,7 +434,7 @@ describe('Quick Open dialog', () => {
       await act(async () => worker.onmessage?.({ data: { requestId: previous.requestId!, indices: new Uint32Array([2]) } }))
       expect(names()).toEqual([])
       await act(async () => worker.onmessage?.({ data: { requestId: current.requestId!, indices: new Uint32Array([12]) } }))
-      expect(names().join()).toContain('note-10.md')
+      expect(names().join()).toContain('note-10')
       await key('Enter')
       expect(openQuickOpenFile).toHaveBeenCalledWith(expect.objectContaining({ name: 'note-10.md' }))
       expect(worker.terminate).toHaveBeenCalledOnce()

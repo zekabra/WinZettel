@@ -1,11 +1,8 @@
-import { getCapricornRuntimeInput } from './capricornRuntimeDom'
-
 /** Keep keyboard focus through a mode replacement, unless the user moves away. */
 export function captureEditorModeFocus(container: HTMLElement) {
   const doc = container.ownerDocument
   const ownsFocus = (target: EventTarget | null) =>
-    target instanceof Node &&
-    (container.contains(target) || target === getCapricornRuntimeInput(container))
+    target instanceof Node && container.contains(target)
   if (!ownsFocus(doc.activeElement)) return undefined
 
   let pending = true

@@ -2,8 +2,11 @@ import { EVENT } from '@/constants'
 import useFileCacheStore from '@/helper/files'
 import { checkUnsavedFiles, saveUnsavedFiles } from '@/services/checkUnsavedFiles'
 import { useEditorStateStore, useEditorStore } from '@/stores'
+import useNoteEncryptionStore from '@/stores/useNoteEncryptionStore'
+import { stripNoteExtension } from '@/helper/noteCounts'
+import { noteKey } from '@/stores/useNoteEncryptionStore'
 import { memo, type DragEvent, useCallback, useEffect, useRef } from 'react'
-import { ArrowLeftIcon, ArrowRightIcon, XIcon } from 'lucide-react'
+import { ArrowLeftIcon, ArrowRightIcon, LockIcon, XIcon } from 'lucide-react'
 import { useTranslation } from '@/i18n'
 import styled from 'styled-components'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -196,9 +199,13 @@ const EditorAreaTab = memo((props: EditorAreaTabProps) => {
   )
   const { t } = useTranslation()
   const fileName = useFileCacheStore((state) => state.entries[id]?.name)
+  const filePath = useFileCacheStore((state) => state.entries[id]?.path)
+  const locked = useNoteEncryptionStore((state) =>
+    filePath ? state.lockedPaths.includes(noteKey(filePath)) : false,
+  )
   if (!fileName) return null
 
-  const tabLabel = getTabLabel(fileName, compact)
+  const tabLabel = getTabLabel(stripNoteExtension(fileName), compact)
 
   const requestClose = (e?: React.MouseEvent<HTMLElement, MouseEvent>) => {
     e?.stopPropagation()
@@ -349,6 +356,14 @@ const EditorAreaTab = memo((props: EditorAreaTabProps) => {
             >
               {tabLabel}
             </span>
+            {locked ? (
+              <LockIcon
+                aria-label={t('encryption.locked.tab')}
+                className='mf-editor-tab-lock'
+                size={12}
+                strokeWidth={1.75}
+              />
+            ) : null}
             {active && hasUnsavedChanges ? (
               <span aria-live='polite' className='sr-only' role='status'>
                 {t('contextmenu.editor_tab.unsaved', { defaultValue: 'Unsaved changes' })}
@@ -388,7 +403,8 @@ const EditorAreaTabs = memo((props: EditorAreaTabsProps) => {
   const opened = group?.opened ?? []
   const openedSignature = opened.join('\u0000')
   const activeId = group?.activeId
-  const showTabNavigation = !compact && opened.length > 1
+  // The split layout used to hide these arrows; both panes need them.
+  const showTabNavigation = opened.length > 1
   const { t } = useTranslation()
 
   const clearDropIndicator = useCallback(() => {

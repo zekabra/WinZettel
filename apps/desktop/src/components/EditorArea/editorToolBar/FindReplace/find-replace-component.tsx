@@ -1,12 +1,10 @@
 import { type FC } from 'react'
 import type { EditorContext } from 'rme'
-import type { CapricornRuntimeAdapter } from '../../capricornRuntimeAdapter'
 import { FindController } from './find-controller'
 import { FindInput } from './find-input'
 import { ReplaceController } from './replace-controller'
 import { ReplaceInput } from './replace-input'
 import { useFindReplace } from './use-find-replace'
-import { useCapricornFindReplace } from './use-capricorn-find-replace'
 import type { useEditorSearchController } from './use-editor-search'
 
 export interface FindReplaceComponentProps {
@@ -19,24 +17,20 @@ export const FindReplaceComponent: FC<FindReplaceComponentProps> = ({ onDismiss,
   return <FindReplaceControls controller={controller} onDismiss={onDismiss} />
 }
 
-export const CapricornFindReplaceComponent: FC<{
-  editor: CapricornRuntimeAdapter
-  onDismiss?: () => void
-}> = ({ editor, onDismiss }) => {
-  const controller = useCapricornFindReplace(editor)
-  return <FindReplaceControls controller={controller} onDismiss={onDismiss} />
-}
-
 type FindReplaceControlsProps = {
+  allowReplace?: boolean
   controller: (
     | ReturnType<typeof useFindReplace>
-    | ReturnType<typeof useCapricornFindReplace>
     | ReturnType<typeof useEditorSearchController>
-  ) & { setComposing?: (value: boolean) => void }
+  ) & { setComposing?: (value: boolean) => void; dismiss?: () => void }
   onDismiss?: () => void
 }
 
-export function FindReplaceControls({ controller, onDismiss }: FindReplaceControlsProps) {
+export function FindReplaceControls({
+  controller,
+  onDismiss,
+  allowReplace = true,
+}: FindReplaceControlsProps) {
   const {
     query,
     setQuery,
@@ -60,6 +54,8 @@ export function FindReplaceControls({ controller, onDismiss }: FindReplaceContro
         if (event.nativeEvent.isComposing || event.keyCode === 229) return
         if (event.key === 'Escape') {
           event.preventDefault()
+          // Dismissing on purpose drops the term; a pane transfer closes without clearing.
+          controller.dismiss?.()
           stopFind()
           onDismiss?.()
         } else if (event.key === 'Enter' && event.target instanceof HTMLInputElement) {
@@ -81,6 +77,7 @@ export function FindReplaceControls({ controller, onDismiss }: FindReplaceContro
           />
         </div>
         <FindController
+          dismiss={controller.dismiss}
           findPrev={findPrev}
           findNext={findNext}
           toggleCaseSensitive={toggleCaseSensitive}
@@ -89,12 +86,14 @@ export function FindReplaceControls({ controller, onDismiss }: FindReplaceContro
           onDismiss={onDismiss}
         />
       </div>
-      <div className='flex min-w-0 flex-wrap justify-end gap-1'>
-        <div className='min-w-0 flex-[1_1_12rem]'>
-          <ReplaceInput replacement={replacement} setReplacement={setReplacement} />
+      {allowReplace ? (
+        <div className='flex min-w-0 flex-wrap justify-end gap-1'>
+          <div className='min-w-0 flex-[1_1_12rem]'>
+            <ReplaceInput replacement={replacement} setReplacement={setReplacement} />
+          </div>
+          <ReplaceController replace={replace} replaceAll={replaceAll} />
         </div>
-        <ReplaceController replace={replace} replaceAll={replaceAll} />
-      </div>
+      ) : null}
     </div>
   )
 }

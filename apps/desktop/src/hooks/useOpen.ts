@@ -1,4 +1,4 @@
-import { logger } from '@/helper/logger'
+﻿import { logger } from '@/helper/logger'
 import { dialog } from '@/services/dialog'
 import { openStandaloneFile } from '@/services/open-file'
 import {
@@ -14,6 +14,7 @@ import { invoke } from '@tauri-apps/api/core'
 import { open } from '@tauri-apps/plugin-dialog'
 import { useCallback } from 'react'
 import { useTranslation } from '@/i18n'
+import { ensureRepoUnlocked, lockRepo } from '@/services/repo'
 
 const openExplorerInWindow = async (windowLabel: string) => {
   if (windowLabel === currentWindow.label) {
@@ -29,6 +30,8 @@ const useOpen = () => {
   const { t } = useTranslation()
 
   const openFolderInNewWindow = useCallback(async (dir: string) => {
+    // An encrypted repository asks for its password before a window is created for it.
+    if (!(await ensureRepoUnlocked(dir))) return
     await invoke<boolean>('save_security_bookmark', { path: dir })
     const windowLabel = await invoke<string>('create_new_window', { path: dir })
     await openExplorerInWindow(windowLabel)
@@ -70,6 +73,8 @@ const useOpen = () => {
 
   const openFolder = useCallback(
     async (dir: string) => {
+      // Repositories are unlocked here, before the workspace is switched or focused.
+      if (!(await ensureRepoUnlocked(dir))) return
       try {
         if (!useEditorStore.getState().getRootPath()) {
           if (await openFolderInCurrentWindow(dir)) clearWorkspaceOpenError()
@@ -142,10 +147,18 @@ const useOpen = () => {
     openFolderDialog,
     openFolder,
     openFolderInCurrentWindow,
-    closeFolder: () => switchWorkspaceInCurrentWindow(),
+    closeFolder: async () => {
+      // Closing the folder locks the repository too: its key must not outlive the workspace.
+      await lockRepo().catch(() => undefined)
+      return switchWorkspaceInCurrentWindow()
+    },
     openFile,
     openFilePath,
   }
 }
 
 export default useOpen
+
+
+
+

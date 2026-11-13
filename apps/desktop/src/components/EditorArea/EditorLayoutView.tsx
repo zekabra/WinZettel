@@ -1,6 +1,6 @@
 import { useEditorStore } from '@/stores'
 import type { EditorLayoutNode } from '@/stores/useEditorStore'
-import { memo, type DragEvent, useCallback, useState } from 'react'
+import { memo, type DragEvent, useCallback, useEffect, useState } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import styled, { css } from 'styled-components'
 import Editor from './Editor'
@@ -13,6 +13,16 @@ import { hasEditorTabDragData, readEditorTabDragData } from './editorDragData'
 import { containsEditorGroup } from './editorLayoutActionGroups'
 import { EditorPanel } from './styles'
 import { FindReplace } from './editorToolBar/FindReplace'
+import { PreviewFindBar } from './editorToolBar/PreviewToolbar/PreviewFindBar'
+import {
+  closeEditorSearch,
+  dismissEditorSearch,
+  openDocumentSearch,
+  useEditorSearchStore,
+} from './editorSearchStore'
+import { commandRegistry } from '@/commands'
+import useEditorViewTypeStore, { selectEditorViewType } from '@/stores/useEditorViewTypeStore'
+import { EditorViewType } from '@/constants/editorViewType'
 import { isSingleDocumentLayout } from './documentLayout'
 import useFileCacheStore from '@/helper/files'
 
@@ -22,7 +32,29 @@ interface EditorLayoutViewProps {
   zenModeActive: boolean
 }
 
+/** Registered here, not in the bar: the bar only mounts once its pane owns a search. */
+function useFindCommands() {
+  useEffect(() => {
+    const open = commandRegistry.registerCommand({
+      id: 'app_findReplaceEditor',
+      handler: openDocumentSearch,
+    })
+    const close = commandRegistry.registerCommand({
+      id: 'app_stopFindEditor',
+      handler: () => {
+        dismissEditorSearch('document')
+        closeEditorSearch('document')
+      },
+    })
+    return () => {
+      open.dispose()
+      close.dispose()
+    }
+  }, [])
+}
+
 function EditorLayoutView(props: EditorLayoutViewProps) {
+  useFindCommands()
   const { activeGroupId, node, zenModeActive } = props
 
   if (node.type === 'leaf') {
@@ -198,6 +230,15 @@ const EditorGroupPane = memo((props: EditorGroupPaneProps) => {
 
   const activeFileId = group.activeId
   const isActiveGroup = activeGroupId === groupId
+  // The bar belongs to the group that opened it, so focusing the other pane cannot close it.
+  const sourceSearchOwner = useEditorSearchStore(
+    (state) =>
+      state.owner === 'document' &&
+      (state.ownerGroupId === undefined || state.ownerGroupId === groupId),
+  )
+  const activePaneIsPreview = useEditorViewTypeStore((state) =>
+    activeFileId ? selectEditorViewType(state, activeFileId, groupId) === EditorViewType.PREVIEW : false,
+  )
 
   return (
     <GroupPane
@@ -215,7 +256,8 @@ const EditorGroupPane = memo((props: EditorGroupPaneProps) => {
       {singleDocument || group.opened.length === 0 ? null : (
         <EditorAreaTabs compact={isSplitMode} groupId={groupId} />
       )}
-      {isActiveGroup ? <FindReplace /> : null}
+      {sourceSearchOwner ? <FindReplace groupId={groupId} fileId={activeFileId} /> : null}
+      {activePaneIsPreview ? <PreviewFindBar groupId={groupId} fileId={activeFileId} /> : null}
       <EditorGroupToolbar editorId={activeFileId} groupId={groupId} compactGroupId={singleDocument ? groupId : undefined} />
       <EditorPanel
         aria-labelledby={activeFileId && !singleDocument ? getEditorTabId(groupId, activeFileId) : undefined}

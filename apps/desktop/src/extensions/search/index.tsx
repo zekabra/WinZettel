@@ -10,6 +10,9 @@ import { getFileObject, getFileObjectByPath, setFileObjectByPath } from '@/helpe
 import { createFile, getFolderPathFromPath } from '@/helper/filesys'
 import { logger } from '@/helper/logger'
 import { searchFiles } from '@/services/file-search'
+import useNoteEncryptionStore, { noteKey, readNoteEncryptionState } from '@/stores/useNoteEncryptionStore'
+import { fileTypeIcon } from '@/helper/fileTypeIcon'
+import { stripNoteExtension } from '@/helper/noteCounts'
 import { cn } from '@/lib/cn'
 import { useEditorStore } from '@/stores'
 import {
@@ -26,10 +29,10 @@ import {
   ChevronsUpDownIcon,
   CircleAlertIcon,
   FileSearchIcon,
-  FileTextIcon,
   FolderOpenIcon,
   LoaderCircleIcon,
   SearchIcon,
+  LockIcon,
   XIcon,
 } from 'lucide-react'
 import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
@@ -43,6 +46,11 @@ import {
 } from './styles'
 import type { SearchInfo, SearchMode } from './useSearchStore'
 import { getSearchStore } from './useSearchStore'
+
+const SearchResultIcon = ({ info }: { info: { path?: string; name?: string } }) => {
+  const Icon = fileTypeIcon(info.path || info.name)
+  return <Icon aria-hidden='true' className='size-3.5 text-content-muted' strokeWidth={1.75} />
+}
 
 const SEARCH_ROW_HEIGHT = 26
 
@@ -267,6 +275,7 @@ const WorkspaceSearchView = memo(({ workspace }: { workspace: string }) => {
   const resultQuery = useSearchStore((state) => state.resultQuery)
   const resultCaseSensitive = useSearchStore((state) => state.resultCaseSensitive)
   const setSearchState = useSearchStore((state) => state.setSearchState)
+  const resultFiles = useSearchStore((state) => state.resultList)
   const folderData = useEditorStore((state) => state.folderData)
   const activeId = useEditorStore((state) => state.activeId)
   const fileExcludePatterns = useAppSettingStore((state) =>
@@ -298,6 +307,20 @@ const WorkspaceSearchView = memo(({ workspace }: { workspace: string }) => {
   const modeId = useId()
   const parentRef = useRef<HTMLDivElement>(null)
   const focusRequestFrameRef = useRef<number | null>(null)
+  const encryptedPaths = useNoteEncryptionStore((state) => state.encryptedPaths)
+  const isEncryptedPath = (path?: string) =>
+    path ? encryptedPaths.includes(noteKey(path)) : false
+  // Files the startup scan did not reach are checked when they appear in the list.
+  useEffect(() => {
+    if (resultFiles.length === 0) return
+    for (const file of resultFiles.slice(0, 50)) {
+      if (file.path && !encryptedPaths.includes(noteKey(file.path))) {
+        void readNoteEncryptionState(file.path)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resultFiles])
+
   const searchRequestIdRef = useRef(0)
   const searchAbortRef = useRef<AbortController | undefined>(undefined)
 
@@ -598,6 +621,8 @@ const WorkspaceSearchView = memo(({ workspace }: { workspace: string }) => {
       hasSearched: false,
       resultList: [],
       resultQuery: '',
+      // Switching the kind of search starts from a clean field, like the editor find bars.
+      searchKeyword: '',
       activeIndex: 0,
       activeMatch: undefined,
       expandedPaths: {},
@@ -913,13 +938,17 @@ const WorkspaceSearchView = memo(({ workspace }: { workspace: string }) => {
                         strokeWidth={1.75}
                       />
                     ) : null}
-                    <FileTextIcon
-                      aria-hidden='true'
-                      className='size-3.5 text-content-muted'
-                      strokeWidth={1.75}
-                    />
+                    {isEncryptedPath(item.searchInfo.path) ? (
+                      <LockIcon
+                        aria-label={t('encryption.locked.tab')}
+                        className='size-3.5 text-content-muted'
+                        strokeWidth={1.75}
+                      />
+                    ) : (
+                      <SearchResultIcon info={item.searchInfo} />
+                    )}
                     <span className='flex min-w-0 flex-1 items-baseline gap-1.5'>
-                      <span className='truncate'>{item.searchInfo.name}</span>
+                      <span className='truncate'>{stripNoteExtension(item.searchInfo.name)}</span>
                       {directory &&
                       directory !== item.searchInfo.relative_path &&
                       directory !== '.' ? (
@@ -1014,6 +1043,20 @@ const WorkspaceSearchView = memo(({ workspace }: { workspace: string }) => {
     </SearchContainer>
   )
 })
+
+/** Opening the search panel starts from a clean field, like the editor find bars. */
+export const resetActiveWorkspaceSearch = (): void => {
+  const workspace = useEditorStore.getState().folderData?.[0]?.path ?? ''
+  getSearchStore(workspace).getState().setSearchState({
+    searchKeyword: '',
+    resultList: [],
+    resultQuery: '',
+    hasSearched: false,
+    activeIndex: 0,
+    activeMatch: undefined,
+    expandedPaths: {},
+  })
+}
 
 export const Search = {
   title: RIGHTBARITEMKEYS.Search,

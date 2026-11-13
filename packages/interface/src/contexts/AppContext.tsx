@@ -9,6 +9,16 @@ export interface AppContextValue {
   openFolderDialog?: () => Promise<string | null>
   /** Create a new window */
   createNewWindow?: (options: { path?: string }) => Promise<void>
+  /** Encrypt a note in place using the configured passphrase */
+  encryptNote?: (path: string) => Promise<void>
+  /** Whether a note already carries the encryption marker (hides "Encrypt note") */
+  isNoteEncrypted?: (path: string) => boolean
+  /** Add the note to favourites, or edit it when it already is one */
+  toggleBookmarkNote?: (path: string, name: string) => void
+  /** Encrypt every note under a folder, skipping the ones already encrypted */
+  encryptNotesInFolder?: (folderPath: string) => Promise<void>
+  /** Decrypt a note in place using the configured passphrase */
+  decryptNote?: (path: string) => Promise<void>
   /** Listen to app events */
   listenAppEvent?: <T>(event: string, handler: (payload: T) => void) => Promise<() => void>
 }

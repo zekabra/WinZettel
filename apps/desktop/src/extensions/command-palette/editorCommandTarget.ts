@@ -1,5 +1,3 @@
-import { getCapricornEditor } from '@/components/EditorArea/capricornEditorRegistry'
-import type { CapricornRuntimeAdapter, CapricornSelectionBookmark } from '@/components/EditorArea/capricornRuntimeAdapter'
 import { getSourceCodeEditor } from '@/components/EditorArea/sourceCodeEditorInstances'
 import { EditorViewType, type EditorViewTypeValue } from '@/constants/editorViewType'
 import useEditorStore from '@/stores/useEditorStore'
@@ -13,8 +11,6 @@ export interface EditorCommandTarget {
   /** Explicit toolbar pane; undefined retains the active editor compatibility registry. */
   resourceGroupId?: string
   mode: EditorViewTypeValue
-  rich?: CapricornRuntimeAdapter
-  bookmark?: CapricornSelectionBookmark | null
   source?: EditorView
   sourceState?: EditorState
 }
@@ -26,7 +22,6 @@ export function captureEditorCommandTarget(pane?: { fileId: string; groupId?: st
   if (!fileId) return null
   const mode = useEditorViewTypeStore.getState().getEditorViewType(fileId, groupId)
   const resourceGroupId = pane?.groupId
-  const rich = mode === EditorViewType.WYSIWYG ? getCapricornEditor(fileId, resourceGroupId) : undefined
   const source =
     mode === EditorViewType.SOURCECODE ? getSourceCodeEditor(fileId, resourceGroupId)?.cm : undefined
   return {
@@ -34,15 +29,15 @@ export function captureEditorCommandTarget(pane?: { fileId: string; groupId?: st
     groupId,
     resourceGroupId,
     mode,
-    rich,
     source,
     sourceState: source?.state,
-    bookmark: rich?.selection?.capture(),
   }
 }
 
+/** Retained for the palette's session lifecycle; no editor-owned selection lease remains. */
 export function releaseEditorCommandTarget(target: EditorCommandTarget | null) {
-  if (target?.bookmark) target.rich?.selection?.release(target.bookmark.id)
+  // Command targets only borrow CodeMirror view identity, so nothing is leased.
+  void target
 }
 
 export function isCurrentCommandTarget(target: EditorCommandTarget): boolean {
@@ -53,4 +48,3 @@ export function isCurrentCommandTarget(target: EditorCommandTarget): boolean {
     useEditorViewTypeStore.getState().getEditorViewType(target.fileId, target.groupId) === target.mode
   )
 }
-

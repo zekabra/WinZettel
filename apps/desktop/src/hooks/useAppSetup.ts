@@ -17,8 +17,6 @@ import { hasFileExcludePatternsChanged } from '@/helper/file-exclude'
 import { getFileObject } from '@/helper/files'
 import { getFileNameFromPath, releaseSecurityScope } from '@/helper/filesys'
 import { logger } from '@/helper/logger'
-import { checkUpdate } from '@/helper/updater'
-import { startPeriodicUpdateChecks } from '@/services/update-checks'
 import { changeLng, i18nInit, locales, t, type Langs } from '@/i18n'
 import { appSettingStoreSetup } from '@/services/app-setting'
 import { openExternalPaths } from '@/services/open-external-paths'
@@ -56,6 +54,7 @@ import { useEditorStore } from '@/stores'
 import { consumeOpenedUrls, normalizeOpenedUrls, restoreOpenedUrls } from '@/startup/appearance'
 import { createAppStartupCoordinator } from '@/startup/appStartupCoordinator'
 import { restoreStartupWorkspace } from '@/startup/restoreStartupWorkspace'
+import { readRepoStatus } from '@/services/repo'
 import { createWorkspaceInputReader } from '@/startup/workspaceInputs'
 import { markStartupStage } from '@/startup/performance'
 import { afterStartupInteractive, waitForStartupInteractive } from '@/startup/interactive'
@@ -162,6 +161,83 @@ const setupWorkspaceCachePersistence = async (cacheStore: LazyStore) => {
   setWorkspaceSwitchHandler(performWorkspaceSwitch)
 }
 
+/**
+ * Repositories always open without documents.
+ *
+ * Their notes cannot be read before the volume is unlocked, so restoring tabs from the last
+ * session would only produce "File not found" panes. A plain folder keeps its tabs, which is
+ * the behaviour the owner asked for when reopening the same folder.
+ */
+/** Close every document when the workspace is not the one that is already open. */
+function closeDocumentsForWorkspaceChange(previousRoot: string | undefined, nextRoot: string) {
+  const normalize = (value: string) => value.replace(/\\/g, '/').toLowerCase().replace(/\/$/, '')
+  if (previousRoot && normalize(previousRoot) === normalize(nextRoot)) return
+
+  const editor = useEditorStore.getState()
+  const layout = editor.editorLayout
+  if (!layout) {
+    ensureDocument()
+    return
+  }
+  const groups: { id: string }[] = []
+  const walk = (node: typeof layout) => {
+    if (node.type === 'leaf') {
+      groups.push({ id: node.id })
+      return
+    }
+    node.children.forEach(walk)
+  }
+  walk(layout)
+  for (const group of groups) {
+    try {
+      editor.closeAllFilesInGroup(group.id)
+    } catch {
+      // A store without a layout (early startup or a test double) has nothing to close.
+    }
+  }
+  ensureDocument()
+}
+
+async function isEncryptedWorkspaceRoot(path: string): Promise<boolean> {
+  try {
+    const status = await readRepoStatus(path)
+    return status?.isRepo === true
+  } catch {
+    return false
+  }
+}
+
+/** Lock the open repository unless the switch stays inside it. */
+async function releaseRepositoryBeforeSwitch(nextPath: string | undefined) {
+  const normalize = (value: string) => value.replace(/\\/g, '/').toLowerCase().replace(/\/$/, '')
+  const { default: useRepoStore } = await import('@/stores/useRepoStore')
+  const root = useRepoStore.getState().root
+  if (!root) return
+  if (nextPath && normalize(root) === normalize(nextPath)) return
+  const { lockRepo } = await import('@/services/repo')
+  await lockRepo().catch(() => undefined)
+}
+
+/**
+ * A workspace switch leaves nothing of the previous repository behind.
+ *
+ * The explorer showed the "locked repository" panel after switching to a plain folder because
+ * that blocked marker survived the switch; the folder underneath had already changed.
+ */
+async function clearRepositoryStateOnSwitch(nextPath: string | undefined) {
+  const { default: useRepoStore } = await import('@/stores/useRepoStore')
+  const store = useRepoStore.getState()
+  if (!store.root && !store.isUnlocked && !store.blockedRoot) return
+
+  const normalize = (value: string | null | undefined) =>
+    (value ?? '').replace(/\\/g, '/').toLowerCase().replace(/\/$/, '')
+  // Staying in the repository that is open keeps its key and its state: clearing it here made
+  // every image in a repository note load as a broken link again.
+  if (nextPath && normalize(store.root) === normalize(nextPath)) return
+
+  store.clear()
+}
+
 async function performWorkspaceSwitch(path: string | undefined) {
   const persistence = workspaceCachePersistence
   if (!persistence) throw new Error('Workspace persistence is not ready')
@@ -176,11 +252,17 @@ async function performWorkspaceSwitch(path: string | undefined) {
   }
   // Session capture waits for recovery too. Resolve failed drafts before that
   // flush so the user can retry, preserve them or cancel the workspace switch.
+  // Switching workspace starts without the previous documents, whether it is another
+  // repository or another folder.
+  const previousRoot = useEditorStore.getState().getRootPath?.()
   if (!await resolveDraftRecoveryBeforeClose()) return false
+  await releaseRepositoryBeforeSwitch(path)
   const preservingDocuments = !path || !useEditorStore.getState().getRootPath()
   await windowSessionPersistence?.flush()
   const didSwitch = path ? await switchWorkspaceSession(path, persistence) : await attachWorkspaceSession(undefined, persistence)
   if (didSwitch) {
+    await clearRepositoryStateOnSwitch(path)
+    closeDocumentsForWorkspaceChange(previousRoot, path ?? '')
     useLayoutStore.getState().setWorkspaceContext(Boolean(path))
     // Startup restores drafts once after all explicit paths have been opened.
     if (path && appStartupCoordinator.getSnapshot().workspace.status !== 'loading') {
@@ -345,6 +427,9 @@ async function appWorkspaceSetup(signal: AbortSignal) {
     if (startupSession) {
       if (startupSession.rootPath) {
         try {
+          if (await isEncryptedWorkspaceRoot(startupSession.rootPath)) {
+            useEditorStore.getState().setFolderDataPure(null)
+          }
           await restoreStartupWorkspace(startupSession.rootPath, Promise.resolve(undefined), signal)
         } catch (error) {
           throwIfStartupCancelled(signal)
@@ -352,7 +437,9 @@ async function appWorkspaceSetup(signal: AbortSignal) {
           useWorkspaceOpenError.setState({ path: startupSession.rootPath, error })
         }
       }
-      restoreWindowDocuments(startupSession)
+      if (!startupSession.rootPath || !(await isEncryptedWorkspaceRoot(startupSession.rootPath))) {
+        restoreWindowDocuments(startupSession)
+      }
       return
     }
     // A missing native snapshot must not reopen drafts belonging to a previous
@@ -366,6 +453,9 @@ async function appWorkspaceSetup(signal: AbortSignal) {
 
       logger.debug('Reading directory:', targetWorkspacePath)
       try {
+        if (await isEncryptedWorkspaceRoot(targetWorkspacePath)) {
+          useEditorStore.getState().setFolderDataPure(null)
+        }
         await restoreStartupWorkspace(
           targetWorkspacePath,
           cacheStore.get<WorkspaceCache>(targetWorkspacePath),
@@ -412,6 +502,7 @@ const appShellSetup = async (signal: AbortSignal): Promise<AppShellData> => {
   void readWorkspaceInputs(signal)
   markStartupStage('settings-start')
   const settingData = await appSettingStoreSetup()
+  // The table of contents stays closed at launch; opening it is a per-session choice.
   markStartupStage('settings-ready')
   throwIfStartupCancelled(signal)
 
@@ -456,12 +547,9 @@ let themeLibrarySetupPromise: Promise<void> | undefined
 
 const startDeferredAppSetup = () => {
   if (!deferredAppSetupPromise) {
+    // Updates are manual only: nothing is checked unless the user asks.
     deferredAppSetupPromise = Promise.all([
       useThemeStore.getState().syncSystemTheme(),
-      // Only the main window checks for releases.
-      window.__MARKFLOWY_E2E__ || currentWindow.label !== 'main'
-        ? undefined
-        : checkUpdate(),
     ]).then(() => undefined)
   }
 
@@ -675,7 +763,7 @@ export const useAppRuntimeSetup = () => {
     let stopChecks: (() => void) | undefined
     const cancel = afterStartupInteractive(() => {
       if (!window.__MARKFLOWY_E2E__ && currentWindow.label === 'main') {
-        stopChecks = startPeriodicUpdateChecks()
+
       }
       markStartupStage('deferred-start')
       void startDeferredAppSetup().catch((error) => logger.error('Deferred startup failed', error))

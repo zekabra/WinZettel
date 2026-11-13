@@ -143,8 +143,8 @@
           themeId: themeIdIsSafe
             ? rawThemeId
             : resolvedMode === 'dark'
-              ? 'MarkFlowy Dark'
-              : 'MarkFlowy Light',
+              ? 'WinZettel Dark'
+              : 'WinZettel Light',
           palette,
         }
 
@@ -308,7 +308,7 @@
     </style>
     <link rel="icon" type="image/svg+xml" href="/src/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MarkFlowy</title>
+    <title>WinZettel</title>
   </head>
   <body>
     <div id="root"></div>
@@ -316,14 +316,14 @@
       id="mf-boot-overlay"
       role="status"
       aria-live="polite"
-      aria-label="MarkFlowy is starting"
+      aria-label="WinZettel is starting"
     >
       <div class="mf-startup-indicator" aria-hidden="true">
         <div class="mf-boot-progress"></div>
       </div>
     </div>
     <script>
-      console.log('%cMarkFlowy Developer Console', 'color:#016ab3; font-size:40px; font-weight:bold;')
+      console.log('%cWinZettel Developer Console', 'color:#016ab3; font-size:40px; font-weight:bold;')
     </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>

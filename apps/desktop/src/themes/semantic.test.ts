@@ -8,7 +8,6 @@ import {
 } from '@markflowy/theme/semantic'
 import { builtInThemes } from '@markflowy/theme'
 import {
-  capricornStyle,
   copyTheme,
   desktopVariables,
   getThemeTokens,
@@ -194,9 +193,7 @@ describe('semantic themes', () => {
     variant.name = 'Renamed'
     expect(toAppTheme(doc, variant).name).toBe(app.name)
     expect(app.styledConstants.bgColor).toBe(app.resolved.tokens['surface.canvas'])
-    expect(capricornStyle(app.resolved.tokens)['--cap-surface']).toBe(
-      app.resolved.tokens['editor.background'],
-    )
+    expect(app.resolved.tokens['editor.background']).toBeDefined()
   })
   it('shows theme names when variants share generic Light/Dark labels', () => {
     const paper = document()
@@ -207,20 +204,13 @@ describe('semantic themes', () => {
     paper.variants[0].name = paper.name
     expect(themeLabel(toAppTheme(paper, paper.variants[0]))).toBe('Paper')
   })
-  it('bridges document CSS variables while keeping standalone instances independent', () => {
+  it('bridges document CSS variables through the shared theme variable names', () => {
     const tokens = resolveThemeTokens('light', { 'editor.background': '#123456' })
-    expect(capricornStyle(tokens)['--cap-surface']).toBe('#123456ff')
-    expect(capricornStyle(tokens, 'document')['--cap-surface']).toBe(
-      'var(--mf-theme-editor-background, #123456ff)',
-    )
-    expect(capricornStyle(tokens, 'document').fontFamily).toContain(
-      'var(--mf-theme-font-editor-family, ',
-    )
-    expect(capricornStyle(tokens)['--cap-code-token-inserted']).toBe(
-      tokens['status.success.foreground'],
-    )
-    expect(capricornStyle(tokens)['--cap-code-token-deleted']).toBe(
-      tokens['status.danger.foreground'],
+    expect(tokens['editor.background']).toBe('#123456ff')
+    expect(themeVariableName('editor.background')).toBe('--mf-theme-editor-background')
+    expect(desktopVariables(tokens)['--mf-theme-editor-background']).toBe('#123456ff')
+    expect(desktopVariables(tokens)['--mf-surface-app']).toBe(
+      'var(--mf-theme-surface-canvas)',
     )
   })
   it('coalesces color drags while retaining undo and redo', () => {

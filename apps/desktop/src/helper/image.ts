@@ -3,8 +3,10 @@ import { convertFileSrc, invoke } from '@tauri-apps/api/core'
 import { join } from '@tauri-apps/api/path'
 import { fetch } from '@tauri-apps/plugin-http'
 import { FileResultCode, type FileSysResult } from './filesys'
+import { isImagePath } from './fileTypeHandler'
 import { logger } from './logger'
 import { localResourcePath } from './localResourcePath'
+import { repoAssetUrlIfInside } from './repoAsset'
 import type { RemoteImageResources } from './remoteImageResources'
 
 const convertHttpToBase64 = async (url: string): Promise<string> => {
@@ -13,7 +15,6 @@ const convertHttpToBase64 = async (url: string): Promise<string> => {
     const response = await fetch(url, {
       maxRedirections: 5,
       method: 'GET',
-      mode: 'cors',
     })
 
     if (response.ok) {
@@ -255,6 +256,12 @@ export const readFileAsBase64 = (file: File): Promise<string> => {
   })
 }
 
+const fileExtension = (path: string): string => {
+  const name = (path.split(/[\\/]/).pop() || '').split(/[?#]/)[0]
+  const dot = name.lastIndexOf('.')
+  return dot > 0 ? name.slice(dot + 1) : ''
+}
+
 export const moveImageToLocalFolder = async (
   imageSrc: string,
   targetFolderPath: string,
@@ -277,7 +284,7 @@ export const moveImageToLocalFolder = async (
   } else if (isHttpUrl(imageSrc)) {
     // It's a URL, download and save it to the target folder
     try {
-      const response = await fetch(imageSrc, { method: 'GET', mode: 'cors' })
+      const response = await fetch(imageSrc, { method: 'GET', maxRedirections: 5 })
       if (!response.ok) throw new Error('Network response was not ok')
 
       const blob = await response.blob()
@@ -294,7 +301,11 @@ export const moveImageToLocalFolder = async (
     }
   } else {
     const rootPath = useEditorStore.getState().folderData?.[0]?.path || ''
-    const { src: localPath } = await getImageInfo(imageSrc, rootPath)
+    const { src: resolvedPath } = await getImageInfo(imageSrc, rootPath)
+    // `getImageInfo` only understands image extensions and answers with an empty src
+    // for anything else (a picked PDF, a .txt, ...). Fall back to the source path so
+    // the attachment keeps its extension.
+    const localPath = resolvedPath || imageSrc
     logger.info('Local image path:', localPath)
 
     // 判断这个localPath是不是在targetFolderPath里面
@@ -303,9 +314,13 @@ export const moveImageToLocalFolder = async (
       return localPath
     }
 
+    const extension = fileExtension(localPath)
+    // Attachments that are not images are still moved here; name them for what they
+    // are so the Markdown reads `file_<ts>.pdf` instead of pretending to be an image.
+    const stem = isImagePath(localPath) ? 'image' : 'file'
     const targetPath = await join(
       targetFolderPath,
-      `image_${Date.now()}.${localPath.split('.').pop()}`,
+      extension ? `${stem}_${Date.now()}.${extension}` : `${stem}_${Date.now()}`,
     )
 
     logger.info('targetPath', targetPath)
@@ -434,6 +449,14 @@ const base64ToBlob = (base64: string, mimeType: string): Blob => {
   return new Blob([byteArray], { type: mimeType })
 }
 
+const localFileSource = async (path: string): Promise<string> => {
+  // Inside an encrypted repository the file on disk is ciphertext, so the webview cannot
+  // fetch it: hand it the bytes decrypted through the volume instead.
+  const repoUrl = await repoAssetUrlIfInside(path)
+  if (repoUrl) return repoUrl
+  return convertFileSrc(path)
+}
+
 export const getImageUrlInTauri = async (
   url: string,
   fileFolderPath?: string,
@@ -465,14 +488,32 @@ export const getImageUrlInTauri = async (
 
   const fileUrlPath = getLocalPathFromFileUrl(url)
   if (fileUrlPath) {
-    return convertFileSrc(fileUrlPath)
+    return localFileSource(fileUrlPath)
   }
 
   // Markdown URLs encode path characters, but decoding an HTTP URL here can
   // change signed URLs and object-storage keys. Decode only local paths.
   const localUrl = localResourcePath(url) || url
+
+  // Workspace-relative attachment links start with a slash ("/.assets/photo.png")
+  // so they stay valid wherever the document sits. Resolve those against the
+  // workspace root first; a real absolute path still works as the fallback.
+  if (localUrl.startsWith('/') && !localUrl.startsWith('//')) {
+    const workspaceRoot = useEditorStore.getState().folderData?.[0]?.path
+    if (workspaceRoot) {
+      try {
+        const candidate = await join(workspaceRoot, localUrl.replace(/^\/+/, ''))
+        if (await invoke<boolean>('file_exists', { filePath: candidate })) {
+          return localFileSource(candidate)
+        }
+      } catch (error) {
+        logger.warn('Failed to resolve a workspace-relative attachment:', error)
+      }
+    }
+  }
+
   if (isAbsoluteLocalPath(localUrl)) {
-    return convertFileSrc(localUrl)
+    return localFileSource(localUrl)
   }
 
   const dirPath = fileFolderPath || useEditorStore.getState().folderData?.[0]?.path
@@ -482,9 +523,9 @@ export const getImageUrlInTauri = async (
       const relativeUrl = await join(dirPath, localUrl)
       const isExists = await invoke('file_exists', { filePath: relativeUrl })
       if (isExists) {
-        return convertFileSrc(relativeUrl)
+        return localFileSource(relativeUrl)
       } else {
-        return convertFileSrc(localUrl)
+        return localFileSource(localUrl)
       }
     } catch (error) {
       return url
@@ -492,7 +533,7 @@ export const getImageUrlInTauri = async (
   }
 
   try {
-    return convertFileSrc(localUrl)
+    return localFileSource(localUrl)
   } catch (error) {
     return url
   }

@@ -28,10 +28,10 @@ Updates address one rule, validate against the current merged snapshot, and use 
 
 ## Clipboard and editor adapters
 
-Copy and paste are native-only (`configurable: false`, `target: native`). Their defaults remain visible, edits are rejected before IPC and in Rust, and any handwritten overrides are ignored. Neither command enters the editor shortcut map. Capricorn has no custom host copy command.
+Copy and paste are native-only (`configurable: false`, `target: native`). Their defaults remain visible, edits are rejected before IPC and in Rust, and any handwritten overrides are ignored. Neither command enters the editor shortcut map. The application defines no custom host copy command.
 
 Cut retains its existing additional-binding behavior and native default. Its browser event bridge still needs real WebView validation; disabling custom copy does not prove custom cut portable. A future explicit clipboard command must report asynchronous write failure and delete a cut selection only after a successful write against the unchanged document/selection.
 
-Adapters group effective rules into alternative key combinations for each editor command. RME/CodeMirror and Capricorn update those alternatives without replacing the document, selection, or history. Arrays mean alternatives, not chords.
+Adapters group effective rules into alternative key combinations for each editor command. RME/CodeMirror updates those alternatives without replacing the document, selection, or history. Arrays mean alternatives, not chords.
 
-The design follows the command/rule separation in [VS Code's keyboard rules](https://code.visualstudio.com/docs/configure/keybindings#_keyboard-rules) and reuses Capricorn's configuration and validation API.
+The design follows the command/rule separation in [VS Code's keyboard rules](https://code.visualstudio.com/docs/configure/keybindings#_keyboard-rules).

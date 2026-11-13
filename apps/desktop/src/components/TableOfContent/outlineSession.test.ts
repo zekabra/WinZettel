@@ -36,17 +36,17 @@ function sourceSession(doc: string) {
 describe('outline fold session', () => {
   it('preserves panel remount state and isolates document, mode and editor replacements', () => {
     const editor = {}
-    const session = getOutlineSession(editor, 'a', 'wysiwyg')
+    const session = getOutlineSession(editor, 'a', 'sourceCode')
     session.refresh(headings([1, 2, 3, 1, 2]))
     session.setCollapsedIds(new Set(['heading-0', 'heading-1', 'heading-3']))
-    expect(getOutlineSession(editor, 'a', 'wysiwyg')).toBe(session)
-    expect(getOutlineSession({}, 'a', 'wysiwyg').getSnapshot().collapsedIds.size).toBe(0)
+    expect(getOutlineSession(editor, 'a', 'sourceCode')).toBe(session)
+    expect(getOutlineSession({}, 'a', 'sourceCode').getSnapshot().collapsedIds.size).toBe(0)
     expect(getOutlineSession(editor, 'a', 'preview').getSnapshot().collapsedIds.size).toBe(0)
     expect(getOutlineSession(editor, 'b', 'preview').getSnapshot().collapsedIds.size).toBe(0)
   })
 
   it('prunes deleted and newly leaf headings without conflating repeated titles', () => {
-    const session = new OutlineSession('a', 'wysiwyg')
+    const session = new OutlineSession('a', 'sourceCode')
     session.refresh(headings([1, 2, 3, 1, 2]))
     session.setCollapsedIds(new Set(['heading-0', 'heading-1', 'heading-3']))
     session.refresh(headings([1, 2, 2]))

@@ -24,8 +24,8 @@ describe('startup timing across native and WebView clocks', () => {
         firstInputCommitDuration: index ? 950 : 48,
       })),
     }
-    recordStartupEditor({ fileId: 'file', viewId: 'left', mode: 'wysiwyg', openRequestId: 'startup' })
-    recordStartupEditor({ fileId: 'other', mode: 'wysiwyg', openRequestId: 'later' })
+    recordStartupEditor({ fileId: 'file', viewId: 'left', mode: 'sourceCode', openRequestId: 'startup' })
+    recordStartupEditor({ fileId: 'other', mode: 'sourceCode', openRequestId: 'later' })
     expect(getStartupPerformanceReport().editor).toMatchObject({
       detailedDiagnosticsEnabled: true,
       open: { openRequestId: 'startup' },

@@ -34,6 +34,7 @@ export function bindEditorResume(options: ResumeOptions): () => void {
     container.closest<HTMLElement>('.cm-scroller') ??
     container
   let applyingSelection = false
+  let applyingScroll = false
   let disposed = false
   let restoring = Boolean(saved) && (options.shouldRestore?.() ?? true)
   let timer: ReturnType<typeof setTimeout> | undefined
@@ -75,8 +76,12 @@ export function bindEditorResume(options: ResumeOptions): () => void {
       cancelRestore()
       return
     }
+    applyingScroll = true
     viewport.scrollTop = saved.scrollTop
     viewport.scrollLeft = saved.scrollLeft
+    requestAnimationFrame(() => {
+      applyingScroll = false
+    })
   }
   frame = requestAnimationFrame(() => {
     if (disposed || !saved || !restoring || !isVisible() || options.shouldRestore?.() === false) {
@@ -107,7 +112,13 @@ export function bindEditorResume(options: ResumeOptions): () => void {
     if (restoring && !applyingSelection) cancelRestore()
     scheduleSave()
   })
-  viewport.addEventListener('scroll', scheduleSave, { passive: true })
+  // A scroll — the user's wheel or the position mirrored from the other pane — releases
+  // the saved position, otherwise the restore keeps pulling the viewport back to the caret.
+  const handleScroll = () => {
+    if (!applyingScroll) cancelRestore()
+    scheduleSave()
+  }
+  viewport.addEventListener('scroll', handleScroll, { passive: true })
   container.addEventListener('compositionend', scheduleSave)
   for (const event of ['pointerdown', 'keydown', 'beforeinput', 'wheel', 'touchstart']) {
     viewport.addEventListener(event, cancelRestore, { passive: true, capture: true })
@@ -122,7 +133,7 @@ export function bindEditorResume(options: ResumeOptions): () => void {
     clearTimeout(timer)
     cancelAnimationFrame(frame)
     unsubscribe()
-    viewport.removeEventListener('scroll', scheduleSave)
+    viewport.removeEventListener('scroll', handleScroll)
     container.removeEventListener('compositionend', scheduleSave)
     for (const event of ['pointerdown', 'keydown', 'beforeinput', 'wheel', 'touchstart']) {
       viewport.removeEventListener(event, cancelRestore, true)
