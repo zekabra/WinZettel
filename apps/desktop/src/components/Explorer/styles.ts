@@ -64,6 +64,19 @@ export const Container = styled.div`
     font-size: 16px;
   }
 
+  && .mf-file-tree-row .mf-file-tree-prefix {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    margin-right: 2px;
+    line-height: 0;
+  }
+
+  && .mf-file-tree-row .mf-file-tree-prefix svg {
+    filter: none;
+    box-shadow: none;
+  }
+
   && .mf-file-tree-row .mf-file-tree-icon {
     display: inline-flex;
     align-items: center;

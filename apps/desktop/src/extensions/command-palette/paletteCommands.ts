@@ -44,7 +44,7 @@ const APPLICATION_COMMANDS = [
   ['app_toggleLeftsidebarVisible', 'view', 'sidebar explorer'],
   ['app_toggleRightsidebarVisible', 'view', 'sidebar outline'],
   ['app_toggleZenMode', 'view', 'zen focus distraction free'],
-  ['app_toggleEditorType', 'view', 'markdown source wysiwyg'],
+  ['app_toggleEditorType', 'view', 'markdown source preview'],
   ['app_splitEditorRight', 'view', 'split right horizontal'],
   ['app_splitEditorDown', 'view', 'split down vertical'],
   ['app_outlineCollapseAll', 'view', 'outline headings collapse 大纲 折叠'],
@@ -90,10 +90,7 @@ function searchUnavailable(target: EditorCommandTarget): CommandUnavailableReaso
 function modeSwitchUnavailable(target: EditorCommandTarget): CommandUnavailableReason | undefined {
   const config = useFileTypeConfigStore.getState().getFileTypeConfigById(target.fileId)
   const modes = config?.supportedModes
-  if (
-    !modes?.includes(EditorViewType.SOURCECODE) ||
-    (!modes.includes(EditorViewType.WYSIWYG) && config?.type !== 'html')
-  )
+  if (!modes?.includes(EditorViewType.SOURCECODE) || !modes.includes(EditorViewType.PREVIEW))
     return 'unavailable'
 }
 

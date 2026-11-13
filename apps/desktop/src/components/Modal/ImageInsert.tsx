@@ -87,14 +87,10 @@ export function ImageInsertModal() {
     setLocalError(false)
     setIsSelecting(true)
     try {
+      // No filters: any file can be attached. Images are embedded, everything else
+      // is inserted as a link, so the picker must not hide the other file types.
       const selectedPath = await open({
         multiple: false,
-        filters: [
-          {
-            name: t('image_insert.local_filter'),
-            extensions: ['avif', 'gif', 'jpeg', 'jpg', 'png', 'svg', 'webp'],
-          },
-        ],
         fileAccessMode: 'scoped',
       })
 

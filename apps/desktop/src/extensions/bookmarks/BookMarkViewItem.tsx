@@ -1,4 +1,5 @@
 import { Badge } from '@/components/ui/badge'
+import { stripNoteExtension } from '@/helper/noteName'
 import type { Bookmark } from './types'
 
 interface BookMarkViewItemProps {
@@ -14,13 +15,13 @@ export const BookMarkViewItem = (props: BookMarkViewItemProps) => {
 
   return (
     <button
-      aria-label={bookmark.title}
+      aria-label={stripNoteExtension(bookmark.title)}
       className='bookmark-list__item'
       data-bookmark-id={bookmark.id}
       onClick={handleClick}
       type='button'
     >
-      <span className='bookmark-list__title'>{bookmark.title}</span>
+      <span className='bookmark-list__title'>{stripNoteExtension(bookmark.title)}</span>
       {showTags && bookmark.tags.length > 0 ? (
         <span className='bookmark-list__tags'>
           {bookmark.tags.map((tag) => (

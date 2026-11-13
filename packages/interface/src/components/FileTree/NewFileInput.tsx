@@ -2,7 +2,13 @@ import React, { useCallback, useEffect, useRef, useState, type HTMLAttributes } 
 import { Input, Tooltip } from 'zens'
 import type { IFile } from '../../types/file'
 import { useFileSystem } from '../../contexts/FileSystemContext'
-import { isMdFile, unVerifiedFileNameChars, verifyFileName } from './verify-file-name'
+import {
+  isMdFile,
+  markdownExtensionOf,
+  stripMarkdownExtension,
+  unVerifiedFileNameChars,
+  verifyFileName,
+} from './verify-file-name'
 import { hasRenameConflict } from './rename-conflict'
 
 const NewFileInput = (
@@ -35,7 +41,10 @@ const NewFileInput = (
     invalid: `file name can not include ${unVerifiedFileNameChars.join(' ')}`,
   }
 
-  const initialName = fileNode.name || ''
+  // The owner sees and edits the name; the extension is ours to keep.
+  const originalExtension = markdownExtensionOf(fileNode.name || '')
+  const initialName =
+    createType === 'file' ? stripMarkdownExtension(fileNode.name || '') : fileNode.name || ''
   const [inputName, setInputName] = useState(initialName)
   const [invalidState, setInvalidState] = useState(false)
   const [invalidText, setInvalidText] = useState(InvalidTextMap.same)
@@ -78,7 +87,7 @@ const NewFileInput = (
       const path1 = parentNode?.path
 
       if (createType === 'file' && !isMdFile(fileName)) {
-        fileName = `${fileName}.md`
+        fileName = `${fileName}${originalExtension ?? '.md'}`
       }
 
       const targetPath = await pathJoin(path1 || '', fileName)
@@ -90,7 +99,7 @@ const NewFileInput = (
         name: fileName,
       }
     },
-    [fileNode, parentNode, createType, pathJoin],
+    [fileNode, parentNode, createType, pathJoin, originalExtension],
   )
 
   const verify = useCallback(

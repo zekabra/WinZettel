@@ -3,8 +3,7 @@ import {
   getEditorOpenMeasurement,
   recordEditorOpenStage,
 } from './editorPerformanceDiagnostics'
-import { preloadCapricornRuntimeFactory } from './capricornRuntimeAdapter'
-import { EditorViewType, isCapricornView } from '@/constants/editorViewType'
+import { EditorViewType } from '@/constants/editorViewType'
 import { markStartupInteractive } from '@/startup/interactive'
 import { AsyncSurface } from '@/components/AsyncSurface'
 import { t } from '@/i18n'
@@ -33,7 +32,9 @@ import { EditorScrollContainer } from './styles'
 import { editorScrollOptions } from './editorScrollOptions'
 import TextEditor from './TextEditor'
 import { EditorLoadingBoundary } from './EditorLoadingBoundary'
+import { useNoteIsLocked } from './useLockedNote'
 import { UnsupportedFileType } from './UnsupportedFileType'
+import { useCaretFollowsPreview } from './useCaretFollowsPreview'
 import { completeDeferredEditorSave, registerDeferredEditorSave } from './deferredEditorSave'
 
 const handleEditorPanelClick: MouseEventHandler<HTMLDivElement> = (event) => {
@@ -44,11 +45,18 @@ const handleEditorPanelClick: MouseEventHandler<HTMLDivElement> = (event) => {
 
 function Editor(props: EditorProps) {
   const { id, active, visible = active, groupId } = props
+  // A locked note replaces the editor; its load would stay pending forever.
+  const noteLocked = useNoteIsLocked(id)
   const [pending, setPending] = useState(true)
   const [draftReady, setDraftReady] = useState(() => !isDraftRecoveryPending(id))
   const [draftError, setDraftError] = useState<{ error: unknown }>()
   const [draftAttempt, setDraftAttempt] = useState(0)
   const draftCompletion = useSyncExternalStore(subscribeDraftRecovery, () => draftRecoveryCompletion(id))
+
+  // The reading pane follows the caret while this pane is being edited.
+  const viewType = useEditorViewTypeStore((store) => selectEditorViewType(store, id, groupId))
+  useCaretFollowsPreview(id, viewType === EditorViewType.SOURCECODE)
+
   const [shouldMountContent, setShouldMountContent] = useState(visible)
   const hasBeenVisible = visible || shouldMountContent
   const fileName = useFileCacheStore((state) => state.entries[id]?.name)
@@ -135,12 +143,6 @@ function Editor(props: EditorProps) {
       recordEditorOpenStage(getEditorOpenMeasurement(id, groupId), 'type-ready', {
         mode: openingMode,
       })
-      if (fileTypeConfig.type === 'markdown' && isCapricornView(openingMode)) {
-        // Start the existing module and Worker warm-up before publishing the
-        // config that mounts TextEditor and begins its independent disk read.
-        // Do not await: both operations deliberately overlap.
-        void preloadCapricornRuntimeFactory()
-      }
       setFileTypeConfig(curFile.id, fileTypeConfig)
       if (!isTextfileType(fileTypeConfig)) completeDeferredEditorSave(id)
     }
@@ -216,12 +218,19 @@ function Editor(props: EditorProps) {
   const loading =
     !draftReady || !curFileTypeConfig || (isTextfileType(curFileTypeConfig) && pending)
 
+  // Unsupported formats get the whole pane: inside the scroll container they were
+  // laid out against the content box and drifted off centre. (unsupported pane early return)
+  if (curFileTypeConfig?.type === 'unsupported' && shouldMountContent && draftReady) {
+    return (
+      <div className='absolute inset-0 bg-background' style={visible ? undefined : { display: 'none' }}>
+        <UnsupportedFileType fileName={fileName || ''} />
+      </div>
+    )
+  }
+
   const renderEditorContent = () => (
     <div className={'code-contents'}>
-      {!shouldMountContent || !draftReady || !curFileTypeConfig ? null : curFileTypeConfig.type ===
-        'unsupported' ? (
-        <UnsupportedFileType fileName={fileName || ''} />
-      ) : isTextfileType(curFileTypeConfig) ? (
+      {!shouldMountContent || !draftReady || !curFileTypeConfig ? null : isTextfileType(curFileTypeConfig) ? (
         <TextEditor
           onLoadingChange={setPending}
           fileTypeConfig={curFileTypeConfig}
@@ -247,7 +256,7 @@ function Editor(props: EditorProps) {
     <EditorLoadingBoundary
       className='absolute inset-0 bg-background'
       style={visible ? undefined : { display: 'none' }}
-      pending={loading}
+      pending={loading && !noteLocked}
       visible={visible}
     >
       <EditorScrollContainer

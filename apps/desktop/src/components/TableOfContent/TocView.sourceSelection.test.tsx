@@ -58,13 +58,8 @@ vi.mock('../EditorArea/rmeRuntime', () => ({
     analyzeHeadingNumbering: () => ({ complete: false, entries: [] }),
   }),
 }))
-vi.mock('../EditorArea/capricornEditorRegistry', () => ({
-  getCapricornEditor: () => undefined,
-  subscribeCapricornEditors: () => () => {},
-}))
 vi.mock('../SideBar/SideBarHeader', () => ({ default: () => null }))
 vi.mock('../SideBar/DockPanelMenu', () => ({ DockPanelMenu: () => null }))
-vi.mock('./HeadingNumberingButton', () => ({ CapricornHeadingNumberingButton: () => null }))
 vi.mock('./styles', () => ({ TocViewContainer: ({ children }: { children: ReactNode }) => <div>{children}</div> }))
 vi.mock('@/i18n', () => ({ t: (key: string) => key }))
 vi.mock('@markflowy/interface', () => ({

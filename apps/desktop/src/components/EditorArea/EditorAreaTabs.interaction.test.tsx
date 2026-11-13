@@ -92,7 +92,7 @@ describe('preview editor tabs', () => {
     state.group.previewId = 'file'
     render(tabs())
     const tab = screen.getByRole('tab', { name: 'Document.md, contextmenu.editor_tab.preview' })
-    expect(tab.querySelector('.italic')?.textContent).toBe('Document.md')
+    expect(tab.querySelector('.italic')?.textContent).toBe('Document')
     fireEvent.click(tab)
     expect(state.open).toHaveBeenCalledExactlyOnceWith('group', 'file')
     expect(state.keepOpen).not.toHaveBeenCalled()

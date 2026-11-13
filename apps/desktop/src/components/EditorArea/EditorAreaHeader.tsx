@@ -2,7 +2,7 @@ import { DraftProtectionStatus } from '@/components/LocalHistory/DraftProtection
 import { guardUnsavedFiles } from '@/services/checkUnsavedFiles'
 import { addEmptyEditorTab, addNewMarkdownFileEdit } from '@/services/editor-file'
 import { useEditorStore } from '@/stores'
-import { Columns2Icon, PlusIcon } from 'lucide-react'
+import { Columns2Icon, PlusIcon, XIcon } from 'lucide-react'
 import { memo, useCallback } from 'react'
 import { useTranslation } from '@/i18n'
 import { EditorAreaActionButton } from './EditorAreaAction'
@@ -16,6 +16,7 @@ export const EditorAreaHeader = memo((props: EditorAreaHeaderProps) => {
   const activeId = useEditorStore((state) => state.getGroup(groupId)?.activeId)
   const setActiveGroupId = useEditorStore((state) => state.setActiveGroupId)
   const splitGroup = useEditorStore((state) => state.splitGroup)
+  const closeAllFilesInGroup = useEditorStore((state) => state.closeAllFilesInGroup)
   const { t } = useTranslation()
 
   const handleAddTab = useCallback(() => {
@@ -42,6 +43,23 @@ export const EditorAreaHeader = memo((props: EditorAreaHeaderProps) => {
     [activeId, groupId, splitGroup, t],
   )
 
+  const handleCloseAllTabs = useCallback(() => {
+    setActiveGroupId(groupId)
+    const opened = useEditorStore.getState().getGroup(groupId)?.opened ?? []
+    if (!opened.length) return
+    guardUnsavedFiles({
+      fileIds: [...opened],
+      context: 'continue',
+      labels: {
+        save: t('action.save_and_continue'),
+        unsaved: t('action.continue_without_save'),
+      },
+      onContinue: () => {
+        closeAllFilesInGroup(groupId)
+      },
+    })
+  }, [closeAllFilesInGroup, groupId, setActiveGroupId, t])
+
   const splitRightLabel = t('command.id_descriptions.app_splitEditorRight')
   const splitDownLabel = t('command.id_descriptions.app_splitEditorDown')
   const splitLabel = `${splitRightLabel} · Alt: ${splitDownLabel}`
@@ -50,6 +68,11 @@ export const EditorAreaHeader = memo((props: EditorAreaHeaderProps) => {
     <div className='editor-area-header flex shrink-0 items-center gap-1 px-1'>
       <DraftProtectionStatus fileId={activeId} />
       <EditorAreaActionButton icon={PlusIcon} label={t('file.newTab')} onClick={handleAddTab} />
+      <EditorAreaActionButton
+        icon={XIcon}
+        label={t('file.closeAllTabs')}
+        onClick={handleCloseAllTabs}
+      />
       <EditorAreaActionButton
         icon={Columns2Icon}
         label={splitLabel}

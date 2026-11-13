@@ -1,6 +1,7 @@
-import { useHistoryDialog } from '@/components/LocalHistory/historyDialogStore'
+﻿import { useHistoryDialog } from '@/components/LocalHistory/historyDialogStore'
 import { commandRegistry } from '@/commands'
 import { EVENT } from '@/constants'
+import { MODAL_REPO_CREATE_ID, MODAL_REPO_UNLOCK_ID } from '@/constants/modals'
 import Root from '@/router/Root'
 import Setting from '@/router/Setting'
 import { SettingRouteController } from '@/router/Setting/component/SettingRouteController'
@@ -19,7 +20,6 @@ import { lazy, Suspense, useEffect, useLayoutEffect } from 'react'
 import { Route, Routes, useLocation, useMatch } from 'react-router'
 import { Notifications } from 'zens'
 import { FileTreeProvider, TauriFileSystemProvider } from './adapters'
-import AppInfoDialog from './components/AppInfoDialog'
 import Modal from './components/Modal'
 import { AsyncSurface } from './components/AsyncSurface'
 import { RenderErrorBoundary } from './components/RenderErrorBoundary'
@@ -123,9 +123,10 @@ function ReadyApp({ retryWorkspace, workspace }: ReadyAppProps) {
         <FileTreeProvider>
           <ContextMenu />
           <Notifications />
-          <AppInfoDialog />
           <HistorySurface />
           <Modal.InputConfirm id={MODAL_INPUT_ID} />
+          <Modal.RepoUnlock id={MODAL_REPO_UNLOCK_ID} />
+          <Modal.RepoCreate id={MODAL_REPO_CREATE_ID} />
           <Modal.Info id={MODAL_INFO_ID} />
           <Modal.Confirm id={MODAL_CONFIRM_ID} />
           <Modal.ImageInsert id={MODAL_IMAGE_INSERT_ID} />
@@ -151,7 +152,7 @@ function StartupFailureSurface({ error, retry }: { error: unknown; retry: () => 
       <AsyncSurface
         state={{
           status: 'error',
-          title: 'Unable to start MarkFlowy',
+          title: 'Unable to start WinZettel',
           description: getStartupErrorDescription(error),
           retry,
         }}
@@ -165,7 +166,7 @@ function StartupFailureSurface({ error, retry }: { error: unknown; retry: () => 
 function StartupLoadingSurface() {
   return (
     <div className='flex h-screen w-screen'>
-      <StartupProgress label='Starting MarkFlowy…' />
+      <StartupProgress label='Starting WinZettelâ€¦' />
     </div>
   )
 }
@@ -188,3 +189,4 @@ function App() {
 }
 
 export default App
+

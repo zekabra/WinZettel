@@ -41,3 +41,16 @@ export function getFolderPathFromPath(filePath?: string): string | undefined {
 
   return filePath
 }
+
+/**
+ * Notes are shown by their name, without the extension: the tree, the rename field and any
+ * label say "Reunião", not "Reunião.md". The file keeps its extension on disk.
+ */
+export function stripMarkdownExtension(name: string): string {
+  return name.replace(/\.(md|markdown)$/i, '')
+}
+
+/** The extension a rename should keep, so "nota.markdown" does not become "nota.md". */
+export function markdownExtensionOf(name: string): string | undefined {
+  return /\.(md|markdown)$/i.exec(name)?.[0]
+}

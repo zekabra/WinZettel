@@ -11,11 +11,12 @@ const mocks = vi.hoisted(() => ({
   join: vi.fn(),
   loggerWarn: vi.fn(),
   revokeObjectURL: vi.fn(),
+  folderData: null as { path: string }[] | null,
 }))
 
 vi.mock('@/stores', () => ({
   useEditorStore: {
-    getState: () => ({ folderData: null }),
+    getState: () => ({ folderData: mocks.folderData }),
   },
 }))
 
@@ -44,7 +45,11 @@ vi.mock('../logger', () => ({
   },
 }))
 
-import { convertImageToBase64, getImageUrlInTauri as resolveImageUrl } from '../image'
+import {
+  convertImageToBase64,
+  getImageUrlInTauri as resolveImageUrl,
+  moveImageToLocalFolder,
+} from '../image'
 import { createRemoteImageResources, type RemoteImageResources } from '../remoteImageResources'
 
 describe('getImageUrlInTauri', () => {
@@ -130,6 +135,30 @@ describe('getImageUrlInTauri', () => {
     expect(mocks.convertFileSrc).not.toHaveBeenCalled()
   })
 
+  it('resolves a workspace-relative attachment link against the workspace root', async () => {
+    mocks.folderData = [{ path: '/workspace' }]
+    mocks.join.mockResolvedValue('/workspace/.assets/photo.png')
+    mocks.invoke.mockResolvedValue(true)
+
+    await expect(getImageUrlInTauri('/.assets/photo.png')).resolves.toBe(
+      'asset://localhost//workspace/.assets/photo.png',
+    )
+    expect(mocks.join).toHaveBeenCalledWith('/workspace', '.assets/photo.png')
+    expect(mocks.invoke).toHaveBeenCalledWith('file_exists', {
+      filePath: '/workspace/.assets/photo.png',
+    })
+  })
+
+  it('keeps a leading-slash absolute path when the workspace has no such file', async () => {
+    mocks.folderData = [{ path: '/workspace' }]
+    mocks.join.mockResolvedValue('/workspace/.assets/missing.png')
+    mocks.invoke.mockResolvedValue(false)
+
+    await expect(getImageUrlInTauri('/.assets/missing.png')).resolves.toBe(
+      'asset://localhost//.assets/missing.png',
+    )
+  })
+
   it('loads encoded remote image URLs through Tauri HTTP without changing the source', async () => {
     const source =
       'https://img.shields.io/badge/platforms-macOS%20%7C%20Linux-475569?style=flat-square'
@@ -211,5 +240,36 @@ describe('getImageUrlInTauri', () => {
       'data:image/png;base64,aW1hZ2U=',
     )
     expect(mocks.createObjectURL).not.toHaveBeenCalled()
+  })
+})
+
+describe('moveImageToLocalFolder', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mocks.join.mockImplementation(async (...parts: string[]) => parts.join('/'))
+    mocks.invoke.mockResolvedValue({ code: 0, content: '' })
+  })
+
+  it('names a non-image attachment with a file prefix and keeps its extension', async () => {
+    const target = await moveImageToLocalFolder('C:\\in\\passwords.pdf', '/workspace/.assets')
+
+    expect(target).toMatch(/^\/workspace\/\.assets\/file_\d+\.pdf$/)
+    expect(mocks.invoke).toHaveBeenCalledWith('copy_file', {
+      from: 'C:\\in\\passwords.pdf',
+      to: target,
+    })
+  })
+
+  it('keeps the image prefix for image attachments', async () => {
+    const target = await moveImageToLocalFolder('C:\\in\\photo.PNG', '/workspace/.assets')
+
+    expect(target).toMatch(/^\/workspace\/\.assets\/image_\d+\.PNG$/)
+  })
+
+  it('does not leave a trailing dot when the file has no extension', async () => {
+    const target = await moveImageToLocalFolder('C:\\in\\README', '/workspace/.assets')
+
+    expect(target).toMatch(/^\/workspace\/\.assets\/file_\d+$/)
+    expect(target.endsWith('.')).toBe(false)
   })
 })

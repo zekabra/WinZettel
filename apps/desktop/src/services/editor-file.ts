@@ -3,19 +3,18 @@ import { createFile } from '@/helper/filesys'
 import { useEditorStateStore, useEditorStore } from '@/stores'
 import { i18n } from '@/i18n'
 import { EditorViewType } from '@/constants/editorViewType'
-import { getMarkdownDefaultMode } from '@/helper/fileTypeHandler'
-import useAppSettingStore from '@/stores/useAppSettingStore'
 import useEditorViewTypeStore from '@/stores/useEditorViewTypeStore'
 import { savePathCoordinator } from '@/components/EditorArea/savePathCoordinator'
 import { isPristineDocument, markPristineDocument } from './pristine-document'
+import { getMarkdownDefaultMode } from '@/helper/fileTypeHandler'
+import useAppSettingStore from '@/stores/useAppSettingStore'
 
 export function ensureDocument() {
   const editor = useEditorStore.getState()
   if (editor.getRootPath() || editor.opened.length) return
   const file = createFile({ name: `${i18n.t('file.untitled')}.md`, content: '' })
-  const preferred = useAppSettingStore.getState().settingData.md_editor_default_mode
-  useEditorViewTypeStore.getState().setEditorViewType(file.id,
-    getMarkdownDefaultMode(preferred === EditorViewType.PREVIEW ? undefined : preferred))
+  // A brand new document has nothing to read, so it always starts editable.
+  useEditorViewTypeStore.getState().setEditorViewType(file.id, EditorViewType.SOURCECODE)
   markPristineDocument(file.id)
   useEditorStateStore.getState().setIdStateMap(file.id, { hasUnsavedChanges: false })
   editor.addOpenedFile(file.id)
@@ -78,6 +77,15 @@ export const addMarkdownFileEdit = async (params: AddMarkdownFileEditParams) => 
 
   addOpenedFile(newFile.id)
   setActiveId(newFile.id)
+  // A new note starts in the mode chosen in Settings → Editor.
+  if (!params.path && (newFile.ext || '').toLowerCase() === 'md') {
+    useEditorViewTypeStore
+      .getState()
+      .setEditorViewType(
+        newFile.id,
+        getMarkdownDefaultMode(useAppSettingStore.getState().settingData.md_editor_default_mode),
+      )
+  }
   if (params.path) {
     const state = {
       hasUnsavedChanges: false,

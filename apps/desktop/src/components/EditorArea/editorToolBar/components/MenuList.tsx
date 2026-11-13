@@ -2,11 +2,9 @@ import { commandRegistry } from '@/commands'
 import { openLocalHistory } from '@/components/LocalHistory/historyDialogStore'
 import { EditorViewType } from '@/constants/editorViewType'
 import { showContextMenu } from '@/components/ui-v2/ContextMenu'
-import { useBookmarkStore } from '@/extensions/bookmarks/store'
 import bus from '@/helper/eventBus'
 import useFileCacheStore, { getFileObject } from '@/helper/files'
 import { isTextfileType } from '@/helper/fileTypeHandler'
-import { FileResultCode } from '@/helper/filesys'
 import { writeSettingData } from '@/services/app-setting'
 import { dialog } from '@/services/dialog'
 import { useEditorStateStore, useEditorStore } from '@/stores'
@@ -14,27 +12,21 @@ import useAppSettingStore from '@/stores/useAppSettingStore'
 import type { DesktopMenuItemData } from '@/stores/useContextMenuStore'
 import useEditorViewTypeStore, { selectEditorViewType } from '@/stores/useEditorViewTypeStore'
 import useFileTypeConfigStore from '@/stores/useFileTypeConfigStore'
-import useFileTextDirectionStore, {
-  getFileTextDirectionKey,
-  type EditorTextDirection,
-} from '@/stores/useFileTextDirectionStore'
 import { invoke } from '@tauri-apps/api/core'
 import { debounce } from 'lodash'
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from '@/i18n'
 import {
-  ArrowLeftRightIcon,
   BinaryIcon,
-  BookmarkIcon,
   EyeIcon,
   FileOutputIcon,
   HistoryIcon,
   InfoIcon,
-  LanguagesIcon,
   SlidersHorizontalIcon,
 } from 'lucide-react'
 import { isDivider, Space, toast } from 'zens'
 import { EditorAreaActionButton } from '../../EditorAreaAction'
+import { useNoteIsLocked } from '../../useLockedNote'
 import { createPdfPrintMenuItem } from '../../pdf-print/pdfPrintMenuItem'
 import { createPdfExportMenuItem } from '../../pdf-export/pdfExportMenuItem'
 import { createPandocExportMenuItem } from '../../pandoc-export/pandocExportMenuItem'
@@ -62,7 +54,6 @@ export interface MenuListProps {
   /** 是否显示文件信息 */
   showFileInfo?: boolean
   /** 是否显示书签 */
-  showBookmark?: boolean
   /** 是否显示导出选项 */
   showExport?: boolean
   /** 是否显示文本转换 */
@@ -82,7 +73,6 @@ export const MenuList = memo((props: MenuListProps) => {
     showViewSwitcher = true,
     showTypewriterScroll = false,
     showFileInfo = true,
-    showBookmark = true,
     showExport = true,
     showConvertText = true,
     customItems,
@@ -91,7 +81,6 @@ export const MenuList = memo((props: MenuListProps) => {
   } = props
 
   const activeId = useEditorStore((state) => state.activeId)
-  const getEditorContent = useEditorStore((state) => state.getEditorContent)
   const targetEditorId = editorId ?? activeId
   const fileName = useFileCacheStore((state) =>
     targetEditorId ? state.entries[targetEditorId]?.name : undefined,
@@ -100,7 +89,7 @@ export const MenuList = memo((props: MenuListProps) => {
     targetEditorId ? state.entries[targetEditorId]?.path : undefined,
   )
   const editorViewType = useEditorViewTypeStore((state) =>
-    selectEditorViewType(state, targetEditorId ?? '', groupId) ?? EditorViewType.WYSIWYG,
+    selectEditorViewType(state, targetEditorId ?? '', groupId),
   )
   const editorTypewriterScroll = useAppSettingStore(
     (state) => state.settingData.editor_typewriter_scroll,
@@ -144,33 +133,11 @@ export const MenuList = memo((props: MenuListProps) => {
     }
   }, [hasUnsavedChanges, getFileNormalInfo])
 
-  const convertText = useCallback(
-    async (variant: string) => {
-      try {
-        const content = getEditorContent(targetEditorId || '')
-        const res = await invoke<{ code: FileResultCode; content: string }>('convert_text', {
-          text: content || '',
-          variant,
-        })
-        if (res.code === FileResultCode.Success) {
-          bus.emit('editor_set_content', undefined, res.content)
-        } else {
-          toast.error(res.content)
-        }
-      } catch (error) {
-        toast.error(error instanceof Error ? error.message : String(error))
-      }
-    },
-    [getEditorContent, targetEditorId],
-  )
-
   const buildMenuItems = useCallback((): DesktopMenuItemData[] => {
     const latestFile = targetEditorId ? getFileObject(targetEditorId) : undefined
-    const latestFileName = latestFile?.name || fileName
     const latestFilePath = latestFile?.path || filePath
     const { getFileTypeConfigById } = useFileTypeConfigStore.getState()
     const curFileTypeConfig = getFileTypeConfigById(targetEditorId || '')
-    const curBookMark = useBookmarkStore.getState().findBookmark(latestFilePath || '')
 
     const items: DesktopMenuItemData[] = []
 
@@ -192,13 +159,6 @@ export const MenuList = memo((props: MenuListProps) => {
               checked: editorViewType === EditorViewType.SOURCECODE,
               commandId: 'app_toggleEditorType',
               handler: () => bus.emit('editor_toggle_type', undefined, EditorViewType.SOURCECODE, targetEditorId ? { editorId: targetEditorId, groupId } : undefined),
-            },
-            {
-              label: t('view.wysiwyg'),
-              value: EditorViewType.WYSIWYG,
-              checked: editorViewType === EditorViewType.WYSIWYG,
-              commandId: 'app_toggleEditorType',
-              handler: () => bus.emit('editor_toggle_type', undefined, EditorViewType.WYSIWYG, targetEditorId ? { editorId: targetEditorId, groupId } : undefined),
             },
             {
               label: t('view.preview'),
@@ -262,37 +222,6 @@ export const MenuList = memo((props: MenuListProps) => {
     }
     appendViewItems()
 
-    const appendDirectionItem = () => {
-      if (latestFile && latestFile.kind !== 'new_tab' && curFileTypeConfig?.type === 'markdown') {
-        const key = getFileTextDirectionKey(latestFile.id, latestFile.path)
-        const direction = useFileTextDirectionStore.getState().directions[key]
-        const selectDirection = (value: EditorTextDirection | undefined) => {
-          const file = targetEditorId ? getFileObject(targetEditorId) : undefined
-          if (file) useFileTextDirectionStore.getState().setDirection(file, value)
-        }
-        items.push({
-          label: t('settings.editor.behavior.text_direction.label'),
-          value: 'text_direction',
-          icon: ArrowLeftRightIcon,
-          children: [
-            {
-              label: t('settings.editor.behavior.text_direction.follow_global'),
-              value: 'inherit',
-              checked: direction === undefined,
-              handler: () => selectDirection(undefined),
-            },
-            { type: 'divider' },
-            ...(['auto', 'ltr', 'rtl'] as const).map((value) => ({
-              label: t(`settings.editor.behavior.text_direction.${value}`),
-              value,
-              checked: direction === value,
-              handler: () => selectDirection(value),
-            })),
-          ],
-        })
-      }
-    }
-    appendDirectionItem()
 
     items.push({ type: 'divider' })
 
@@ -368,38 +297,6 @@ export const MenuList = memo((props: MenuListProps) => {
         handler: () => openLocalHistory(targetEditorId),
       })
 
-      // 书签
-      if (showBookmark) {
-        items.push({
-          label: t('action.bookmark'),
-          value: 'BookMark',
-          icon: BookmarkIcon,
-          checkedIcon: (
-            <BookmarkIcon
-              aria-hidden='true'
-              className='fill-current text-warning'
-              size={14}
-              strokeWidth={1.75}
-            />
-          ),
-          checked: curBookMark !== undefined,
-          handler: () => {
-            if (curBookMark) {
-              commandRegistry.execute('edit_bookmark_dialog', curBookMark)
-            } else {
-              const bookmarkFile = targetEditorId ? getFileObject(targetEditorId) : undefined
-              commandRegistry.execute(
-                'open_bookmark_dialog',
-                bookmarkFile || {
-                  id: targetEditorId,
-                  name: latestFileName,
-                  path: latestFilePath,
-                },
-              )
-            }
-          },
-        })
-      }
     }
     appendFileItems()
 
@@ -443,31 +340,6 @@ export const MenuList = memo((props: MenuListProps) => {
         })
       }
 
-      // 文本转换
-      if (showConvertText) {
-        items.push({
-          label: t('action.convert_text'),
-          value: 'convert_text',
-          icon: LanguagesIcon,
-          children: [
-            {
-              label: t('action.convert_simplified_to_traditional_tw'),
-              value: 'zh-TW',
-              handler: () => convertText('zh-TW'),
-            },
-            {
-              label: t('action.convert_simplified_to_traditional_hk'),
-              value: 'zh-HK',
-              handler: () => convertText('zh-HK'),
-            },
-            {
-              label: t('action.convert_traditional_to_simplified'),
-              value: 'zh-Hans',
-              handler: () => convertText('zh-Hans'),
-            },
-          ],
-        })
-      }
     }
     appendExportItems()
 
@@ -495,11 +367,9 @@ export const MenuList = memo((props: MenuListProps) => {
     editorTypewriterScroll,
     editorPlaceholder,
     t,
-    convertText,
     showViewSwitcher,
     showTypewriterScroll,
     showFileInfo,
-    showBookmark,
     showExport,
     showConvertText,
     customItems,
@@ -518,15 +388,22 @@ export const MenuList = memo((props: MenuListProps) => {
     })
   }, [buildMenuItems])
 
+  const locked = useNoteIsLocked(targetEditorId)
+
   if (!targetEditorId || !fileName) return null
 
   return (
     <>
       <EditorAreaActionButton
+        aria-disabled={locked || undefined}
         aria-haspopup='menu'
+        className={locked ? 'opacity-50' : undefined}
         icon={SlidersHorizontalIcon}
-        label={t('action.more')}
-        onClick={handleMenuClick}
+        label={locked ? t('encryption.locked.toolbar_hint') : t('action.more')}
+        onClick={() => {
+          if (locked) return
+          handleMenuClick()
+        }}
         ref={ref}
       />
       {encodingFileId ? (

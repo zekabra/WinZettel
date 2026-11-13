@@ -15,6 +15,7 @@ import { RIGHTBARITEMKEYS } from '@/constants'
 import { useTranslation } from '@/i18n'
 import { ArrowDownUpIcon, BookmarkIcon, CheckIcon, ListIcon, TagsIcon } from 'lucide-react'
 import { useCallback, useMemo } from 'react'
+import { useEditorStore } from '@/stores'
 import { toast } from 'zens'
 import { openBookmark } from './actions'
 import { BookMarkViewItem } from './BookMarkViewItem'
@@ -56,9 +57,22 @@ export const BookMarksList = (props: BookMarksListProps) => {
   const config = useBookmarkViewStore((state) => state.config)
   const setGroupBy = useBookmarkViewStore((state) => state.setGroupBy)
   const setSort = useBookmarkViewStore((state) => state.setSort)
+  const workspaceRoot = useEditorStore((state) => state.folderData?.[0]?.path ?? '')
+  const workspaceItems = useMemo(() => {
+    // Favourites belong to the notes of the workspace that is open: showing another
+    // repository's bookmarks would offer paths that cannot be opened here.
+    // With no workspace open there is nothing to scope against: list what the library has.
+    if (!workspaceRoot) return library.items
+    const prefix = workspaceRoot.replace(/\\/g, '/').toLowerCase().replace(/\/$/, '')
+    return library.items.filter((item) => {
+      const path = item.target.path.replace(/\\/g, '/').toLowerCase()
+      return path === prefix || path.startsWith(`${prefix}/`)
+    })
+  }, [library.items, workspaceRoot])
+
   const visibleBookmarks = useMemo(
-    () => selectVisibleBookmarks(library.items, pendingRemovals),
-    [library.items, pendingRemovals],
+    () => selectVisibleBookmarks(workspaceItems, pendingRemovals),
+    [workspaceItems, pendingRemovals],
   )
   const result = useMemo(
     () => queryBookmarks(visibleBookmarks, config, i18n.language),

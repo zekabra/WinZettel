@@ -6,12 +6,8 @@ export * from './core'
 export { default } from './core'
 
 const loaders = {
-  ru: () =>
-    Promise.all([import('../../../locales/ru.json'), import('../../../locales/editor/ru.json')]),
   en: () =>
     Promise.all([import('../../../locales/en.json'), import('../../../locales/editor/en.json')]),
-  cn: () =>
-    Promise.all([import('../../../locales/zh-CN.json'), import('../../../locales/editor/cn.json')]),
   frFR: () =>
     Promise.all([
       import('../../../locales/fr-FR.json'),
@@ -19,10 +15,6 @@ const loaders = {
     ]),
   es: () =>
     Promise.all([import('../../../locales/es.json'), import('../../../locales/editor/es.json')]),
-  ja: () =>
-    Promise.all([import('../../../locales/ja.json'), import('../../../locales/editor/ja.json')]),
-  vi: () =>
-    Promise.all([import('../../../locales/vi.json'), import('../../../locales/editor/vi.json')]),
   'pt-BR': () =>
     Promise.all([import('../../../locales/pt-BR.json'), import('../../../locales/editor/ptBR.json')]),
 }

@@ -6,6 +6,9 @@ import SliderSettingItem from './Slider'
 import StringMapJsonSettingItem from './StringMapJson'
 import SwitchSettingItem from './Switch'
 import FileExcludePatternsSettingItem from './FileExcludePatterns'
+import WorkspaceFolderSettingItem from './WorkspaceFolder'
+import PassphraseSettingItem from './Passphrase'
+import RepositorySettingItem from './Repository'
 import {
   isFontListSelectSettingItem,
   isInputSettingItem,
@@ -15,6 +18,9 @@ import {
   isSwitchSettingItem,
   isFileExcludePatternsSettingItem,
   isDateFormatSettingItem,
+  isWorkspaceFolderSettingItem,
+  isPassphraseSettingItem,
+  isRepositorySettingItem,
 } from './types'
 
 const SettingItem: React.FC<SettingItemProps> = (props) => {
@@ -42,6 +48,15 @@ const SettingItem: React.FC<SettingItemProps> = (props) => {
 
   if (isStringMapJsonSettingItem(item))
     return <StringMapJsonSettingItem key={item.key} item={item} {...otherProps} />
+
+  if (isWorkspaceFolderSettingItem(item))
+    return <WorkspaceFolderSettingItem key={item.key} item={item} {...otherProps} />
+
+  if (isRepositorySettingItem(item))
+    return <RepositorySettingItem key={item.key} item={item} {...otherProps} />
+
+  if (isPassphraseSettingItem(item))
+    return <PassphraseSettingItem key={item.key} item={item} {...otherProps} />
 
   return <></>
 }

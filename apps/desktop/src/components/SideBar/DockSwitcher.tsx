@@ -3,6 +3,7 @@ import { useTranslation } from '@/i18n'
 import useLayoutStore, { type DockPanelId, type DockSide } from '@/stores/useLayoutStore'
 import { StatusBarButton } from '@/components/StatusBar/StatusBarButton'
 import { getDockPanels } from './dockPanels'
+import { resetActiveWorkspaceSearch } from '@/extensions/search'
 import useEditorStore from '@/stores/useEditorStore'
 import { useEffect, useRef, useState } from 'react'
 import { DockPanelContextMenu } from './DockPanelMenu'
@@ -52,6 +53,8 @@ export function DockSwitcher({ side }: { side: DockSide }) {
 
   const handleSelect = (panelId: DockPanelId) => {
     const isClosing = dock.visible && dock.activePanelId === panelId
+    // Opening the search panel starts with an empty field; reopening after closing too.
+    if (!isClosing && panelId === 'search') resetActiveWorkspaceSearch()
     toggleDockPanel(side, panelId)
 
     if (isClosing) {

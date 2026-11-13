@@ -2,8 +2,9 @@ import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useTranslation } from '@/i18n'
 import { convertFileSrc } from '@tauri-apps/api/core'
+import { repoAssetUrlIfInside } from '@/helper/repoAsset'
 import { Maximize2Icon, ZoomInIcon, ZoomOutIcon } from 'lucide-react'
-import { type ReactNode, useCallback, useRef, useState } from 'react'
+import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import useResizeObserver from 'use-resize-observer'
 
 interface ImagePreviewProps {
@@ -244,7 +245,18 @@ function ImageViewer({ src, fileName }: { src: string; fileName: string }) {
 export function ImagePreview({ filePath }: ImagePreviewProps) {
   if (!filePath) return null
 
-  const src = convertFileSrc(filePath)
+  // Encrypted repository: read the bytes through the volume, not from the ciphertext.
+  const [src, setSrc] = useState(() => convertFileSrc(filePath))
+
+  useEffect(() => {
+    let cancelled = false
+    void repoAssetUrlIfInside(filePath).then((repoUrl) => {
+      if (!cancelled && repoUrl) setSrc(repoUrl)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [filePath])
   const fileName = filePath.split(/[\\/]/).pop() || filePath
 
   return (

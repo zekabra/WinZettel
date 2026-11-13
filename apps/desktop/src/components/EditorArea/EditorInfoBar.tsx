@@ -3,7 +3,6 @@ import { EditorViewType, type EditorViewTypeValue } from '@/constants/editorView
 import { useBookmarkStore } from '@/extensions/bookmarks/store'
 import bus from '@/helper/eventBus'
 import { getFileObject } from '@/helper/files'
-import { FileResultCode } from '@/helper/filesys'
 import { dialog } from '@/services/dialog'
 import { isEmptyEditor } from '@/services/editor-file'
 import { useEditorStateStore, useEditorStore } from '@/stores'
@@ -16,7 +15,6 @@ import {
   EllipsisIcon,
   EyeIcon,
   FileTextIcon,
-  PencilLineIcon,
   type LucideIcon,
 } from 'lucide-react'
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
@@ -40,7 +38,6 @@ const EMPTY_FILE_NORMAL_INFO: FileNormalInfo = {
 
 export const EditorInfoBar = memo(() => {
   const activeId = useEditorStore((state) => state.activeId)
-  const getEditorContent = useEditorStore((state) => state.getEditorContent)
 
   const { editorViewTypeMap } = useEditorViewTypeStore()
   const { t } = useTranslation()
@@ -79,26 +76,6 @@ export const EditorInfoBar = memo(() => {
       getFileNormalInfo.cancel()
     }
   }, [hasUnsavedChanges, getFileNormalInfo])
-
-  const convertText = useCallback(
-    async (variant: string) => {
-      try {
-        const content = getEditorContent(curFile?.id || '')
-        const res = await invoke<{ code: FileResultCode; content: string }>('convert_text', {
-          text: content || '',
-          variant,
-        })
-        if (res.code === FileResultCode.Success) {
-          bus.emit('editor_set_content', undefined, res.content)
-        } else {
-          toast.error(res.content)
-        }
-      } catch (error) {
-        toast.error(error instanceof Error ? error.message : String(error))
-      }
-    },
-    [curFile?.id, getEditorContent],
-  )
 
   const handleMoreAction = useCallback(() => {
     const rect = ref1.current?.getBoundingClientRect()
@@ -148,38 +125,15 @@ export const EditorInfoBar = memo(() => {
             bus.emit('editor_export_image')
           },
         },
-        {
-          type: 'divider' as const,
-        },
-        {
-          label: t('action.convert_text'),
-          value: 'convert_text',
-          children: [
-            {
-              label: t('action.convert_simplified_to_traditional_tw'),
-              value: 'zh-TW',
-              handler: () => convertText('zh-TW'),
-            },
-            {
-              label: t('action.convert_simplified_to_traditional_hk'),
-              value: 'zh-HK',
-              handler: () => convertText('zh-HK'),
-            },
-            {
-              label: t('action.convert_traditional_to_simplified'),
-              value: 'zh-Hans',
-              handler: () => convertText('zh-Hans'),
-            },
-          ],
-        },
       ],
     })
-  }, [curFile, t, convertText])
+  }, [curFile, t])
 
   const handleViewClick = useCallback(() => {
     const rect = ref.current?.getBoundingClientRect()
     if (rect === undefined) return
-    const editorViewType = editorViewTypeMap.get(curFile?.id || '') || 'wysiwyg'
+    const editorViewType =
+      editorViewTypeMap.get(curFile?.id || '') ?? EditorViewType.SOURCECODE
     const { getFileTypeConfigById } = useFileTypeConfigStore.getState()
     const curFileTypeConfig = getFileTypeConfigById(curFile?.id || '')
 
@@ -195,13 +149,6 @@ export const EditorInfoBar = memo(() => {
           handler: () => bus.emit('editor_toggle_type', undefined, EditorViewType.SOURCECODE),
         },
         {
-          label: t('view.wysiwyg'),
-          value: EditorViewType.WYSIWYG,
-          checked: editorViewType === EditorViewType.WYSIWYG,
-          commandId: 'app_toggleEditorType',
-          handler: () => bus.emit('editor_toggle_type', undefined, EditorViewType.WYSIWYG),
-        },
-        {
           label: t('view.preview'),
           value: EditorViewType.PREVIEW,
           checked: editorViewType === EditorViewType.PREVIEW,
@@ -213,11 +160,10 @@ export const EditorInfoBar = memo(() => {
     })
   }, [curFile, editorViewTypeMap, t])
 
-  const editorViewType = editorViewTypeMap.get(curFile?.id || '') || 'wysiwyg'
+  const editorViewType = editorViewTypeMap.get(curFile?.id || '') ?? EditorViewType.SOURCECODE
 
   const viewTypeIconMap: Record<EditorViewTypeValue, LucideIcon> = {
     [EditorViewType.SOURCECODE]: Code2Icon,
-    [EditorViewType.WYSIWYG]: PencilLineIcon,
     [EditorViewType.PREVIEW]: EyeIcon,
   }
   const ViewTypeIcon = viewTypeIconMap[editorViewType]
@@ -262,13 +208,9 @@ export const EditorInfoBar = memo(() => {
       <Space>
         <EditorAreaActionButton
           icon={ViewTypeIcon}
-          label={
-            editorViewType === EditorViewType.SOURCECODE
-              ? t('view.source_code')
-              : editorViewType === EditorViewType.PREVIEW
-                ? t('view.preview')
-                : t('view.wysiwyg')
-          }
+          label={t(
+            editorViewType === EditorViewType.PREVIEW ? 'view.preview' : 'view.source_code',
+          )}
           ref={ref}
           onClick={handleViewClick}
         />

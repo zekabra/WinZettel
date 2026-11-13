@@ -1,5 +1,4 @@
 import { isCurrentCommandTarget, type EditorCommandTarget } from './editorCommandTarget'
-import { getCapricornEditor } from '@/components/EditorArea/capricornEditorRegistry'
 import { getSourceCodeEditor } from '@/components/EditorArea/sourceCodeEditorRegistry'
 import { insertSourceBlock, insertSourceImage, insertSourceLink } from '@/components/EditorArea/sourceInsertCommands'
 import { EditorViewType } from '@/constants/editorViewType'
@@ -21,12 +20,9 @@ export type CommandUnavailableReason =
   | 'preview'
   | 'read_only'
   | 'stale_target'
-  | 'selection_unavailable'
   | 'no_undo'
   | 'no_redo'
   | 'markdown_only'
-  | 'wysiwyg_only'
-  | 'no_headings'
   | 'zen_mode'
 
 export const EDITOR_COMMANDS = [
@@ -38,7 +34,6 @@ export const EDITOR_COMMANDS = [
   ['editor_toggleH1', 'h1'],
   ['editor_toggleH2', 'h2'],
   ['editor_toggleH3', 'h3'],
-  ['editor_toggleHeadingNumbering', 'headingNumbering'],
   ['editor_toggleBlockquote', 'quote'],
   ['editor_toggleBulletList', 'bulletList'],
   ['editor_toggleOrderedList', 'orderedList'],
@@ -52,30 +47,6 @@ export const EDITOR_COMMANDS = [
 export type EditorPaletteCommand = (typeof EDITOR_COMMANDS)[number][0]
 
 const sourceCommands = createCommandMap()
-
-function richCommandUnavailable(
-  target: EditorCommandTarget,
-  command: EditorPaletteCommand,
-): CommandUnavailableReason | undefined {
-  const { rich, bookmark, fileId } = target
-  if (!rich) return 'unavailable'
-  if (getCapricornEditor(fileId, target.resourceGroupId) !== rich) return 'stale_target'
-  const state = rich.getUiState()
-  if (state.readOnly) return 'read_only'
-  if (command === 'editor_toggleHeadingNumbering')
-    return rich.headings.getNumbering().hasHeadings ? undefined : 'no_headings'
-  if (!bookmark || !rich.selection?.isValid(bookmark.id)) return 'selection_unavailable'
-  if (command === 'editor_toggleDelete') return 'unavailable'
-  if ((command === 'editor_insertCodeBlock' || command === 'editor_insertMathBlock') &&
-    (!rich.insertBlock || !rich.canInsertBlock?.())) return 'unavailable'
-  if (command === 'editor_undo' && !state.canUndo) return 'no_undo'
-  if (command === 'editor_redo' && !state.canRedo) return 'no_redo'
-  if (
-    (command === 'editor_insertLink' || command === 'editor_insertImage') &&
-    (!bookmark.canInsertInline || !rich.requestInlineEdit)
-  )
-    return 'unavailable'
-}
 
 function sourceCommandUnavailable(
   target: EditorCommandTarget,
@@ -100,12 +71,8 @@ export function editorCommandUnavailable(
   if (!target) return 'no_document'
   if (!isCurrentCommandTarget(target)) return 'stale_target'
   if (target.mode === EditorViewType.PREVIEW) return 'preview'
-  if (command === 'editor_toggleHeadingNumbering' && target.mode !== EditorViewType.WYSIWYG)
-    return 'wysiwyg_only'
   const { fileId } = target
-  const reason = target.rich
-    ? richCommandUnavailable(target, command)
-    : sourceCommandUnavailable(target, command)
+  const reason = sourceCommandUnavailable(target, command)
   if (reason) return reason
   if (
     !['editor_undo', 'editor_redo'].includes(command) &&
@@ -117,12 +84,7 @@ export function editorCommandUnavailable(
 
 export function restoreEditorCommandTarget(target: EditorCommandTarget): boolean {
   if (!isCurrentCommandTarget(target)) return false
-  const { rich, bookmark, source, sourceState, fileId } = target
-  if (rich && bookmark) {
-    if (getCapricornEditor(fileId, target.resourceGroupId) !== rich) return false
-    rich.focus()
-    return rich.selection?.restore(bookmark.id) ?? false
-  }
+  const { source, sourceState, fileId } = target
   if (
     source &&
     sourceState &&
@@ -145,70 +107,11 @@ export async function executeEditorPaletteCommand(
   command: EditorPaletteCommand,
 ) {
   if (!target || editorCommandUnavailable(target, command)) return false
-  const { rich, source, fileId } = target
-  // Numbering applies to the whole document, including when no text selection is available.
-  if (command === 'editor_toggleHeadingNumbering') {
-    if (!rich) return false
-    const numbered = rich.headings.getNumbering().complete
-    const result = numbered ? rich.headings.removeNumbering() : rich.headings.applyNumbering()
-    rich.focus()
-    return result.hasHeadings && result.complete !== numbered
-  }
-  if (!restoreEditorCommandTarget(target)) return false
-  if (rich) {
-    switch (command) {
-      case 'editor_undo':
-        rich.commands.undo()
-        break
-      case 'editor_redo':
-        rich.commands.redo()
-        break
-      case 'editor_toggleStrong':
-        rich.commands.toggleMark('bold')
-        break
-      case 'editor_toggleEmphasis':
-        rich.commands.toggleMark('italic')
-        break
-      case 'editor_toggleCodeText':
-        rich.commands.toggleMark('code')
-        break
-      case 'editor_toggleH1':
-        rich.commands.setBlockType('heading-1')
-        break
-      case 'editor_toggleH2':
-        rich.commands.setBlockType('heading-2')
-        break
-      case 'editor_toggleH3':
-        rich.commands.setBlockType('heading-3')
-        break
-      case 'editor_toggleBlockquote':
-        rich.commands.toggleBlockquote()
-        break
-      case 'editor_toggleBulletList':
-        rich.commands.toggleList('bullet')
-        break
-      case 'editor_toggleOrderedList':
-        rich.commands.toggleList('ordered')
-        break
-      case 'editor_toggleTaskList':
-        rich.commands.toggleList('task')
-        break
-      case 'editor_insertLink':
-        return rich.requestInlineEdit?.('link') ?? false
-      case 'editor_insertImage':
-        return rich.requestInlineEdit?.('image') ?? false
-      case 'editor_insertCodeBlock':
-        return rich.insertBlock?.('code', target.bookmark?.text ?? '',
-          () => !editorCommandUnavailable(target, command)) ?? false
-      case 'editor_insertMathBlock':
-        return rich.insertBlock?.('math', target.bookmark?.text ?? '',
-          () => !editorCommandUnavailable(target, command)) ?? false
-      default:
-        return false
-    }
-    return true
-  }
+  const { source, fileId } = target
   if (!source) return false
+  // Restore the captured selection so the command formats the text the palette
+  // showed, even after the user moved the caret while the palette was open.
+  if (!restoreEditorCommandTarget(target)) return false
   const isCurrent = () => !editorCommandUnavailable(target, command)
   if (command === 'editor_insertLink') return insertSourceLink(source, fileId, isCurrent)
   if (command === 'editor_insertImage') return insertSourceImage(source, fileId, isCurrent)

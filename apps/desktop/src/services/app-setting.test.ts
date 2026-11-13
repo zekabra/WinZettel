@@ -1,9 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-const mocks = vi.hoisted(() => ({ invoke: vi.fn(), emit: vi.fn(), consent: vi.fn() }))
+const mocks = vi.hoisted(() => ({ invoke: vi.fn(), emit: vi.fn() }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke: mocks.invoke }))
 vi.mock('@tauri-apps/api/event', () => ({ emit: mocks.emit }))
 vi.mock('@/helper/logger', () => ({ logger: { error: vi.fn(), debug: vi.fn(), info: vi.fn() } }))
-vi.mock('@/startup/sentry', () => ({ syncErrorReportingPreference: mocks.consent }))
 import useAppSettingStore from '@/stores/useAppSettingStore'
 import { appSettingStoreSetup, writeSettingData, writeSettingPatch } from './app-setting'
 
@@ -56,33 +55,6 @@ describe('settings transactions', () => {
     })
   })
 
-  it('enables reports only after consent is saved, and a later revocation wins over queued writes', async () => {
-    let release!: () => void
-    mocks.invoke.mockImplementationOnce(
-      (_command, { data }) =>
-        new Promise((resolve) => {
-          release = () => resolve(commit(data))
-        }),
-    )
-    const enable = writeSettingPatch({ error_reporting_enabled: true })
-    await vi.waitFor(() => expect(mocks.invoke).toHaveBeenCalledOnce())
-    expect(mocks.consent).not.toHaveBeenCalled()
-    const disable = writeSettingPatch({ error_reporting_enabled: false })
-    expect(mocks.consent).toHaveBeenLastCalledWith(false)
-    release()
-    await Promise.all([enable, disable])
-    expect(mocks.consent.mock.calls.every(([enabled]) => enabled === false)).toBe(true)
-    await writeSettingPatch({ error_reporting_enabled: true })
-    expect(mocks.consent).toHaveBeenLastCalledWith(true)
-  })
-
-  it('keeps reporting stopped if persisting a revocation fails', async () => {
-    useAppSettingStore.setState({ settingData: { error_reporting_enabled: true } })
-    mocks.invoke.mockRejectedValueOnce(new Error('disk full'))
-    await expect(writeSettingPatch({ error_reporting_enabled: false })).rejects.toThrow('disk full')
-    expect(mocks.consent.mock.calls).toEqual([[false]])
-  })
-
   it('saves a theme identity and mode in a single config write', async () => {
     await writeSettingPatch({ light_theme: 'paper/light', theme_mode: 'light' })
     expect(mocks.invoke).toHaveBeenCalledOnce()
@@ -130,14 +102,12 @@ describe('settings transactions', () => {
     backend = {
       ...backend,
       theme_mode: 'dark',
-      error_reporting_enabled: false,
       extensions_chatgpt_apikey: 'updated-key',
     }
     useAppSettingStore.setState({
       settingData: {
         language: 'en',
         theme_mode: 'light',
-        error_reporting_enabled: true,
         extensions_chatgpt_apikey: 'old-key',
       },
     })
@@ -145,11 +115,9 @@ describe('settings transactions', () => {
     expect(backend).toEqual({
       language: 'zh',
       theme_mode: 'dark',
-      error_reporting_enabled: false,
       extensions_chatgpt_apikey: 'updated-key',
     })
     expect(useAppSettingStore.getState().settingData).toEqual(backend)
-    expect(mocks.consent).toHaveBeenLastCalledWith(false)
   })
 
   it('keeps a committed setting when notifying other windows fails', async () => {

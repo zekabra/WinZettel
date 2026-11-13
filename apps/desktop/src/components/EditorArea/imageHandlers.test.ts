@@ -103,7 +103,7 @@ describe('handleInsertLocalImage', () => {
     })
   })
 
-  it('uses the configured workspace-relative storage behavior', async () => {
+  it('addresses workspace-relative attachments from the workspace root', async () => {
     mocks.settingData.when_upload_image = 'save_to_local_relative'
     mocks.moveImageToLocalFolder.mockResolvedValueOnce(
       '/workspace/assets/images/summer.png',
@@ -111,7 +111,7 @@ describe('handleInsertLocalImage', () => {
     await expect(
       handleInsertLocalImage('/photos/summer.png', 'note-id'),
     ).resolves.toMatchObject({
-      src: 'assets/images/summer.png',
+      src: '/assets/images/summer.png',
       alt: 'summer',
     })
     expect(mocks.moveImageToLocalFolder).toHaveBeenCalledWith(
@@ -120,15 +120,6 @@ describe('handleInsertLocalImage', () => {
     )
   })
 
-  it('converts the selected file when Base64 insertion is configured', async () => {
-    mocks.settingData.when_upload_image = 'upload_as_base64'
-
-    await expect(
-      handleInsertLocalImage('/photos/summer.png', 'note-id'),
-    ).resolves.toMatchObject({
-      src: 'data:image/png;base64,image',
-    })
-  })
 })
 
 describe.each(['upload', 'paste', 'local insert'] as const)('%s image paths', (entrypoint) => {
@@ -192,14 +183,14 @@ describe.each(['upload', 'paste', 'local insert'] as const)('%s image paths', (e
     expectStorageDirectory('/workspace/docs/assets')
   })
 
-  it('keeps workspace-relative assets relative to the nested document', async () => {
+  it('addresses workspace-relative assets from the workspace root, not the document', async () => {
     mocks.fileObject = { name: 'note.md', path: '/workspace/docs/note.md' }
     mocks.settingData.when_upload_image = 'save_to_local_relative'
     mocks.settingData.when_paste_image = 'save_to_local_relative'
     mocks.settingData.upload_image_save_relative_path = 'assets/images'
     mocks.settingData.paste_image_save_relative_path = 'assets/images'
 
-    await expect(insertImage()).resolves.toBe('../assets/images/stored.png')
+    await expect(insertImage()).resolves.toBe('/assets/images/stored.png')
     expectStorageDirectory('/workspace/assets/images')
   })
 
@@ -219,15 +210,4 @@ describe.each(['upload', 'paste', 'local insert'] as const)('%s image paths', (e
     expect(mocks.getMdRelativePath).not.toHaveBeenCalled()
   })
 
-  it('keeps an absolute link when absolute image storage is configured', async () => {
-    mocks.workspaceRoot = undefined
-    mocks.settingData.when_upload_image = 'save_to_local_absolute'
-    mocks.settingData.when_paste_image = 'save_to_local_absolute'
-    mocks.settingData.upload_image_save_absolute_path = '/shared/images'
-    mocks.settingData.paste_image_save_absolute_path = '/shared/images'
-
-    await expect(insertImage()).resolves.toBe('/shared/images/stored.png')
-    expectStorageDirectory('/shared/images')
-    expect(mocks.getMdRelativePath).not.toHaveBeenCalled()
-  })
 })

@@ -1,5 +1,4 @@
 import { EditorViewType } from '@/constants/editorViewType'
-import { getCapricornEditor } from './capricornEditorRegistry'
 import { sourceCodeCodemirrorViewMap } from './sourceCodeEditorInstances'
 
 const ACTIVE_EDITOR_SELECTOR = '[data-editor-active="true"]'
@@ -27,7 +26,6 @@ function getActiveEditor() {
   const mode = element?.querySelector<HTMLElement>('[data-mf-editor-mode]')?.dataset.mfEditorMode
   return {
     element,
-    rich: fileId && mode === EditorViewType.WYSIWYG ? getCapricornEditor(fileId) : undefined,
     source:
       fileId && mode === EditorViewType.SOURCECODE
         ? sourceCodeCodemirrorViewMap.get(fileId)?.cm
@@ -38,10 +36,8 @@ function getActiveEditor() {
 
 /** Capture before an overlay makes the workspace inert or takes its selection. */
 export function captureActiveEditorFocus(): EditorFocusSnapshot | null {
-  const { element, rich, source, mode } = getActiveEditor()
+  const { element, source, mode } = getActiveEditor()
   if (!element) return null
-  const embeddedCode = rich?.captureEmbeddedCodeFocus?.()
-  const bookmark = rich?.selection?.capture()
   const sourceState = source?.state
   const focused = document.activeElement
   const input =
@@ -57,13 +53,6 @@ export function captureActiveEditorFocus(): EditorFocusSnapshot | null {
     restore: () => {
       const current = getActiveEditor()
       if (current.element !== element || current.mode !== mode) return false
-      if (rich) {
-        if (current.rich !== rich) return false
-        if (embeddedCode?.restore()) return true
-        if (bookmark) rich.selection?.restore(bookmark.id)
-        rich.focus()
-        return true
-      }
       if (source) {
         if (current.source !== source) return false
         source.focus()
@@ -83,9 +72,7 @@ export function captureActiveEditorFocus(): EditorFocusSnapshot | null {
       }
       return focusActiveEditor()
     },
-    release: () => {
-      if (bookmark) rich?.selection?.release(bookmark.id)
-    },
+    release: () => {},
   }
 }
 
@@ -99,15 +86,9 @@ export function isEditorPanelBlankTarget(
 }
 
 export function focusActiveEditor(): boolean {
-  const { element: activeEditor, rich, source, mode } = getActiveEditor()
+  const { element: activeEditor, source, mode } = getActiveEditor()
   if (!activeEditor) return false
 
-  // Capricorn portals its keyboard input to document.body. DOM containment
-  // cannot locate it; the runtime also owns restoring its logical caret.
-  if (rich) {
-    rich.focus()
-    return true
-  }
   if (source) {
     source.focus()
     return true

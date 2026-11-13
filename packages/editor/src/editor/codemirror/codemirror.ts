@@ -509,11 +509,16 @@ export class MfCodemirrorView {
   }
 
   setSearchState(query: SearchQuery, active: { from: number; to: number } | null): void {
-    const mapped = active ? { from: this.toCodeMirrorPosition(active.from), to: this.toCodeMirrorPosition(active.to) } : null
-    this.cm.dispatch({ effects: setSearchHighlight.of({ query, active: mapped }) })
+    // The caller searched the CodeMirror document itself, so these are already editor
+    // positions. Mapping them again shifted every note with frontmatter, and the active
+    // match stopped matching its decoration -- which is why it stayed the plain colour.
+    this.cm.dispatch({ effects: setSearchHighlight.of({ query, active }) })
     const searchActive = active !== null
     if (searchActive !== this.searchActive) {
       this.searchActive = searchActive
+      // The selection layer paints over decorations, so the active match is coloured by
+      // styling the selection itself while a match is active.
+      this.cm.dom.classList.toggle('cm-search-active-selection', searchActive)
       this.options?.onSearchActiveChange?.(searchActive)
     }
   }

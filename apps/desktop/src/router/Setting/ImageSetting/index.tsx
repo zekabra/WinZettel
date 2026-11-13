@@ -2,7 +2,6 @@ import useAppSettingStore from '@/stores/useAppSettingStore'
 import { t } from '@/i18n'
 import { SettingGroupContainer } from '../component/SettingGroup/styles'
 import InputSettingItem from '../component/SettingItems/Input'
-import PathSelectSettingItem from '../component/SettingItems/PathSelect'
 import SelectSettingItem from '../component/SettingItems/Select'
 import { getSettingGroupAnchorId } from '../settingSearch'
 
@@ -21,24 +20,10 @@ export const ImageSetting = () => {
               desc: { i18nKey: 'settings.image.paste_event.when_paste_image.desc' },
               options: [
                 {
-                  value: 'do_nothing',
-                  title: t('settings.image.paste_event.when_paste_image.options.do_nothing'),
-                },
-                {
                   value: 'save_to_local_relative',
                   title: t(
                     'settings.image.paste_event.when_paste_image.options.save_to_local_relative',
                   ),
-                },
-                {
-                  value: 'save_to_local_absolute',
-                  title: t(
-                    'settings.image.paste_event.when_paste_image.options.save_to_local_absolute',
-                  ),
-                },
-                {
-                  value: 'paste_as_base64',
-                  title: t('settings.image.paste_event.when_paste_image.options.paste_as_base64'),
                 },
                 {
                   value: 'save_to_file_relative',
@@ -84,18 +69,7 @@ export const ImageSetting = () => {
             />
           ) : null}
 
-          {settingData.when_paste_image === 'save_to_local_absolute' ? (
-            <PathSelectSettingItem
-              item={{
-                key: 'paste_image_save_absolute_path',
-                type: 'path_select',
-                title: {
-                  i18nKey: 'settings.image.paste_event.paste_image_save_absolute_path.label',
-                },
-                desc: { i18nKey: 'settings.image.paste_event.paste_image_save_absolute_path.desc' },
-              }}
-            />
-          ) : null}
+          
         </div>
       </SettingGroupContainer>
 
@@ -110,24 +84,10 @@ export const ImageSetting = () => {
               desc: { i18nKey: 'settings.image.upload_img.when_upload_image.desc' },
               options: [
                 {
-                  value: 'insert_path',
-                  title: t('settings.image.upload_img.when_upload_image.options.insert_path'),
-                },
-                {
-                  value: 'save_to_local_absolute',
-                  title: t(
-                    'settings.image.upload_img.when_upload_image.options.save_to_local_absolute',
-                  ),
-                },
-                {
                   value: 'save_to_local_relative',
                   title: t(
                     'settings.image.upload_img.when_upload_image.options.save_to_local_relative',
                   ),
-                },
-                {
-                  value: 'upload_as_base64',
-                  title: t('settings.image.upload_img.when_upload_image.options.paste_as_base64'),
                 },
                 {
                   value: 'save_to_file_relative',
@@ -173,18 +133,7 @@ export const ImageSetting = () => {
             />
           ) : null}
 
-          {settingData.when_upload_image === 'save_to_local_absolute' ? (
-            <PathSelectSettingItem
-              item={{
-                key: 'upload_image_save_absolute_path',
-                type: 'path_select',
-                title: {
-                  i18nKey: 'settings.image.upload_img.upload_image_save_absolute_path.label',
-                },
-                desc: { i18nKey: 'settings.image.upload_img.upload_image_save_absolute_path.desc' },
-              }}
-            />
-          ) : null}
+          
         </div>
       </SettingGroupContainer>
     </>

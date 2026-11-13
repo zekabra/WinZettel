@@ -112,6 +112,8 @@ export interface FileTreeProps {
   iconButtonComponent?: React.ComponentType<any>
   /** Optional host renderer for product-specific file and folder icon systems. */
   renderNodeIcon?: FileTreeNodeIconRenderer
+  renderNodePrefix?: (file: IFile) => React.ReactNode
+  renderNodeName?: (file: IFile) => string
   /** Keep the first workspace folder visible above the virtualized rows while scrolling. */
   stickyRoot?: boolean
   /** Horizontal nesting step in pixels. */
@@ -169,6 +171,8 @@ const FileTree: FC<FileTreeProps> = (props) => {
     updateFile,
     iconButtonComponent,
     renderNodeIcon,
+    renderNodePrefix,
+    renderNodeName,
     stickyRoot = false,
     indentSize = DEFAULT_FILE_TREE_INDENT_SIZE,
     rowHeight = DEFAULT_FILE_TREE_ROW_HEIGHT,
@@ -688,6 +692,8 @@ const FileTree: FC<FileTreeProps> = (props) => {
       disableFileOperations={disableFileOperations}
       iconButtonComponent={iconButtonComponent as FC<any>}
       renderNodeIcon={renderNodeIcon}
+      renderNodePrefix={renderNodePrefix}
+      renderNodeName={renderNodeName}
       rootActions={rootActions}
       isLoading={loadingDirIds.has(nodeProps.node.id)}
       isEmpty={
@@ -922,8 +928,19 @@ export function FileTreeRow({
       onClick={(event) => {
         node.handleClick(event)
         if (canOpen && !event.defaultPrevented) {
-          rowState.onOpen?.(node.data, { mode: 'preview' })
+          // A click opens the note in its own tab. Preview mode reused the current tab,
+          // which made every note look like it opened in the first one.
+          rowState.onOpen?.(node.data, { mode: 'permanent' })
         }
+      }}
+      onAuxClick={(event) => {
+        // Middle click opens the note in its own tab, the way browsers open links.
+        if (!canOpen || event.button !== 1) return
+        event.preventDefault()
+        rowState.onOpen?.(node.data, { mode: 'permanent' })
+      }}
+      onMouseDown={(event) => {
+        if (event.button === 1) event.preventDefault()
       }}
       onDoubleClick={(event) => {
         if (!canOpen || event.defaultPrevented) return
@@ -934,7 +951,8 @@ export function FileTreeRow({
         event.preventDefault()
         event.stopPropagation()
         node.select()
-        rowState.onOpen?.(node.data, { mode: event.key === 'Enter' ? 'permanent' : 'preview' })
+        // Space and Enter both open the note in its own tab.
+        rowState.onOpen?.(node.data, { mode: 'permanent' })
       }}
       onFocus={(event) => {
         if (suppressed) revealRoot?.()

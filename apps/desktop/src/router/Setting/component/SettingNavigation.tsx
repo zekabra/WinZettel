@@ -4,18 +4,18 @@ import { cn } from '@/lib/cn'
 import {
   FileOutput,
   RefreshCw,
-  Heart,
   History,
-  Image,
+  FolderOpen,
   Keyboard,
   Palette,
   Settings2,
   Sparkles,
-  SquareCode,
   SquarePen,
   SwatchBook,
   WandSparkles,
   type LucideIcon,
+  Lock,
+  Info,
 } from 'lucide-react'
 import type { SettingData } from '../settingMap'
 import type { SettingCategoryKey } from '../settingSearch'
@@ -37,14 +37,14 @@ const navigationItems: Record<
   themeStore: { section: 'preferences', icon: SwatchBook },
   keyboard: { section: 'preferences', icon: Keyboard },
   editor: { section: 'writing', icon: SquarePen },
-  snippets: { section: 'writing', icon: SquareCode },
-  image: { section: 'writing', icon: Image },
+  image: { section: 'writing', icon: FolderOpen },
+  encryption: { section: 'preferences', icon: Lock },
   export: { section: 'writing', icon: FileOutput },
   history: { section: 'writing', icon: History },
   ai: { section: 'ai', icon: Sparkles },
   copilot: { section: 'ai', icon: WandSparkles },
   updates: { section: 'help', icon: RefreshCw },
-  support: { section: 'help', icon: Heart },
+  about: { section: 'help', icon: Info },
 }
 
 const navigationKeys = Object.keys(navigationItems) as SettingCategoryKey[]
