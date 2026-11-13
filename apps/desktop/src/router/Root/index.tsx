@@ -17,6 +17,7 @@ import { CommandPaletteDialog } from '@/extensions/command-palette/CommandPalett
 import { useTranslation } from '@/i18n'
 import { useEditorStore } from '@/stores'
 import useLayoutStore, {
+  clampDockSize,
   MAX_LEFT_DOCK_SIZE,
   MAX_RIGHT_DOCK_SIZE,
   MIN_LEFT_DOCK_SIZE,
@@ -65,6 +66,36 @@ function Root() {
   const lastEscapeAtRef = useRef<number | null>(null)
   const leftDockLabel = t(leftActivePanelId ? getDockPanelDefinition(leftActivePanelId).labelKey : 'sidebar.leftDock')
   const rightDockLabel = t(rightActivePanelId ? getDockPanelDefinition(rightActivePanelId).labelKey : 'sidebar.rightDock')
+
+  /**
+   * Dragging is handled here rather than by the library handle: the gutter is our element and
+   * the panel exposes a pixel resize, so the gesture cannot be swallowed by overlays.
+   */
+  const beginLeftResize = useCallback((event: React.PointerEvent<HTMLElement>) => {
+    const startX = event.clientX
+    const startSize = leftPanelRef.current?.getSize()?.inPixels ?? MIN_LEFT_DOCK_SIZE
+    const element = event.currentTarget
+    element.setPointerCapture(event.pointerId)
+    const onMove = (moveEvent: PointerEvent) => {
+      const raw = startSize + (moveEvent.clientX - startX)
+      // Dragging past the minimum closes the dock, the same gesture the library offers.
+      if (raw <= MIN_LEFT_DOCK_SIZE / 2) {
+        leftPanelRef.current?.resize(0)
+        syncDockPanelFromResize('left', 0)
+        return
+      }
+      const next = clampDockSize('left', raw)
+      leftPanelRef.current?.resize(`${next}px`)
+      syncDockPanelFromResize('left', next)
+    }
+    const onUp = () => {
+      element.releasePointerCapture?.(event.pointerId)
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+    }
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+  }, [syncDockPanelFromResize])
 
   const toggleLeftPanelVisible = useCallback(() => {
     const state = useLayoutStore.getState()
@@ -218,7 +249,7 @@ function Root() {
           if (layout['root-left'] === 0) syncDockPanelFromResize('left', 0)
           if (layout['root-right'] === 0) syncDockPanelFromResize('right', 0)
         }}
-        resizeTargetMinimumSize={{ coarse: 20, fine: 7 }}
+        resizeTargetMinimumSize={{ coarse: 16, fine: 6 }}
       >
         <Panel
           aria-hidden={!leftDockVisible}
@@ -250,6 +281,7 @@ function Root() {
           data-mf-hidden={!leftDockVisible || zenModeActive ? '' : undefined}
           data-mf-root-separator=''
           disabled={!leftDockVisible || zenModeActive}
+          onPointerDown={beginLeftResize}
         />
         <Panel
           id='root-center'

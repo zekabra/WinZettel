@@ -39,7 +39,6 @@ vi.mock('./editorToolBar/PreviewToolbar/PreviewToolbar', () => ({ PreviewToolbar
 vi.mock('./editorToolBar/SourceCodeToolbar/SourceCodeToolbar', () => ({
   SourceCodeToolbar: () => null,
 }))
-vi.mock('./editorToolBar/WysiwygToolbar', () => ({ WysiwygToolbar: () => null }))
 vi.mock('@/components/LocalHistory/DraftProtectionStatus', () => ({
   DraftProtectionStatus: () => <button type='button'>Draft protection retry</button>,
 }))

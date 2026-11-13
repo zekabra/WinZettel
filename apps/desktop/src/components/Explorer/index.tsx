@@ -11,13 +11,11 @@ import { refreshWorkspaceDirectory, useWorkspaceDirectoryState } from '@/service
 import {
   ChevronsUpIcon,
   EllipsisIcon,
-  FileIcon,
-  FileJsonIcon,
-  FileTextIcon,
   FolderIcon,
   FolderOpenIcon,
   LoaderCircleIcon,
   LocateFixedIcon,
+  LockIcon,
   RefreshCwIcon,
   type LucideIcon,
 } from 'lucide-react'
@@ -26,8 +24,17 @@ import { Empty, EmptyTitle } from '@/components/ui/empty'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import classNames from 'classnames'
 import type { FC, MouseEventHandler } from 'react'
-import { memo, useCallback, useMemo, useState } from 'react'
-import { useTranslation } from '@/i18n'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { i18n, useTranslation } from '@/i18n'
+import useNoteEncryptionStore, { noteKey } from '@/stores/useNoteEncryptionStore'
+import { stripMarkdownExtension } from '@markflowy/interface'
+import { useFileSystem } from '@markflowy/interface'
+import { indexNoteCounts } from '@/stores/useNoteCountsStore'
+import { scanNoteEncryption } from '@/services/noteEncryptionScan'
+import useNoteCountsStore from '@/stores/useNoteCountsStore'
+import useAppSettingStore from '@/stores/useAppSettingStore'
+import { setNoteLockResolver } from '@/services/noteLockRegistry'
+import { isNoteLocked } from '@/stores/useNoteEncryptionStore'
 import { Container, EXPLORER_FILE_TREE_INDENT_SIZE, EXPLORER_FILE_TREE_ROW_HEIGHT } from './styles'
 import { FillFlexParent } from '../fill-flex-parent'
 import { showContextMenu } from '../ui-v2/ContextMenu'
@@ -44,6 +51,10 @@ import {
   getReplacementTargetIds,
   moveFileObjectsByPathPrefix,
 } from '@/helper/files'
+import useFileCacheStore from '@/helper/files'
+import { fileTypeIcon } from '@/helper/fileTypeIcon'
+import { useBookmarkStore } from '@/extensions/bookmarks/store'
+import { BookmarkIcon } from 'lucide-react'
 import { createFile, updateFile } from '@/helper/filesys'
 import { createExplorerComparator } from './explorerSorting'
 import { ExplorerSortMenu } from './ExplorerSortMenu'
@@ -85,7 +96,18 @@ function ExplorerFileTreeActionButton(props: MfIconButtonProps) {
   )
 }
 
-function renderExplorerNodeIcon(file: IFile, state: { isLoading: boolean; isOpen: boolean }) {
+setNoteLockResolver(
+  (fileId) => useFileCacheStore.getState().entries[fileId]?.path,
+  (path) => isNoteLocked(path),
+)
+
+function ExplorerFileIcon({
+  file,
+  state,
+}: {
+  file: IFile
+  state: { isLoading: boolean; isOpen: boolean }
+}) {
   if (state.isLoading) {
     return (
       <LoaderCircleIcon
@@ -102,21 +124,70 @@ function renderExplorerNodeIcon(file: IFile, state: { isLoading: boolean; isOpen
     return <DirectoryIcon aria-hidden='true' size={16} strokeWidth={1.75} />
   }
 
-  const ext = file.ext?.toLowerCase()
-  const DocumentIcon =
-    ext === 'json' ? FileJsonIcon : ext === 'md' || ext === 'markdown' ? FileTextIcon : FileIcon
+  const DocumentIcon = fileTypeIcon(file.ext ?? file.name)
   return <DocumentIcon aria-hidden='true' size={16} strokeWidth={1.75} />
+}
+
+/**
+ * An encrypted note shows a lock where the page icon would be, and gets it back once the
+ * note is decrypted. The state comes from the first bytes of each note, never from its body.
+ */
+function ExplorerNodeIcon({
+  file,
+  state,
+}: {
+  file: IFile
+  state: { isLoading: boolean; isOpen: boolean }
+}) {
+  const encrypted = useNoteEncryptionStore((store) =>
+    file.path ? store.encryptedPaths.includes(noteKey(file.path)) : false,
+  )
+
+  if (!state.isLoading && file.kind !== 'dir' && encrypted) {
+    return (
+      <LockIcon aria-label={i18n.t('encryption.locked.tab')} size={16} strokeWidth={1.75} />
+    )
+  }
+  return <ExplorerFileIcon file={file} state={state} />
+}
+
+/** A solid ribbon for favourites: no shadow, no gap, drawn in the warning colour. */
+function ExplorerNodePrefix({ file }: { file: IFile }) {
+  const bookmarked = useBookmarkStore((store) => {
+    if (!file.path || file.kind === 'dir') return false
+    const key = noteKey(file.path)
+    return store.library.items.some((item) => noteKey(item.target.path) === key)
+  })
+
+  if (!bookmarked) return null
+  return (
+    <BookmarkIcon
+      aria-label={i18n.t('bookmarks.edit')}
+      className='size-3 shrink-0 fill-current text-warning'
+      strokeWidth={0}
+    />
+  )
+}
+
+function renderExplorerNodeIcon(file: IFile, state: { isLoading: boolean; isOpen: boolean }) {
+  return <ExplorerNodeIcon file={file} state={state} />
 }
 
 type ExplorerFileTreePresentation = {
   renderNodeIcon: typeof renderExplorerNodeIcon
+  renderNodePrefix: (file: IFile) => React.ReactNode
+  renderNodeName: (file: IFile) => string
   stickyRoot: boolean
   indentSize: number
   rowHeight: number
 }
 
 const explorerFileTreePresentation = {
+  renderNodePrefix: (file: IFile) => <ExplorerNodePrefix file={file} />,
   renderNodeIcon: renderExplorerNodeIcon,
+  // Notes are listed by name: the owner never types or reads the .md extension.
+  renderNodeName: (file: IFile) =>
+    file.kind === 'file' ? stripMarkdownExtension(file.name) : file.name,
   stickyRoot: true,
   indentSize: EXPLORER_FILE_TREE_INDENT_SIZE,
   rowHeight: EXPLORER_FILE_TREE_ROW_HEIGHT,
@@ -137,11 +208,76 @@ const Explorer: FC<ExplorerProps> = (props) => {
   const treePersistence = { expandedPaths, onExpandedPathsChange }
   const [dndRootElement, setDndRootElement] = useState<HTMLDivElement | null>(null)
 
+  const { readSubdirectory } = useFileSystem()
+  // Folder children loading must not restart the index: it would reset the numbers.
+  const readSubdirectoryRef = useRef(readSubdirectory)
+  readSubdirectoryRef.current = readSubdirectory
+
+  // Which notes are encrypted, decided once per workspace: a lock must be right at startup,
+  // not only after a click reveals it.
+  useEffect(() => {
+    if (!workspacePath) return
+    let stale = false
+    void scanNoteEncryption(workspacePath, (path) => readSubdirectoryRef.current(path), () => stale)
+    return () => {
+      stale = true
+    }
+  }, [workspacePath])
+
+  const showNoteCounts = Boolean(
+    useAppSettingStore((state) => state.settingData.show_note_counts),
+  )
+  const indexedCounts = useNoteCountsStore((state) => state.byPath)
+
+  // Exact numbers need every directory read once; the tree alone only knows what was opened.
+  // The tree changing (a note created, removed or renamed anywhere) is what triggers a new
+  // pass, so the numbers follow the workspace instead of waiting for a restart.
+  useEffect(() => {
+    if (!showNoteCounts || !workspacePath) return
+    const store = useNoteCountsStore.getState()
+    const revision = store.revision + 1
+    store.beginIndex(revision)
+    let stale = false
+    const timer = window.setTimeout(
+      () => {
+        void indexNoteCounts(workspacePath, (path) => readSubdirectoryRef.current(path), () => stale).then(
+          ({ byPath, total }) => {
+            if (stale) return
+            useNoteCountsStore.getState().finishIndex(revision, byPath, total)
+          },
+        )
+      },
+      folderData ? 200 : 0,
+    )
+    return () => {
+      stale = true
+      window.clearTimeout(timer)
+    }
+  }, [folderData, showNoteCounts, workspacePath])
+
+  const presentation = useMemo<ExplorerFileTreePresentation>(
+    () => ({
+      ...explorerFileTreePresentation,
+      renderNodeName: (file: IFile) => {
+        const label = file.kind === 'file' ? stripMarkdownExtension(file.name) : file.name
+        if (!showNoteCounts) return label
+        if (file.kind === 'file') return label
+        const count = file.path ? indexedCounts.get(file.path.toLowerCase()) ?? 0 : 0
+        return `${label} (${count})`
+      },
+    }),
+    [indexedCounts, showNoteCounts],
+  )
+
   const handleOpen = useCallback((item: IFile, options: FileTreeOpenOptions) => {
     if (item?.kind !== 'file') return
     const editor = useEditorStore.getState()
     const group = editor.getActiveGroup()
-    if (group) editor.openFileInGroup(group.id, item.id, options)
+    if (!group) return
+
+    // The note pane itself asks for the passphrase when the content is still ciphertext;
+    // asking here too would stack dialogs.
+    editor.openFileInGroup(group.id, item.id, options)
   }, [])
 
   const handleContextMenu: MouseEventHandler = useCallback((e) => e.preventDefault(), [])
@@ -280,7 +416,7 @@ const Explorer: FC<ExplorerProps> = (props) => {
         ) : hasWorkspace ? (
           <FileTree
             key={workspacePath}
-            {...explorerFileTreePresentation}
+            {...presentation}
             {...treePersistence}
             data={folderData ?? []}
             compareNodes={compareNodes}

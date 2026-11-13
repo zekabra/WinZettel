@@ -1,5 +1,4 @@
 enum EVENT {
-  app_about = 'app_about',
   app_save = 'app_save',
   app_openFolder = 'app_openFolder',
   app_quickOpen = 'app_quickOpen',

@@ -19,7 +19,6 @@ import { lazy, Suspense, useEffect, useLayoutEffect } from 'react'
 import { Route, Routes, useLocation, useMatch } from 'react-router'
 import { Notifications } from 'zens'
 import { FileTreeProvider, TauriFileSystemProvider } from './adapters'
-import AppInfoDialog from './components/AppInfoDialog'
 import Modal from './components/Modal'
 import { AsyncSurface } from './components/AsyncSurface'
 import { RenderErrorBoundary } from './components/RenderErrorBoundary'
@@ -123,7 +122,6 @@ function ReadyApp({ retryWorkspace, workspace }: ReadyAppProps) {
         <FileTreeProvider>
           <ContextMenu />
           <Notifications />
-          <AppInfoDialog />
           <HistorySurface />
           <Modal.InputConfirm id={MODAL_INPUT_ID} />
           <Modal.Info id={MODAL_INFO_ID} />
@@ -151,7 +149,7 @@ function StartupFailureSurface({ error, retry }: { error: unknown; retry: () => 
       <AsyncSurface
         state={{
           status: 'error',
-          title: 'Unable to start MarkFlowy',
+          title: 'Unable to start WinZettel',
           description: getStartupErrorDescription(error),
           retry,
         }}
@@ -165,7 +163,7 @@ function StartupFailureSurface({ error, retry }: { error: unknown; retry: () => 
 function StartupLoadingSurface() {
   return (
     <div className='flex h-screen w-screen'>
-      <StartupProgress label='Starting MarkFlowy…' />
+      <StartupProgress label='Starting WinZettel…' />
     </div>
   )
 }

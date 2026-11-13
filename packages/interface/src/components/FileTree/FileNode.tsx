@@ -57,6 +57,10 @@ export interface FileNodeComponentProps extends NodeRendererProps<IFile> {
   disableFileOperations?: boolean
   iconButtonComponent?: FC<any>
   renderNodeIcon?: FileTreeNodeIconRenderer
+  /** Optional marker drawn before the type icon, inside the row. */
+  renderNodePrefix?: (file: IFile) => React.ReactNode
+  /** How a row is named; hosts that hide the extension pass their own. */
+  renderNodeName?: (file: IFile) => string
   rootActions?: React.ReactNode
   isLoading?: boolean
   isEmpty?: boolean
@@ -173,6 +177,8 @@ function FileNode({
   disableFileOperations = false,
   iconButtonComponent: IconButton,
   renderNodeIcon,
+  renderNodeName,
+  renderNodePrefix,
   rootActions,
   isLoading = false,
   isEmpty = false,
@@ -549,6 +555,33 @@ function FileNode({
       }
     }
 
+    const alreadyEncrypted =
+      node.data.kind === 'file' && node.data.path
+        ? Boolean(appContext?.isNoteEncrypted?.(node.data.path))
+        : false
+
+    if (node.data.path && appContext?.encryptNote && !alreadyEncrypted) {
+      const isFolder = node.data.kind === 'dir'
+      items.push({
+        value: isFolder ? 'encrypt_folder' : 'encrypt_note',
+        label: isFolder
+          ? t('contextmenu.explorer.encrypt_folder')
+          : t('contextmenu.explorer.encrypt_note'),
+        handler: () =>
+          void (isFolder
+            ? appContext?.encryptNotesInFolder?.(node.data.path!)
+            : appContext?.encryptNote?.(node.data.path!)),
+      })
+    }
+
+    if (node.data.kind === 'file' && node.data.path && appContext?.toggleBookmarkNote) {
+      items.push({
+        value: 'bookmark_note',
+        label: t('bookmarks.add'),
+        handler: () => void appContext?.toggleBookmarkNote?.(node.data.path!, node.data.name),
+      })
+    }
+
     if (node.data.path && appContext?.copyText) {
       const copyText = appContext.copyText
       items.push({
@@ -730,6 +763,9 @@ function FileNode({
           minWidth: 0,
         }}
       >
+        {renderNodePrefix ? (
+          <span className='mf-file-tree-prefix'>{renderNodePrefix(node.data)}</span>
+        ) : null}
         {renderNodeIcon ? (
           <span
             aria-label={isLoading ? `${t('common.fetching')} ${node.data.name}` : undefined}
@@ -758,7 +794,7 @@ function FileNode({
             textOverflow: 'ellipsis',
           }}
         >
-          {node.data.name}
+          {renderNodeName ? renderNodeName(node.data) : node.data.name}
         </span>
         {isEmpty ? (
           <EmptyFolderStatus role='status'>{t('file.emptyFolder')}</EmptyFolderStatus>

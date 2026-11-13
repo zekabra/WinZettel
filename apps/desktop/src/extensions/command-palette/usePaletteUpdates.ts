@@ -1,5 +1,4 @@
 import { commandRegistry } from '@/commands'
-import { getCapricornEditor, subscribeCapricornEditors } from '@/components/EditorArea/capricornEditorRegistry'
 import { subscribeSourceCodeEditors } from '@/components/EditorArea/sourceCodeEditorRegistry'
 import useEditorStore from '@/stores/useEditorStore'
 import useEditorViewTypeStore from '@/stores/useEditorViewTypeStore'
@@ -15,20 +14,14 @@ export function usePaletteUpdates(target: EditorCommandTarget | null) {
   const [, update] = useReducer((revision: number) => revision + 1, 0)
   useEffect(() => {
     // The palette loads lazily; its captured editor may have been replaced
-    // before this effect mounts. Runtime heading subscriptions require a live session.
-    const rich = target?.rich && getCapricornEditor(target.fileId, target.resourceGroupId) === target.rich
-      ? target.rich
-      : undefined
+    // before this effect mounts, so only live subscriptions are registered.
     const subscriptions = [
       useEditorStore.subscribe(update),
       useEditorViewTypeStore.subscribe(update),
       useFileTypeConfigStore.subscribe(update),
       useLayoutStore.subscribe(update),
-      subscribeCapricornEditors(update),
       subscribeSourceCodeEditors(update),
       commandRegistry.onDidChangeCommands(update).dispose,
-      rich?.subscribeUiState(update),
-      rich?.headings.subscribe(update),
     ]
     const compartment = new Compartment()
     const source = target?.source

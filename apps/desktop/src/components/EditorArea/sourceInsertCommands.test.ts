@@ -54,7 +54,8 @@ function beginInsert(kind: 'link' | 'image', view: EditorView, isCurrent?: () =>
   vi.mocked(requestImageInsert).mockReturnValueOnce(pending.promise)
   return {
     result: insertSourceImage(view, fileId, isCurrent, 'left-group'),
-    finish: () => pending.resolve({ src: '/image.png' }),
+    finish: () =>
+      pending.resolve({ kind: 'image', attributes: { src: '/image.png' } }),
     expected: '![label](/image.png)',
   }
 }

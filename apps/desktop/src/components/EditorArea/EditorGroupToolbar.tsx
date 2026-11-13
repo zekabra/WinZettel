@@ -2,7 +2,6 @@ import { memo } from 'react'
 import styled from 'styled-components'
 import { PreviewToolbar } from './editorToolBar/PreviewToolbar/PreviewToolbar'
 import { SourceCodeToolbar } from './editorToolBar/SourceCodeToolbar/SourceCodeToolbar'
-import { WysiwygToolbar } from './editorToolBar/WysiwygToolbar'
 import { MenuList } from './editorToolBar/components/MenuList'
 import { Button } from '@/components/ui/button'
 import { EditorViewType } from '@/constants/editorViewType'
@@ -71,7 +70,6 @@ function EditorGroupToolbar(props: EditorGroupToolbarProps) {
     <ToolbarHost className='editor-group-toolbar flex items-center'>
       {title}
       <div className='min-w-0 flex-1'>
-        <WysiwygToolbar editorId={editorId} groupId={groupId} />
         <SourceCodeToolbar editorId={editorId} groupId={groupId} />
         <PreviewToolbar editorId={editorId} groupId={groupId} />
       </div>

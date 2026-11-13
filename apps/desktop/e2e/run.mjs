@@ -6,7 +6,6 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { setTimeout as delay } from 'node:timers/promises'
-import { CAPRICORN_VERSION, resolvePrivateCapricornRuntime } from '../capricornRuntimeResolver.ts'
 import {
   assertBinary, assertOwner, assertSupportedPlatform, availablePort, createEnvironment, preserveEnvironment,
   removeEnvironment, selectScenarios,
@@ -21,9 +20,6 @@ const selected = selectScenarios(process.argv.slice(2))
 assert.equal(process.platform, 'darwin', 'The first native E2E suite supports macOS 14+ only')
 const { stdout: macosVersion } = await promisify(execFile)('/usr/bin/sw_vers', ['-productVersion'])
 assertSupportedPlatform(process.platform, macosVersion)
-assert.ok(resolvePrivateCapricornRuntime(join(repository,
-  '.private-runtime/node_modules/@drl990114/capricorn-runtime/package.json')),
-`Install the verified Capricorn ${CAPRICORN_VERSION} runtime before E2E; no fallback is allowed`)
 const binary = await assertBinary(resolve(process.env.MARKFLOWY_E2E_BINARY ??
   join(repository, 'target/debug/markflowy')))
 const output = join(directory, 'reports', new Date().toISOString().replaceAll(':', '-'))

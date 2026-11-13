@@ -1,6 +1,6 @@
 {
   "name": "@markflowy/desktop",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
@@ -17,8 +17,6 @@
     "test:e2e": "node e2e/run.mjs",
     "test:e2e:types": "tsc --noEmit -p e2e/tsconfig.json",
     "test:e2e:runner": "node --test e2e/runner-tests.mjs",
-    "test:capricorn-source": "vitest run --config vitest.capricorn-source.config.ts",
-    "test:capricorn-published": "vitest run --config vitest.capricorn-published.config.ts",
     "delete": "rimraf node_modules"
   },
   "dependencies": {

@@ -1,6 +1,7 @@
 import { getFileObject } from '@/helper/files'
 import { toFileMetadata } from '@/helper/fileMetadata'
 import { beginEditorOpenMeasurement } from '@/components/EditorArea/editorPerformanceDiagnostics'
+import { countEditorPanes } from '@/components/EditorArea/editorPaneLimit'
 import { editorSnapshotRegistry } from '@/components/EditorArea/editorSnapshotRegistry'
 import { createFile, FileResultCode, getFolderPathFromPath, isMdFile, releaseSecurityScope, type IFile } from '@/helper/filesys'
 import { getPathIdentityKey } from '@/helper/pathIdentity'
@@ -896,6 +897,9 @@ const useEditorStore = create<EditorStore>()(subscribeWithSelector((set, get) =>
 
     splitGroup: (groupId, direction, insertion = 'after') => {
       const state = get()
+      // The work area splits once. The owner asked for two panes and no more, whatever
+      // the path that tries to create a third one.
+      if (countEditorPanes(state.editorLayout) >= 2) return undefined
       const sourceGroup = findGroup(state.editorLayout, groupId)
       if (!sourceGroup) return
       const layout = cloneEditorLayout(state.editorLayout)

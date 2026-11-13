@@ -35,3 +35,15 @@ export function isStringMapJsonSettingItem(
 ): item is Setting.StringMapJsonSettingItem {
   return item.type === 'stringMapJson'
 }
+
+export function isWorkspaceFolderSettingItem(
+  item: Setting.SettingItem,
+): item is Setting.WorkspaceFolderSettingItem {
+  return item.type === 'workspace_folder'
+}
+
+export function isPassphraseSettingItem(
+  item: Setting.SettingItem,
+): item is Setting.PassphraseSettingItem {
+  return item.type === 'passphrase'
+}

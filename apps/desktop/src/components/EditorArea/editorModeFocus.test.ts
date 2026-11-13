@@ -29,18 +29,6 @@ function mountEditor(source = false) {
   return { container, input }
 }
 
-function mountPortal(documentKey: string) {
-  const container = document.createElement('div')
-  container.innerHTML = '<div data-cap-content><div data-cap-editable></div></div>'
-  const documentNode = container.querySelector('[data-cap-editable]')!
-  documentNode.setAttribute('data-cap-key', documentKey)
-  const input = document.createElement('textarea')
-  input.setAttribute('data-cap-input', 'true')
-  input.setAttribute('data-cap-dockey', documentKey)
-  document.body.append(container, input)
-  return { container, input, documentNode }
-}
-
 describe('editor mode focus handoff', () => {
   it.each([false, true])('restores focus after replacing the focused editor (source: %s)', (source) => {
     const { container, input } = mountEditor(source)
@@ -54,27 +42,6 @@ describe('editor mode focus handoff', () => {
     const restore = vi.fn(() => replacement.focus())
     pending!.restore(restore)
     expect(document.activeElement).toBe(replacement)
-    pending!.restore(restore)
-    expect(restore).toHaveBeenCalledOnce()
-  })
-
-  it('recognizes only the owning Capricorn portal and follows its replacement', () => {
-    const current = mountPortal('current')
-    const other = mountPortal('other')
-    other.input.focus()
-    expect(capture(current.container)).toBeUndefined()
-    current.input.focus()
-    const pending = capture(current.container)
-    expect(pending).toBeDefined()
-
-    const replacement = document.createElement('textarea')
-    replacement.setAttribute('data-cap-input', 'true')
-    replacement.setAttribute('data-cap-dockey', 'replacement')
-    current.documentNode.setAttribute('data-cap-key', 'replacement')
-    current.input.remove()
-    document.body.append(replacement)
-    replacement.focus()
-    const restore = vi.fn()
     pending!.restore(restore)
     expect(restore).toHaveBeenCalledOnce()
   })

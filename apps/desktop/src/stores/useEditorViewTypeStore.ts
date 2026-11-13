@@ -1,6 +1,32 @@
 import { create } from 'zustand'
 import { EditorViewType, type EditorViewTypeValue } from '@/constants/editorViewType'
 import { immer } from 'zustand/middleware/immer'
+import { isNoteLockedById } from '@/services/noteLockRegistry'
+import { i18n } from '@/i18n'
+import { notifyErrorOnce } from '@/services/notifyOnce'
+import { logger } from '@/helper/logger'
+
+/**
+ * A note still in ciphertext must not reach the editor: changing the blob leaves a note that
+ * can no longer be decrypted. The guard lives here because every switcher (button, keyboard,
+ * command palette) goes through this setter.
+ */
+const refusesSourceMode = (id: string, viewType: EditorViewTypeValue): boolean => {
+  if (viewType !== EditorViewType.SOURCECODE) return false
+  if (!isNoteLockedById(id)) return false
+  logger.info('Refused the editor for a locked note:', id)
+  // Both panes can reach this while resolving their mode; the owner reads it once.
+  notifyErrorOnce(
+    'encryption.locked.editor_blocked',
+    i18n.t('encryption.locked.editor_blocked'),
+  )
+  // Leaving focus on a control that no longer applies paints a focus ring over the pane.
+  if (typeof document !== 'undefined') {
+    const active = document.activeElement
+    if (active instanceof HTMLElement) active.blur()
+  }
+  return true
+}
 
 const useEditorViewTypeStore = create(
   immer<EditorViewTypeStore>((set, get) => {
@@ -8,7 +34,8 @@ const useEditorViewTypeStore = create(
       editorViewTypeMap: new Map(),
       editorGroupViewTypeMap: new Map(),
 
-      setEditorViewType: (id, viewType, groupId) =>
+      setEditorViewType: (id, viewType, groupId) => {
+        if (refusesSourceMode(id, viewType)) return
         set((state) => {
           if (groupId) {
             const modes = state.editorGroupViewTypeMap.get(groupId) ?? new Map()
@@ -17,7 +44,8 @@ const useEditorViewTypeStore = create(
           } else {
             state.editorViewTypeMap.set(id, viewType)
           }
-        }),
+        })
+      },
 
       getEditorViewType: (id, groupId) =>
         selectEditorViewType(get(), id, groupId) ?? EditorViewType.PREVIEW,

@@ -11,11 +11,12 @@ import { EditorAreaActionButton } from '../../EditorAreaAction'
 export const FindController: FC<{
   findPrev: () => void
   findNext: () => void
+  dismiss?: () => void
   stopFind: () => void
   caseSensitive: boolean
   toggleCaseSensitive: () => void
   onDismiss?: () => void
-}> = ({ findPrev, findNext, stopFind, caseSensitive, toggleCaseSensitive, onDismiss }) => {
+}> = ({ findPrev, findNext, stopFind, dismiss, caseSensitive, toggleCaseSensitive, onDismiss }) => {
   const { t } = useTranslation()
 
   return (
@@ -40,6 +41,7 @@ export const FindController: FC<{
         icon={XIcon}
         label={t('find_replace.close')}
         onClick={() => {
+          dismiss?.()
           stopFind()
           onDismiss?.()
         }}

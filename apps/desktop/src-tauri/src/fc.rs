@@ -1584,23 +1584,6 @@ pub fn get_file_normal_info(path_str: &str) -> FileNormalInfo {
     }
 }
 
-pub async fn convert_text_async(text: String, variant: String) -> Result<String, SystemError> {
-    use zhconv::{zhconv, Variant};
-
-    tokio::task::spawn_blocking(move || {
-        let variant = match variant.as_str() {
-            "zh-TW" => Variant::ZhTW,
-            "zh-HK" => Variant::ZhHK,
-            "zh-CN" => Variant::ZhCN,
-            "zh-Hans" => Variant::ZhHans,
-            _ => Variant::ZhTW,
-        };
-        zhconv(&text, variant)
-    })
-    .await
-    .map_err(|_| SystemError::TaskAborted(uuid::Uuid::nil()))
-}
-
 pub mod cmd {
     use crate::app::startup_io;
     use crate::fc::{self, ConditionalWriteResult, FileNormalInfo, FileResultCode};
@@ -1666,6 +1649,23 @@ pub mod cmd {
             "Directory read completed"
         );
         result
+    }
+
+    /// Reads only the head of a note: enough to tell an encrypted note from a plain one
+    /// without loading every file in the tree. The marker is U+E000 U+E001 "ENC".
+    #[tauri::command]
+    pub async fn note_file_is_encrypted(file_path: String) -> Result<bool, String> {
+        tokio::task::spawn_blocking(move || {
+            const MAGIC: [u8; 9] = [0xEE, 0x80, 0x80, 0xEE, 0x80, 0x81, b'E', b'N', b'C'];
+            let path = Path::new(&file_path);
+            fc::ensure_workspace_scope_active(path);
+            let mut file = std::fs::File::open(path).map_err(|error| error.to_string())?;
+            let mut head = [0u8; MAGIC.len()];
+            let read = std::io::Read::read(&mut file, &mut head).map_err(|error| error.to_string())?;
+            Ok(read == MAGIC.len() && head == MAGIC)
+        })
+        .await
+        .map_err(|error| error.to_string())?
     }
 
     #[tauri::command]
@@ -2048,20 +2048,6 @@ pub mod cmd {
                     content: format!("Failed to copy file from '{}' to '{}': {}", from, to, e),
                 }
             }
-        }
-    }
-
-    #[tauri::command]
-    pub async fn convert_text(text: String, variant: String) -> FileResult {
-        match fc::convert_text_async(text, variant).await {
-            Ok(content) => FileResult {
-                code: FileResultCode::Success,
-                content,
-            },
-            Err(e) => FileResult {
-                code: FileResultCode::UnknownError,
-                content: e.to_string(),
-            },
         }
     }
 
@@ -2480,12 +2466,4 @@ mod tests {
         );
     }
 
-    #[tokio::test]
-    async fn converts_text_on_the_shared_blocking_pool() {
-        let converted = convert_text_async("汉语".to_string(), "zh-TW".to_string())
-            .await
-            .unwrap();
-
-        assert_eq!(converted, "漢語");
-    }
 }

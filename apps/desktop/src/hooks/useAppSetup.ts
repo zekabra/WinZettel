@@ -17,8 +17,6 @@ import { hasFileExcludePatternsChanged } from '@/helper/file-exclude'
 import { getFileObject } from '@/helper/files'
 import { getFileNameFromPath, releaseSecurityScope } from '@/helper/filesys'
 import { logger } from '@/helper/logger'
-import { checkUpdate } from '@/helper/updater'
-import { startPeriodicUpdateChecks } from '@/services/update-checks'
 import { changeLng, i18nInit, locales, t, type Langs } from '@/i18n'
 import { appSettingStoreSetup } from '@/services/app-setting'
 import { openExternalPaths } from '@/services/open-external-paths'
@@ -412,6 +410,7 @@ const appShellSetup = async (signal: AbortSignal): Promise<AppShellData> => {
   void readWorkspaceInputs(signal)
   markStartupStage('settings-start')
   const settingData = await appSettingStoreSetup()
+  // The table of contents stays closed at launch; opening it is a per-session choice.
   markStartupStage('settings-ready')
   throwIfStartupCancelled(signal)
 
@@ -456,12 +455,9 @@ let themeLibrarySetupPromise: Promise<void> | undefined
 
 const startDeferredAppSetup = () => {
   if (!deferredAppSetupPromise) {
+    // Updates are manual only: nothing is checked unless the user asks.
     deferredAppSetupPromise = Promise.all([
       useThemeStore.getState().syncSystemTheme(),
-      // Only the main window checks for releases.
-      window.__MARKFLOWY_E2E__ || currentWindow.label !== 'main'
-        ? undefined
-        : checkUpdate(),
     ]).then(() => undefined)
   }
 
@@ -675,7 +671,7 @@ export const useAppRuntimeSetup = () => {
     let stopChecks: (() => void) | undefined
     const cancel = afterStartupInteractive(() => {
       if (!window.__MARKFLOWY_E2E__ && currentWindow.label === 'main') {
-        stopChecks = startPeriodicUpdateChecks()
+
       }
       markStartupStage('deferred-start')
       void startDeferredAppSetup().catch((error) => logger.error('Deferred startup failed', error))

@@ -96,8 +96,7 @@ export const Container = styled.div`
     padding-top: ${(props) => props.theme.spaceSm};
 
     /* These editors own their top inset, including in split panes. */
-    &:has(> [data-mf-editor-mode='sourceCode']),
-    &:has(> [data-mf-editor-mode] [data-mf-capricorn-runtime]) {
+    &:has(> [data-mf-editor-mode='sourceCode']) {
       padding-top: 0;
     }
   }
@@ -206,6 +205,12 @@ export const TabItem = styled.div<TabItemProps>`
     height: 24px;
     align-items: center;
     justify-content: center;
+  }
+
+  .mf-editor-tab-lock {
+    flex: none;
+    margin-left: 4px;
+    opacity: 0.75;
   }
 
   .mf-editor-tab-dirty {

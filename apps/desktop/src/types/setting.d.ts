@@ -18,6 +18,8 @@ declare namespace Setting {
     | FontListSelectSettingItem
     | StringMapJsonSettingItem
     | DateFormatSettingItem
+    | WorkspaceFolderSettingItem
+    | PassphraseSettingItem
 
   type BaseSettingItem = {
     key: string
@@ -89,5 +91,15 @@ declare namespace Setting {
 
   type PathSelectSettingItem = {
     type: 'path_select'
+  } & BaseSettingItem
+
+  /** Prompts for the note-encryption passphrase; the value is stored in the settings file. */
+  type PassphraseSettingItem = {
+    type: passphrase
+  } & BaseSettingItem
+
+  /** Shows the current workspace and lets the user switch it; writes no setting. */
+  type WorkspaceFolderSettingItem = {
+    type: 'workspace_folder'
   } & BaseSettingItem
 }

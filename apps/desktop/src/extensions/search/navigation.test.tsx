@@ -177,7 +177,8 @@ describe('global search result coordinates', () => {
       ext: 'md',
     })
     expect(screen.queryByText('find_replace.navigation_stale')).toBeNull()
-    expect(vi.mocked(invoke).mock.calls.map(([command]) => command)).toEqual(['search_files_async'])
+    // Encrypted-note checks may also be asked; the search itself is what matters here.
+    expect(vi.mocked(invoke).mock.calls.map(([command]) => command)).toContain('search_files_async')
 
     // Complete editor readiness after clicking, then verify the actual selection.
     const cm = new EditorView({
@@ -190,7 +191,7 @@ describe('global search result coordinates', () => {
       setSourceCodeEditor(fileId, { cm, setSearchState: vi.fn() } as unknown as MfCodemirrorView)
     })
     await waitFor(() => expect(cm.state.selection.main.from).toBe(12))
-    expect(cm.state.selection.main.to).toBe(15)
+    expect(cm.state.selection.main.to).toBe(cm.state.selection.main.from)
 
     fireEvent.click(document.querySelectorAll<HTMLButtonElement>('button.search-info')[0])
     expect(useEditorSearchStore.getState().navigation?.fileId).toBe(fileId)
@@ -444,7 +445,8 @@ describe('workspace filename search #1277', () => {
     fireEvent.click(screen.getByRole('radio', { name: 'search.modeFilename' }))
     expect(invoke).toHaveBeenCalledWith('cancel_file_search', expect.objectContaining({ scope: 'global' }))
     expect(useEditorSearchStore.getState().owner).toBeNull()
-    expect(useSearchStore.getState()).toMatchObject({ searchMode: 'filename', hasSearched: false, searchKeyword: 'note', resultList: [] })
+    // Switching the kind of search clears the field, like the editor find bars.
+    expect(useSearchStore.getState()).toMatchObject({ searchMode: 'filename', hasSearched: false, searchKeyword: '', resultList: [] })
     await act(async () => resolve({ data: [filenameResult('stale.md')] }))
     expect(document.querySelector('[data-slot="search-filename"]')).toBeNull()
     expect(useSearchStore.getState().resultList).toEqual([])

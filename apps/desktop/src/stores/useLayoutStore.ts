@@ -20,7 +20,7 @@ export const DEFAULT_DOCK_PANEL_ORDER: DockPanelOrder = {
 export const DEFAULT_LEFT_DOCK_SIZE = 240
 export const DEFAULT_RIGHT_DOCK_SIZE = 280
 export const MIN_LEFT_DOCK_SIZE = 180
-export const MAX_LEFT_DOCK_SIZE = 360
+export const MAX_LEFT_DOCK_SIZE = 480
 export const MIN_RIGHT_DOCK_SIZE = 220
 export const MAX_RIGHT_DOCK_SIZE = 420
 export const DOCK_PREFERENCES_STORAGE_KEY = 'mf:desktop:dock-preferences:v1'
@@ -73,7 +73,7 @@ function normalizePanelOrder(value: unknown): DockPanelOrder {
   return order
 }
 
-function clampDockSize(side: DockSide, size: unknown): number {
+export function clampDockSize(side: DockSide, size: unknown): number {
   const fallback = side === 'left' ? DEFAULT_LEFT_DOCK_SIZE : DEFAULT_RIGHT_DOCK_SIZE
   if (typeof size !== 'number' || !Number.isFinite(size)) return fallback
   const min = side === 'left' ? MIN_LEFT_DOCK_SIZE : MIN_RIGHT_DOCK_SIZE

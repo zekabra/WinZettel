@@ -1,11 +1,10 @@
 import { getFileObject, getFileObjectByPath } from '@/helper/files'
 import { createFile, getFileNameFromPath } from '@/helper/filesys'
 import { logger } from '@/helper/logger'
-import { localResourcePath, resourceFragment } from '@/helper/localResourcePath'
+import { localResourcePath } from '@/helper/localResourcePath'
 import {
   beginLinkNavigation,
   isCurrentLinkNavigation,
-  navigateLinkFragment,
 } from './linkNavigation'
 import useEditorStore from '@/stores/useEditorStore'
 import { invoke } from '@tauri-apps/api/core'
@@ -28,6 +27,15 @@ export function isLocalFileLink(href: string): boolean {
   return target.toLowerCase().startsWith('file:') || !PROTOCOL_PATTERN.test(target)
 }
 
+async function fileExists(path: string): Promise<boolean> {
+  try {
+    return await invoke<boolean>('file_exists', { filePath: path })
+  } catch (error) {
+    logger.warn('Failed to inspect a local file link:', { error, path })
+    return false
+  }
+}
+
 export async function resolveLocalFileLinkPath(
   href: string,
   sourceFilePath?: string,
@@ -39,6 +47,15 @@ export async function resolveLocalFileLinkPath(
   if (!linkPath) return undefined
 
   try {
+    // Workspace-relative attachment links start with a slash ("/.assets/guide.pdf")
+    // so they stay valid wherever the document sits. They are rooted, so the
+    // isAbsolute branch below would resolve them against the drive instead of the
+    // workspace; try the workspace root first and keep the old fallback.
+    if (workspaceRootPath && linkPath.startsWith('/') && !linkPath.startsWith('//')) {
+      const workspaceCandidate = await resolve(workspaceRootPath, linkPath.replace(/^\/+/, ''))
+      if (await fileExists(workspaceCandidate)) return workspaceCandidate
+    }
+
     if (await isAbsolute(linkPath)) {
       return await resolve(linkPath)
     }
@@ -57,11 +74,8 @@ export async function openEditorLink(href: string, sourceFileId?: string): Promi
   const target = href.trim()
   if (!target) return false
   const navigation = beginLinkNavigation()
-  if (target.startsWith('#')) {
-    if (!sourceFileId) return false
-    const reached = await navigateLinkFragment(sourceFileId, target.slice(1), navigation)
-    return !isCurrentLinkNavigation(navigation) || reached
-  }
+  // In-document heading anchors are not addressable outside a rich editor.
+  if (target.startsWith('#')) return false
 
   if (!isLocalFileLink(target)) {
     if (target.startsWith('#') || target.startsWith('?')) return false
@@ -108,11 +122,6 @@ export async function openEditorLink(href: string, sourceFileId?: string): Promi
   if (!isCurrentLinkNavigation(navigation)) return true
   const group = useEditorStore.getState().getActiveGroup()
   if (!group || !editor.openFileInGroup(group.id, targetFile.id, { mode: 'permanent' })) return false
-  const fragment = resourceFragment(target)
-  if (fragment !== undefined) {
-    const reached = await navigateLinkFragment(targetFile.id, fragment, navigation)
-    return !isCurrentLinkNavigation(navigation) || reached
-  }
   return true
 }
 

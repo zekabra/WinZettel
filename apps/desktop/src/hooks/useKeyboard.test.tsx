@@ -22,9 +22,6 @@ vi.mock('hox', () => ({ createGlobalStore: (hook: () => unknown) => [hook] }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke: vi.fn() }))
 vi.mock('@tauri-apps/api/event', () => ({ listen: vi.fn(async () => vi.fn()) }))
 vi.mock('@/helper/logger', () => ({ logger: { debug: vi.fn(), warn: vi.fn(), error: vi.fn() } }))
-vi.mock('@/components/EditorArea/capricornEditorRegistry', () => ({
-  getCapricornEditor: () => undefined,
-}))
 vi.mock('@/components/EditorArea/editorSearchStore', () => ({ openDocumentSearch: vi.fn() }))
 vi.mock('@/i18n', () => ({ t: (key: string) => key }))
 

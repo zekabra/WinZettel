@@ -81,7 +81,7 @@ export function resolveCodeEditorPreferences(settings: Record<string, unknown>) 
   return {
     source,
     embedded,
-    // Capricorn retains its old wrapping scope through the separate legacy field.
+    // The shared engine retains its older wrapping scope through the legacy field.
     rmeEmbedded: { ...embedded, lineWrapping: embedded.lineWrapping ?? legacyLineWrapping },
     legacyLineWrapping,
     fontSize:

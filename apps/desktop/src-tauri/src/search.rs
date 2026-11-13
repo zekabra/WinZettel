@@ -33,6 +33,21 @@ impl SearchScope {
     }
 }
 
+/// A note that carries the encryption marker has no readable content to search.
+const ENCRYPTED_NOTE_PREFIX: [u8; 9] = [0xEE, 0x80, 0x80, 0xEE, 0x80, 0x81, b'E', b'N', b'C'];
+
+fn note_is_encrypted(path: &str) -> bool {
+    use std::io::Read;
+    let Ok(mut file) = std::fs::File::open(path) else {
+        return false;
+    };
+    let mut head = [0u8; ENCRYPTED_NOTE_PREFIX.len()];
+    match file.read(&mut head) {
+        Ok(read) => read == ENCRYPTED_NOTE_PREFIX.len() && head == ENCRYPTED_NOTE_PREFIX,
+        Err(_) => false,
+    }
+}
+
 fn sessions() -> &'static mf_file_search::cancellation::SearchSessions {
     static SESSIONS: std::sync::OnceLock<mf_file_search::cancellation::SearchSessions> =
         std::sync::OnceLock::new();
@@ -72,11 +87,18 @@ pub mod cmd {
             (None, None) => Arc::new(AtomicBool::new(false)),
             _ => return Err(vec!["Search request identity is incomplete".into()]),
         };
+        let content_search = !query.contents_text.trim().is_empty();
         let result = run_search(query, options, token).await;
         if let (Some(id), Some(scope)) = (request_id, scope) {
             sessions().finish(&owner, scope.key(), id);
         }
-        result
+        result.map(|results| {
+            if content_search {
+                drop_encrypted_notes(results)
+            } else {
+                results
+            }
+        })
     }
 
     #[command]
@@ -94,7 +116,13 @@ pub mod cmd {
             .map_err(|_| vec!["search task spawn error".to_string()])?
     }
 
-    fn search_files(
+    fn drop_encrypted_notes(mut results: manager::FinalResults) -> manager::FinalResults {
+    // Content mode only: a filename match on an encrypted note is still useful.
+    results.data.retain(|file| !super::note_is_encrypted(&file.path));
+    results
+}
+
+fn search_files(
         query: Search,
         options: SearchOptions,
         canceled: Arc<AtomicBool>,

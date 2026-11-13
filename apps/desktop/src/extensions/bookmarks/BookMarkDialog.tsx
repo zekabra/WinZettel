@@ -8,6 +8,7 @@ import { useTranslation } from '@/i18n'
 import { collectBookmarkTags, selectVisibleBookmarks } from './query'
 import { normalizeBookmarkError } from './repository'
 import { loadBookmarkLibrary, mutateBookmark, useBookmarkStore } from './store'
+import { stripNoteExtension } from '@/helper/noteName'
 import type { Bookmark } from './types'
 
 interface BookmarkDraft {
@@ -23,7 +24,12 @@ interface DraftError {
 }
 
 function toDraft(bookmark: Bookmark): BookmarkDraft {
-  return { id: bookmark.id, title: bookmark.title, path: bookmark.target.path, tags: bookmark.tags }
+  return {
+    id: bookmark.id,
+    title: stripNoteExtension(bookmark.title),
+    path: bookmark.target.path,
+    tags: bookmark.tags,
+  }
 }
 
 export const BookMarkDialog: React.FC = () => {
@@ -71,7 +77,7 @@ export const BookMarkDialog: React.FC = () => {
     const d1 = commandRegistry.registerCommand({
       id: 'open_bookmark_dialog',
       handler: (file: { path: string; name: string }) =>
-        beginDraft({ path: file.path, title: file.name, tags: [] }),
+        beginDraft({ path: file.path, title: stripNoteExtension(file.name), tags: [] }),
     })
     const d2 = commandRegistry.registerCommand({
       id: 'edit_bookmark_dialog',

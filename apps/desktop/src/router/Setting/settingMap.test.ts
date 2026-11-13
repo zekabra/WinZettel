@@ -48,22 +48,11 @@ describe('Editor setting map', () => {
   it('offers Preview as a Markdown default mode', () => {
     const options = getSettingMap().editor.Behavior.mdDefaultMode.options
 
-    expect(options.map((option) => option.value)).toEqual([
-      'wysiwyg',
-      'sourceCode',
-      'preview',
-    ])
-  })
-
-  it('offers automatic and always-split live preview block behaviors', () => {
-    const setting = getSettingMap().editor.Wysiwyg.livePreviewBlockBehavior
-
-    expect(setting.key).toBe('wysiwyg_editor_live_preview_block_behavior')
-    expect(setting.options.map((option) => option.value)).toEqual(['auto', 'always-split'])
+    expect(options.map((option) => option.value)).toEqual(['preview', 'sourceCode'])
   })
 
   it('separates source and embedded presentation while sharing editing behavior', () => {
-    const { CodeEditing, SourceCode, EmbeddedCode, Style, Wysiwyg } = getSettingMap().editor
+    const { CodeEditing, SourceCode, EmbeddedCode, Style } = getSettingMap().editor
     expect(CodeEditing.indentSize.options.map((option) => option.value)).toEqual([
       'default', '2', '4', '8',
     ])
@@ -82,7 +71,6 @@ describe('Editor setting map', () => {
     }
     expect(SourceCode.sourceFontSize.key).toBe('editor_source_font_size')
     expect(Style).not.toHaveProperty('sourceFontSize')
-    expect(Wysiwyg).not.toHaveProperty('mdDefaultMode')
     expect(EmbeddedCode.fontSize).toMatchObject({
       key: 'editor_code_font_size', optionalValue: { initial: 14 }, scope: [12, 40],
     })
@@ -129,7 +117,7 @@ describe('Dock startup settings', () => {
     expect(Startup.rightStartup.options.map(({ value }) => value)).toEqual(['restore', 'bookmarks', 'ai'])
   })
 
-  it('only offers restore for a side with no assigned panels', () => {
+  it('still offers restore for a side with no assigned panels', () => {
     const { Startup } = getSettingMap({}, undefined, {
       left: ['explorer', 'search', 'bookmarks', 'toc', 'ai'], right: [],
     }).general
@@ -139,14 +127,9 @@ describe('Dock startup settings', () => {
 
 
 describe('Update settings', () => {
-  it('keeps notification checks separate from general settings with an hourly default', () => {
+  it('has no automatic update checks; the user triggers them manually', () => {
     const settings = getSettingMap()
     expect(settings.general.App).not.toHaveProperty('auto_update')
-    expect(settings.updates.Checks.interval).toMatchObject({
-      key: 'update_check_interval', defaultValue: '60',
-    })
-    expect(settings.updates.Checks.interval.options.map(({ value }) => value)).toEqual([
-      '0', '60', '120', '240',
-    ])
+    expect(settings.updates).not.toHaveProperty('Checks')
   })
 })

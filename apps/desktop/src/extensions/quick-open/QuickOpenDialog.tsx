@@ -67,6 +67,8 @@ export function QuickOpenDialog() {
                 fileExcludePatterns={fileExcludePatterns}
                 inputRef={inputRef}
                 onSelect={(entry) => {
+                  // The note pane asks for the passphrase when the content is still
+                  // ciphertext; asking here too would stack a second dialog.
                   if (!openQuickOpenFile(entry)) return
                   openedFileRef.current = true
                   setOpen(false)
