@@ -468,7 +468,7 @@ describe('useEditorStore.getEditorContent', () => {
     expect(useEditorStore.getState().getEditorContent(fileId)).toBe('cached markdown')
   })
 
-  it('flushes the live Capricorn reader before returning cache and never falls back after failure', () => {
+  it('flushes the live editor reader before returning cache and never falls back after failure', () => {
     let pending = true
     let readable = false
     const flush = vi.fn(() => {

@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { builtInThemes, tokyoNightTheme } from '@markflowy/theme'
 import { codeMirrorSyntaxStyles, parseThemeDocument } from '@markflowy/theme/semantic'
 import { tags } from '@lezer/highlight'
-import { capricornStyle, copyTheme, getThemeTokens, toAppTheme } from './runtime'
+import { rmeEditorTokens } from './editorTokens'
+import { copyTheme, getThemeTokens, toAppTheme } from './runtime'
 
 describe('Tokyo Night theme integration', () => {
   it('carries its built-in palette and syntax through both editor bridges', () => {
@@ -27,13 +28,11 @@ describe('Tokyo Night theme integration', () => {
       'syntax.attribute': '#bb9af7ff',
       'syntax.meta': '#73dacaff',
     })
-    expect(capricornStyle(tokens)).toMatchObject({
-      '--cap-surface': tokens['surface.canvas'],
-      '--cap-code-token-keyword': '#bb9af7ff',
-      '--cap-code-token-string': '#9ece6aff',
-      '--cap-code-token-title': '#7aa2f7ff',
-      '--cap-code-selection': '#515c7e4d',
-      '--cap-selection-foreground': tokens['editor.foreground'],
+    expect(rmeEditorTokens(tokens)).toMatchObject({
+      bgColor: tokens['editor.background'],
+      primaryFontColor: '#a9b1d6ff',
+      codemirrorFontFamily: tokens['font.code.family'],
+      markBgColor: tokens['editor.highlight.background'],
     })
     const styles = codeMirrorSyntaxStyles(tokens)
     expect(styles.find((style) => Array.isArray(style.tag) && style.tag.includes(tags.keyword)))

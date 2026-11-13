@@ -82,14 +82,24 @@ export async function insertSourceImage(
   groupId?: string,
 ) {
   const restore = selectionRestorer(view, fileId, isCurrent, groupId)
-  const attributes = await requestImageInsert(fileId)
+  const result = await requestImageInsert(fileId)
   if (!restore()) return false
-  if (!attributes) {
+  if (!result) {
     view.focus()
     return false
   }
   const { from, to } = view.state.selection.main
   const selectedText = view.state.sliceDoc(from, to)
+  if (result.kind === 'link') {
+    const text = (selectedText || result.text || '').replace(/([\\\]])/g, '\\$1')
+    const href = /\s/.test(result.href)
+      ? `<${result.href.replace(/>/g, '%3E')}>`
+      : result.href.replace(/([()])/g, '\\$1')
+    view.dispatch(view.state.replaceSelection(`[${text}](${href})`))
+    view.focus()
+    return true
+  }
+  const attributes = result.attributes
   const alt = (selectedText || attributes.alt || '').replace(/([\\\]])/g, '\\$1')
   const src = /\s/.test(attributes.src)
     ? `<${attributes.src.replace(/>/g, '%3E')}>`

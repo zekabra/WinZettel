@@ -348,7 +348,7 @@ function addHeadingAnchors(root: HTMLElement): void {
     const anchor = slugger.slug(heading.textContent || '')
     if (heading.id === anchor) continue
     // Static RME headings have no IDs. Preserve an explicit ID from other
-    // renderers, adding the same text anchor Capricorn publishes as an alias.
+    // renderers, adding the text anchor as an alias instead of replacing it.
     let unique = anchor || 'heading'
     let suffix = 0
     while (used.has(unique)) unique = `${anchor || 'heading'}-${++suffix}`

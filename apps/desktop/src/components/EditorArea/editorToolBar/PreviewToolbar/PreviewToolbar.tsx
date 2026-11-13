@@ -4,7 +4,8 @@ import useEditorViewTypeStore, { selectEditorViewType } from '@/stores/useEditor
 import { type FC, useMemo } from 'react'
 import { ToolbarSection, usePriorityHidden, ToolbarWrapper } from '@markflowy/interface'
 import { MenuList } from '../components/MenuList'
-import { ViewSwitcher } from '../WysiwygToolbar/components/ViewSwitcher'
+import { ViewSwitcher } from '../components/ViewSwitcher'
+import { PreviewFind } from './PreviewFind'
 
 interface PreviewToolbarProps {
   editorId?: string
@@ -17,7 +18,7 @@ export const PreviewToolbar: FC<PreviewToolbarProps> = (props) => {
   const targetEditorId = editorId ?? activeId
 
   const viewType = useEditorViewTypeStore((state) =>
-    selectEditorViewType(state, targetEditorId ?? '', groupId) ?? EditorViewType.WYSIWYG,
+    selectEditorViewType(state, targetEditorId ?? '', groupId),
   )
 
   const sections = useMemo(() => [{ id: 'common', priority: 100 }], [])
@@ -40,6 +41,7 @@ export const PreviewToolbar: FC<PreviewToolbarProps> = (props) => {
       >
         <ViewSwitcher editorId={targetEditorId} groupId={groupId} />
         <MenuList editorId={targetEditorId} groupId={groupId} />
+        <PreviewFind />
       </ToolbarSection>
     </ToolbarWrapper>
   )

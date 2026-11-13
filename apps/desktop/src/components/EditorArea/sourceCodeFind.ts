@@ -175,8 +175,10 @@ export class SourceFind {
       }),
       match,
     )
+    // A collapsed caret instead of a selection: CodeMirror paints the selection over the
+    // mark decorations, so a selected match could never show the active colour.
     this.view.dispatch({
-      selection: { anchor: match.from, head: match.to },
+      selection: { anchor: match.from, head: match.from },
       effects: EditorView.scrollIntoView(match.from, { y: 'center' }),
     })
     this.publish({ ...this.state, activeIndex })

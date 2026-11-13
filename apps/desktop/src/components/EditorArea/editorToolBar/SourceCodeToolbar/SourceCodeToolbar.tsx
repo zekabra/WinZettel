@@ -4,20 +4,25 @@ import useEditorViewTypeStore, { selectEditorViewType } from '@/stores/useEditor
 import { type FC, useCallback, useMemo } from 'react'
 import { useTranslation } from '@/i18n'
 import {
+  captureEditorCommandTarget,
+  executeEditorPaletteCommand,
+  releaseEditorCommandTarget,
+} from '@/extensions/command-palette/editorCommands'
+import { logger } from '@/helper/logger'
+import {
   BoldIcon,
   Code2Icon,
+  CalendarIcon,
+  CornerDownLeftIcon,
   Heading1Icon,
-  Heading2Icon,
-  Heading3Icon,
-  ImageIcon,
-  ItalicIcon,
+  MinusIcon,
+  TableIcon,
+  FolderOpenIcon,
   LinkIcon,
   ListIcon,
-  ListOrderedIcon,
-  ListTodoIcon,
+  SearchIcon,
   QuoteIcon,
   Redo2Icon,
-  StrikethroughIcon,
   Undo2Icon,
 } from 'lucide-react'
 import {
@@ -35,9 +40,11 @@ import {
   type ToolbarAction,
 } from '../components'
 import { getSourceCodeEditor } from '../../sourceCodeEditorRegistry'
+import { openDocumentSearch } from '../../editorSearchStore'
 import { insertSourceImage, insertSourceLink } from '../../sourceInsertCommands'
-import { ViewSwitcher } from '../WysiwygToolbar/components/ViewSwitcher'
-import { InsertBlockMenu } from '../components/InsertBlockMenu'
+import { LinkInsertPopover } from '../components/LinkInsertPopover'
+import { TableInsertPopover } from '../components/TableInsertPopover'
+import { ViewSwitcher } from '../components/ViewSwitcher'
 
 interface SourceCodeToolbarProps {
   editorId?: string
@@ -64,7 +71,7 @@ export const SourceCodeToolbar: FC<SourceCodeToolbarProps> = (props) => {
   const imageLabel = t('toolbar.image') || 'Image'
 
   const viewType = useEditorViewTypeStore((state) =>
-    selectEditorViewType(state, targetEditorId ?? '', groupId) ?? EditorViewType.WYSIWYG,
+    selectEditorViewType(state, targetEditorId ?? '', groupId),
   )
 
   const { containerRef, hiddenIds, registerItemWidth } = usePriorityHidden({
@@ -76,6 +83,17 @@ export const SourceCodeToolbar: FC<SourceCodeToolbarProps> = (props) => {
     if (!targetEditorId) return undefined
     return getSourceCodeEditor(targetEditorId, groupId)?.cm
   }, [targetEditorId, groupId])
+
+  const runBlockCommand = useCallback(
+    (command: 'editor_insertCodeBlock' | 'editor_insertMathBlock') => {
+      if (!targetEditorId) return
+      const target = captureEditorCommandTarget({ fileId: targetEditorId, groupId })
+      void executeEditorPaletteCommand(target, command)
+        .catch((error) => logger.error('Block insertion failed', error))
+        .finally(() => releaseEditorCommandTarget(target))
+    },
+    [groupId, targetEditorId],
+  )
 
   const runSourceCommand = useCallback(
     (commandName: string, attrs?: Record<string, unknown>) => {
@@ -119,60 +137,30 @@ export const SourceCodeToolbar: FC<SourceCodeToolbarProps> = (props) => {
         run: () => runSourceCommand('redo'),
       },
       {
-        id: 'heading-1',
+        id: 'headings',
         group: 'headings',
         priority: 60,
-        label: t('toolbar.h1') || 'Heading 1',
+        label: t('toolbar.headings') || 'Heading',
         icon: Heading1Icon,
-        run: () => runSourceCommand('toggleHeading', { level: 1 }),
+        items: [1, 2, 3, 4, 5, 6].map((level) => ({
+          id: `heading-${level}`,
+          label: t(`toolbar.h${level}`) || `Heading ${level}`,
+          run: () => runSourceCommand('toggleHeading', { level }),
+        })),
       },
       {
-        id: 'heading-2',
-        group: 'headings',
-        priority: 60,
-        label: t('toolbar.h2') || 'Heading 2',
-        icon: Heading2Icon,
-        run: () => runSourceCommand('toggleHeading', { level: 2 }),
-      },
-      {
-        id: 'heading-3',
-        group: 'headings',
-        priority: 60,
-        label: t('toolbar.h3') || 'Heading 3',
-        icon: Heading3Icon,
-        run: () => runSourceCommand('toggleHeading', { level: 3 }),
-      },
-      {
-        id: 'bold',
+        id: 'formatting',
         group: 'formatting',
         priority: 50,
-        label: t('toolbar.bold') || 'Bold',
+        label: t('toolbar.formatting') || 'Text',
         icon: BoldIcon,
-        run: () => runSourceCommand('toggleStrong'),
-      },
-      {
-        id: 'italic',
-        group: 'formatting',
-        priority: 50,
-        label: t('toolbar.italic') || 'Italic',
-        icon: ItalicIcon,
-        run: () => runSourceCommand('toggleEmphasis'),
-      },
-      {
-        id: 'inline-code',
-        group: 'formatting',
-        priority: 50,
-        label: t('toolbar.code') || 'Inline Code',
-        icon: Code2Icon,
-        run: () => runSourceCommand('toggleCodeText'),
-      },
-      {
-        id: 'strikethrough',
-        group: 'formatting',
-        priority: 50,
-        label: t('toolbar.strike') || 'Strikethrough',
-        icon: StrikethroughIcon,
-        run: () => runSourceCommand('toggleDelete'),
+        items: [
+          { id: 'bold', label: t('toolbar.bold') || 'Bold', run: () => runSourceCommand('toggleStrong') },
+          { id: 'italic', label: t('toolbar.italic') || 'Italic', run: () => runSourceCommand('toggleEmphasis') },
+          { id: 'underline', label: t('toolbar.underline') || 'Underline', run: () => runSourceCommand('toggleUnderline') },
+          { id: 'strike', label: t('toolbar.strike') || 'Strikethrough', run: () => runSourceCommand('toggleDelete') },
+          { id: 'highlight', label: t('toolbar.highlight') || 'Highlight', run: () => runSourceCommand('setHighlight') },
+        ],
       },
       {
         id: 'link',
@@ -180,15 +168,59 @@ export const SourceCodeToolbar: FC<SourceCodeToolbarProps> = (props) => {
         priority: 40,
         label: t('toolbar.link') || 'Link',
         icon: LinkIcon,
-        run: () => void handleInsertLink(),
+        render: () => <LinkInsertPopover editorId={targetEditorId} />,
       },
       {
         id: 'image',
         group: 'insert',
         priority: 40,
         label: imageLabel,
-        icon: ImageIcon,
+        icon: FolderOpenIcon,
         run: () => void handleInsertImage(),
+      },
+      {
+        id: 'table',
+        group: 'insert',
+        priority: 38,
+        label: t('toolbar.table') || 'Table',
+        icon: TableIcon,
+        render: () => <TableInsertPopover editorId={targetEditorId} />,
+      },
+      {
+        id: 'horizontal-rule',
+        group: 'insert',
+        priority: 36,
+        label: t('toolbar.hr') || 'Horizontal rule',
+        icon: MinusIcon,
+        run: () => runSourceCommand('insertHorizontalRule'),
+      },
+      {
+        id: 'line-break',
+        group: 'insert',
+        priority: 35,
+        label: t('toolbar.line_break') || 'Line break',
+        icon: CornerDownLeftIcon,
+        run: () => runSourceCommand('insertLineBreak'),
+      },
+      {
+        id: 'date',
+        group: 'insert',
+        priority: 34,
+        label: t('toolbar.date') || 'Date',
+        icon: CalendarIcon,
+        run: () => runSourceCommand('insertDate'),
+      },
+      {
+        id: 'code',
+        group: 'formatting',
+        priority: 48,
+        label: t('toolbar.code') || 'Code',
+        icon: Code2Icon,
+        items: [
+          { id: 'inline-code', label: t('toolbar.inline_code') || 'Inline code', run: () => runSourceCommand('toggleCodeText') },
+          { id: 'code-block', label: t('toolbar.codeBlock') || 'Code block', run: () => runBlockCommand('editor_insertCodeBlock') },
+          { id: 'math-block', label: t('toolbar.mathBlock') || 'Math block', run: () => runBlockCommand('editor_insertMathBlock') },
+        ],
       },
       {
         id: 'blockquote',
@@ -199,31 +231,27 @@ export const SourceCodeToolbar: FC<SourceCodeToolbarProps> = (props) => {
         run: () => runSourceCommand('toggleBlockquote'),
       },
       {
-        id: 'bullet-list',
+        id: 'lists',
         group: 'blocks',
         priority: 30,
-        label: t('toolbar.bulletList') || 'Bullet List',
+        label: t('toolbar.lists') || 'Lists',
         icon: ListIcon,
-        run: () => runSourceCommand('toggleBulletList'),
+        items: [
+          { id: 'bullet-list', label: t('toolbar.bulletList') || 'Bullet list', run: () => runSourceCommand('toggleBulletList') },
+          { id: 'ordered-list', label: t('toolbar.orderedList') || 'Ordered list', run: () => runSourceCommand('toggleOrderedList') },
+          { id: 'task-list', label: t('toolbar.taskList') || 'Task list', run: () => runSourceCommand('toggleTaskList') },
+        ],
       },
       {
-        id: 'ordered-list',
+        id: 'find',
         group: 'blocks',
-        priority: 30,
-        label: t('toolbar.orderedList') || 'Ordered List',
-        icon: ListOrderedIcon,
-        run: () => runSourceCommand('toggleOrderedList'),
-      },
-      {
-        id: 'task-list',
-        group: 'blocks',
-        priority: 30,
-        label: t('toolbar.taskList') || 'Task List',
-        icon: ListTodoIcon,
-        run: () => runSourceCommand('toggleTaskList'),
+        priority: 40,
+        label: t('find_replace.open') || 'Find in document',
+        icon: SearchIcon,
+        run: () => void openDocumentSearch(),
       },
     ],
-    [handleInsertImage, handleInsertLink, imageLabel, runSourceCommand, t],
+    [handleInsertImage, handleInsertLink, imageLabel, runBlockCommand, runSourceCommand, t],
   )
 
   const overflowMenuItems = useMemo(
@@ -239,7 +267,6 @@ export const SourceCodeToolbar: FC<SourceCodeToolbarProps> = (props) => {
     <ToolbarWrapper className='mf-editor-toolbar' ref={containerRef}>
       <ToolbarSection id='common' registerWidth={registerItemWidth} hidden={false}>
         <ViewSwitcher editorId={targetEditorId} groupId={groupId} />
-        <InsertBlockMenu editorId={targetEditorId} groupId={groupId} />
         <MenuList
           editorId={targetEditorId}
           groupId={groupId}

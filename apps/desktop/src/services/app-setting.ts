@@ -1,11 +1,7 @@
 import { logger } from '@/helper/logger'
 import useAppSettingStore from '@/stores/useAppSettingStore'
-import { syncErrorReportingPreference } from '@/startup/sentry'
 import { invoke } from '@tauri-apps/api/core'
 import { emit } from '@tauri-apps/api/event'
-
-let errorReportingPreferenceRevision = 0
-let errorReportingRevoked = false
 
 export const appSettingStoreSetup = async () => {
   const { setSettingData } = useAppSettingStore.getState()
@@ -15,9 +11,6 @@ export const appSettingStoreSetup = async () => {
     const settingData = await invoke<Record<string, any>>('get_app_conf')
     logger.info('Loaded app settings')
     setSettingData(settingData)
-    syncErrorReportingPreference(
-      settingData.error_reporting_enabled === true && !errorReportingRevoked,
-    )
     return settingData
   } catch (error) {
     logger.error('Failed to load app setting:', error)
@@ -33,7 +26,6 @@ export const appSettingStoreSetup = async () => {
       editor_enable_preview_tabs: true,
     }
     setSettingData(defaultSetting)
-    syncErrorReportingPreference(false)
     return defaultSetting
   }
 }
@@ -42,13 +34,6 @@ let settingWriteQueue: Promise<void> = Promise.resolve()
 
 /** Commit only changed fields; Rust merges them with the latest shared config. */
 export const writeSettingPatch = (patch: Record<string, unknown>): Promise<void> => {
-  const changesErrorReporting = Object.hasOwn(patch, 'error_reporting_enabled')
-  const preferenceRevision = changesErrorReporting ? ++errorReportingPreferenceRevision : undefined
-  // Revocation takes effect even while an earlier settings write is pending.
-  if (patch.error_reporting_enabled === false) {
-    errorReportingRevoked = true
-    syncErrorReportingPreference(false)
-  }
   const write = settingWriteQueue.then(async () => {
     const { settingData, setSettingData } = useAppSettingStore.getState()
     // Remembered dialog choices become active only after they are persisted.
@@ -63,13 +48,6 @@ export const writeSettingPatch = (patch: Record<string, unknown>): Promise<void>
     try {
       const committed = await invoke<Record<string, unknown>>('save_app_conf', { data: patch })
       setSettingData(committed)
-
-      if (changesErrorReporting && preferenceRevision === errorReportingPreferenceRevision) {
-        errorReportingRevoked = false
-      }
-      syncErrorReportingPreference(
-        committed.error_reporting_enabled === true && !errorReportingRevoked,
-      )
 
       void emit('app_conf_change').catch((error: unknown) => {
         logger.error('Failed to notify other windows about saved settings:', error)

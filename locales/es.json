@@ -35,12 +35,9 @@
       "preview": "No se puede editar en modo de vista previa",
       "read_only": "Este documento es de solo lectura",
       "stale_target": "El editor original ha cambiado",
-      "selection_unavailable": "La selección original ya no está disponible",
       "no_undo": "Nada que deshacer",
       "no_redo": "Nada que rehacer",
       "markdown_only": "Disponible para documentos Markdown",
-      "wysiwyg_only": "Solo disponible en modo WYSIWYG",
-      "no_headings": "El documento no tiene encabezados",
       "zen_mode": "Sal primero del modo Zen"
     }
   },
@@ -55,9 +52,10 @@
     "show_more": "Mostrar más ({{count}} restantes)",
     "keyboard_hint": "↑ ↓ para navegar · Intro para abrir · Esc para cerrar"
   },
-  "app_name": "MarkFlowy",
+  "app_name": "WinZettel",
   "editor": {
-    "render_failed": "No se pudo renderizar el editor"
+    "render_failed": "No se pudo renderizar el editor",
+    "split_limit": "El editor se divide en dos paneles. Cierra uno para volver a dividir."
   },
   "find_replace": {
     "navigation_unsupported": "Esta versión no permite ir a la posición exacta del resultado. Actualiza la aplicación e inténtalo de nuevo.",
@@ -71,7 +69,8 @@
     "next_match": "Buscar coincidencia siguiente",
     "match_case": "Distinguir mayúsculas y minúsculas",
     "close": "Cerrar buscar y reemplazar",
-    "result_count": "{{current}} de {{total}}"
+    "result_count": "{{current}} de {{total}}",
+    "open": "Find in document"
   },
   "startup": {
     "opening_workspace": "Abriendo el espacio de trabajo…",
@@ -119,7 +118,6 @@
     "theme": {
       "label": "Tema"
     },
-    "wysiwyg": "Wysiwyg",
     "source_code": "Código Fuente",
     "preview": "Vista Previa"
   },
@@ -131,10 +129,9 @@
     "h3": "Encabezado 3",
     "bold": "Negrita",
     "italic": "Cursiva",
-    "code": "Código en línea",
     "strike": "Tachado",
     "link": "Enlace",
-    "image": "Imagen",
+    "image": "Archivo",
     "quote": "Cita",
     "bulletList": "Lista de viñetas",
     "orderedList": "Lista numerada",
@@ -142,20 +139,39 @@
     "insert": "Insertar",
     "codeBlock": "Bloque de código",
     "mathBlock": "Bloque matemático",
-    "headingNumbering": "Alternar numeración de encabezados del documento"
+    "headings": "Encabezado",
+    "h4": "Encabezado 4",
+    "h5": "Encabezado 5",
+    "h6": "Encabezado 6",
+    "formatting": "Texto",
+    "underline": "Subrayado",
+    "table": "Tabla",
+    "hr": "Línea horizontal",
+    "date": "Fecha de hoy",
+    "highlight": "Resaltar",
+    "link_text": "Texto",
+    "link_url": "Dirección",
+    "link_insert": "Insertar enlace",
+    "code": "Código",
+    "inline_code": "Código en línea",
+    "table_columns": "Columnas",
+    "table_rows": "Filas",
+    "table_insert": "Insertar tabla",
+    "lists": "Listas",
+    "line_break": "Salto de línea"
   },
   "image_insert": {
-    "title": "Insertar imagen",
-    "description": "Introduce la URL de una imagen o elige una imagen de tu equipo.",
-    "url_label": "URL de la imagen",
-    "url_placeholder": "https://example.com/image.png",
+    "title": "Insertar archivo",
+    "description": "Introduzca una URL o elija un archivo de su equipo.",
+    "url_label": "URL del archivo",
+    "url_placeholder": "https://ejemplo.com/archivo.pdf",
     "insert_url": "Insertar",
-    "invalid_url": "Introduce una URL de imagen HTTP o HTTPS válida.",
-    "local_filter": "Imágenes",
-    "select_local": "Elegir imagen local",
-    "selecting_local": "Seleccionando...",
-    "local_error": "No se pudo abrir o leer la imagen seleccionada. Inténtalo de nuevo.",
-    "local_behavior_hint": "Las imágenes locales siguen Ajustes > Imágenes > Comportamiento de inserción de imágenes locales."
+    "invalid_url": "Introduzca una URL HTTP o HTTPS válida.",
+    "local_filter": "Archivos",
+    "select_local": "Elegir archivo local",
+    "selecting_local": "Eligiendo…",
+    "local_error": "No se pudo abrir o leer el archivo seleccionado. Inténtelo de nuevo.",
+    "local_behavior_hint": "Los archivos locales siguen Ajustes > Archivo > Comportamiento al insertar archivos locales."
   },
   "image_preview": {
     "toolbar": "Controles de vista previa de imagen",
@@ -176,11 +192,7 @@
     "save_and_close": "Guardar y cerrar",
     "save_and_continue": "Guardar y continuar",
     "unsave_and_close": "Cierre directo",
-    "continue_without_save": "Continuar sin guardar",
-    "convert_text": "Conversión simplificada y tradicional",
-    "convert_simplified_to_traditional_tw": "Simplificado → Tradicional (Taiwán)",
-    "convert_simplified_to_traditional_hk": "Simplificado → Tradicional (Hong Kong)",
-    "convert_traditional_to_simplified": "Tradicional → Simplificado"
+    "continue_without_save": "Continuar sin guardar"
   },
   "confirm": {
     "move": {
@@ -203,7 +215,8 @@
       "description": "¿Tiene archivos no guardados, está seguro de que desea salir?"
     },
     "continue": {
-      "description": "Tiene cambios sin guardar. ¿Desea guardarlos antes de continuar?"
+      "description": "Tiene cambios sin guardar. ¿Desea guardarlos antes de continuar?",
+      "title": "¿Continuar?"
     }
   },
   "error": {
@@ -302,22 +315,12 @@
       "title": "¿Cómo abrir una carpeta?",
       "currentWindow": "Ventana actual",
       "newWindow": "Nueva ventana"
-    }
+    },
+    "closeAllTabs": "Cerrar todas las pestañas"
   },
   "about": {
-    "description": "Editor Markdown multiplataforma con IA.",
-    "powered_by_tauri": "Con tecnología de Tauri {{version}}",
-    "label": "Acerca de",
-    "version": "Versión",
     "newVersion": "Nueva versión",
-    "install": "Instalar",
-    "author": "Autor",
-    "release": "Versión",
-    "website": "Sitio web",
-    "feedback": "comentarios",
-    "issues": "Incidencias",
-    "license": "Licencia",
-    "current": "versión actual"
+    "install": "Instalar"
   },
   "contextmenu": {
     "label": "Menú contextual",
@@ -340,7 +343,12 @@
       "copy_failed": "No se pudo copiar el archivo: {{reason}}",
       "copy_path": "Copiar ruta",
       "copy_relative_path": "Copiar ruta relativa",
-      "show_in_folder": "Mostrar en carpeta"
+      "show_in_folder": "Mostrar en carpeta",
+      "encrypt_note": "Cifrar nota",
+      "decrypt_note": "Descifrar nota",
+      "encrypt_note_done": "Nota cifrada",
+      "decrypt_note_done": "Nota descifrada",
+      "decrypt_note_passphrase": "Contraseña"
     },
     "editor_tab": {
       "close": "Cerrar",
@@ -472,7 +480,8 @@
         "left": "Barra lateral izquierda al iniciar",
         "right": "Barra lateral derecha al iniciar",
         "restore": "Restaurar el último estado",
-        "description": "Se aplica al reiniciar la aplicación. Recuerda el panel seleccionado y si la barra lateral estaba abierta."
+        "description": "Se aplica al reiniciar la aplicación. Recuerda el panel seleccionado y si la barra lateral estaba abierta.",
+        "closed": "Cerrado"
       },
       "label": "general",
       "app": {
@@ -484,10 +493,15 @@
         "automatic_updates": {
           "label": "Actualización automática",
           "desc": "Comprobar automáticamente si hay actualizaciones e instalarlas cuando inicia la aplicación."
-        },
-        "error_reporting": {
-          "label": "Compartir informes de errores",
-          "desc": "Desactivado por defecto. Envía tipos de error y ubicaciones del código de la aplicación a Sentry. Excluye el contenido de documentos, rutas de archivos, credenciales y actividad de navegación. Puedes desactivarlo en cualquier momento."
+        }
+      },
+      "workspace": {
+        "label": "Workspace",
+        "folder": {
+          "label": "Ubicación de la carpeta de notas",
+          "desc": "La carpeta que esta ventana abre como espacio de notas. Cambiarla pasa esta ventana a la carpeta elegida.",
+          "change": "Cambiar carpeta",
+          "empty": "Ninguna carpeta abierta"
         }
       },
       "autosave": {
@@ -558,21 +572,9 @@
           "label": "Modo predeterminado de Markdown",
           "desc": "Establece el modo de edición predeterminado al crear un nuevo archivo de Markdown."
         },
-        "text_direction": {
-          "follow_global": "Seguir el ajuste global",
-          "label": "Dirección del texto",
-          "desc": "Dirección del texto en WYSIWYG y Vista previa. El modo automático detecta la dirección de cada párrafo.",
-          "auto": "Automática",
-          "ltr": "De izquierda a derecha (LTR)",
-          "rtl": "De derecha a izquierda (RTL)"
-        },
         "typewriter_scroll": {
           "label": "Desplazamiento de la máquina de escribir",
           "desc": "Una vez habilitado, el cursor se mostrará en la ventana de visualización en el momento de la edición."
-        },
-        "caret_animation": {
-          "label": "Cursor suave",
-          "desc": "Anima el cursor del texto en modo WYSIWYG. Respeta la preferencia del sistema de reducir el movimiento."
         },
         "placeholder": {
           "label": "Marcador de posición",
@@ -582,25 +584,6 @@
           "label": "Formato de fecha insertada",
           "desc": "Formato usado por el comando Insertar fecha actual. Usa tokens de formato de Day.js, como YYYY-MM-DD o YYYY-MM-DD HH:mm.",
           "preview": "Vista previa:"
-        }
-      },
-      "wysiwyg": {
-        "label": "Wysiwyg",
-        "codemirror_linewrap": {
-          "label": "Salto de línea de bloque de código",
-          "desc": "Si el número de líneas en el bloque de código excede la línea."
-        },
-        "live_preview_block_behavior": {
-          "label": "Bloques de vista previa en vivo",
-          "desc": "Elige cuándo se muestra el código fuente de HTML, Mermaid y las fórmulas en bloque.",
-          "options": {
-            "auto": "Mostrar el código solo durante la edición",
-            "always_split": "Mostrar siempre el código y la vista previa"
-          }
-        },
-        "spellcheck": {
-          "label": "Comprobación ortografía",
-          "desc": "Si desea activar la revisión ortografía en el modo Wysiwyg."
         }
       },
       "desc": "Las opciones de configuración del editor de Markdown incluyen estilos, comportamientos y ajustes relacionados con el modo WYSIWYG.",
@@ -694,7 +677,6 @@
       "save_failed": "No se pudo guardar el atajo. Se conservó la configuración anterior. Vuelve a intentarlo.",
       "invalid_binding": "Pulsa una combinación válida que incluya una tecla principal.",
       "reserved_binding": "Esta combinación está reservada para escribir, navegar o usar el portapapeles. Elige otra.",
-      "unsupported_binding": "El editor actual no admite esta combinación.",
       "conflict_with": "Ya lo usa «{{command}}». Cambia primero el atajo de ese comando.",
       "saving": "Guardando…",
       "unbound": "Sin asignar",
@@ -775,66 +757,48 @@
       },
       "desc": "Para la configuración del modelo AI, el baseUrl solicitará la dirección oficial de forma predeterminada cuando esté vacío. El encabezado de solicitud se puede utilizar para configurar la clave y otra información. Para obtener más información, consulte la documentación del proveedor de servicios."
     },
-    "resetAppConf": {
-      "label": "Restablecer la configuración de la aplicación",
-      "desc": "Restablecer la configuración de la aplicación y restaurar la configuración predeterminada. Esta acción restablece todos los ajustes, incluidos el tema, el idioma, el guardado automático, etc., y no se puede recuperar.",
-      "success": "La configuración de la aplicación se ha restablecido a los valores predeterminados."
-    },
     "image": {
-      "label": "Imágenes",
+      "label": "Archivo",
       "paste_event": {
         "label": "Evento de pegado del editor",
         "when_paste_image": {
-          "label": "Cuando el texto pegado contiene una imagen",
-          "desc": "Seleccione el comportamiento predeterminado al pegar una imagen en el editor.",
+          "label": "Cuando el texto pegado contiene un archivo",
+          "desc": "Seleccione el comportamiento predeterminado al pegar archivos en el editor.",
           "options": {
             "do_nothing": "Sin operación",
-            "save_to_local_relative": "Ruta relativa guardada en el área de trabajo",
-            "save_to_local_absolute": "Guardar en la ruta absoluta global",
-            "paste_as_base64": "Pegar como código Base64",
-            "save_to_file_relative": "Ruta guardada en el archivo actual relativo"
+            "save_to_local_relative": "Guardar en una ruta relativa al espacio de trabajo",
+            "save_to_file_relative": "Guardar en una ruta relativa al archivo actual"
           }
         },
-        "paste_image_save_absolute_path": {
-          "label": "Ruta absoluta global",
-          "desc": "Al \"pegar una imagen\", la imagen se guarda en esta ruta."
-        },
         "paste_image_save_relative_path": {
-          "label": "Ruta relativa del área de trabajo",
-          "desc": "Al \"pegar una imagen\", la imagen calculará la ruta relativa al área de trabajo actual de acuerdo con su regla, guarde en esta ruta"
+          "label": "Ruta relativa del espacio de trabajo",
+          "desc": "Al pegar un archivo, la ruta se calcula respecto al espacio de trabajo actual según sus reglas y el archivo se guarda ahí."
         },
         "paste_image_save_relative_path_rule": {
           "label": "Reglas de ruta",
-          "desc": "Variables soportadas: ${documentPath} (ruta de la carpeta padre del archivo actual), ${fileName} (nombre del archivo actual sin extensión). Ejemplo: ${documentPath}/photo/${fileName}"
+          "desc": "Variables admitidas: ${documentPath} (carpeta del archivo actual), ${fileName} (nombre del archivo actual sin extensión). Ejemplo: ${documentPath}/adjuntos/${fileName}"
         }
       },
       "upload_img": {
-        "label": "Insertar imagen local",
+        "label": "Insertar archivo local",
         "when_upload_image": {
-          "label": "Comportamiento de inserción de imágenes locales",
-          "desc": "Elige el comportamiento predeterminado para las imágenes locales seleccionadas, arrastradas al editor o pegadas desde un programa de captura.",
+          "label": "Comportamiento al insertar archivos locales",
+          "desc": "Elija el comportamiento predeterminado para los archivos locales elegidos del equipo, arrastrados al editor o pegados por una herramienta de captura.",
           "options": {
-            "insert_path": "Insertar la ruta del archivo original",
-            "save_to_local_absolute": "Guardar en la ruta absoluta global",
-            "save_to_local_relative": "Ruta relativa guardada en el área de trabajo",
-            "paste_as_base64": "Pegar como código Base64",
-            "save_to_file_relative": "Ruta guardada en el archivo actual relativo"
+            "save_to_local_relative": "Guardar en una ruta relativa al espacio de trabajo",
+            "save_to_file_relative": "Guardar en una ruta relativa al archivo actual"
           }
         },
-        "upload_image_save_absolute_path": {
-          "label": "Ruta absoluta global",
-          "desc": "Al \"cargar una imagen\", la imagen se guarda en esta ruta."
-        },
         "upload_image_save_relative_path": {
-          "label": "Ruta relativa del área de trabajo",
-          "desc": "Al \"cargar una imagen\", la imagen calculará la ruta relativa al área de trabajo actual de acuerdo con sus reglas y guardará esta ruta"
+          "label": "Ruta relativa del espacio de trabajo",
+          "desc": "Al insertar un archivo, la ruta se calcula respecto al espacio de trabajo actual según sus reglas y el archivo se guarda ahí."
         },
         "upload_image_save_relative_path_rule": {
           "label": "Reglas de ruta",
-          "desc": "Variables soportadas: ${documentPath} (ruta de la carpeta padre del archivo actual), ${fileName} (nombre del archivo actual sin extensión). Ejemplo: ${documentPath}/photo/${fileName}"
+          "desc": "Variables admitidas: ${documentPath} (carpeta del archivo actual), ${fileName} (nombre del archivo actual sin extensión). Ejemplo: ${documentPath}/adjuntos/${fileName}"
         }
       },
-      "desc": "Configuración de procesamiento y carga de imágenes, incluida la ruta de guardado y la configuración de comportamiento para pegar imágenes, cargar archivos de imágenes."
+      "desc": "Configura el procesamiento y la inserción de archivos: pegar, rutas de guardado y comportamiento al insertar."
     },
     "export": {
       "label": "Exportación",
@@ -843,7 +807,7 @@
         "label": "Pandoc",
         "executable": {
           "label": "Ejecutable de Pandoc",
-          "desc": "Pandoc no se incluye con MarkFlowy. Usa la detección automática o selecciona un ejecutable local."
+          "desc": "Pandoc no se incluye con WinZettel. Usa la detección automática o selecciona un ejecutable local."
         },
         "status": {
           "checking": "Buscando Pandoc...",
@@ -861,7 +825,7 @@
         "label": "PDF export",
         "executable": {
           "label": "PDF export browser",
-          "desc": "MarkFlowy uses a local Chrome, Chromium, or Edge browser to export PDF with heading bookmarks. Detect it automatically or select its executable."
+          "desc": "WinZettel uses a local Chrome, Chromium, or Edge browser to export PDF with heading bookmarks. Detect it automatically or select its executable."
         },
         "status": {
           "checking": "Checking for a PDF export browser…",
@@ -914,24 +878,34 @@
       },
       "desc": "Configuración de apariencia y visualización de la aplicación, incluida la configuración relacionada con la visión, como el zoom de la interfaz y el tema."
     },
+    "encryption": {
+      "label": "Cifrado",
+      "desc": "Cifrado de notas compatible con Zettel Notes para Android.",
+      "end_to_end": {
+        "label": "Cifrado de extremo a extremo"
+      },
+      "passphrase": {
+        "label": "Contraseña",
+        "desc": "Se usa para cifrar y descifrar notas. Se guarda en el archivo de ajustes de esta aplicación; si se pierde, las notas cifradas no se podrán recuperar.",
+        "placeholder": "Contraseña",
+        "set": "Definir contraseña",
+        "reset": "Restablecer contraseña",
+        "configured": "Contraseña definida",
+        "not_configured": "Sin contraseña definida",
+        "reset_confirm_title": "¿Restablecer la contraseña?",
+        "reset_confirm": "Las notas ya cifradas con la contraseña actual dejarán de ser legibles. ¿Continuar?"
+      }
+    },
     "updates": {
       "label": "Actualizaciones",
-      "desc": "Buscar al iniciar. Descargar e instalar solo cuando lo decidas.",
-      "checks": "Búsqueda de actualizaciones",
-      "interval": "Buscar mientras la aplicación está abierta",
-      "interval_desc": "Solo se busca mientras MarkFlowy está abierto y en cada inicio.",
-      "interval_0": "Solo al iniciar",
-      "interval_60": "Cada hora",
-      "interval_120": "Cada 2 horas",
-      "interval_240": "Cada 4 horas"
-    },
-    "support": {
-      "label": "Apoyo",
-      "desc": "¡Cada uno de sus apoyos es importante para nosotros! Para mejorar este proyecto de código abierto, puede participar en",
-      "github_star": "Ilumina la estrella en GitHub",
-      "github_star_desc": "Si te gusta este proyecto, por favor, darnos una estrella en GitHub, ¡es nuestro mayor estímulo!",
-      "github_issue": "Presentar un Issue o una propuesta",
-      "github_issue_desc": "Si tiene problemas o tiene alguna sugerencia, bienvenido a enviar Issue en GitHub."
+      "desc": "Busca actualizaciones cuando lo pidas. Descarga e instala solo cuando elijas.",
+      "current_version": "Versión actual",
+      "manual_hint": "Las actualizaciones solo se comprueban cuando lo pides. Nada se ejecuta al iniciar.",
+      "check_now": "Buscar actualizaciones",
+      "checking": "Comprobando…",
+      "up_to_date": "Ya tienes la última versión.",
+      "available": "La versión {{version}} está disponible.",
+      "install_version": "Instalar {{version}}"
     },
     "copilot": {
       "label": "Copilot",
@@ -955,7 +929,7 @@
         "loadingPreview": "Cargando vista previa del tema",
         "reinstall": "Reinstalar",
         "builtIn": "Temas integrados",
-        "builtInDescription": "Incluidos con MarkFlowy.",
+        "builtInDescription": "Incluidos con WinZettel.",
         "local": "Temas locales",
         "localDescription": "Temas que has creado o importado.",
         "active": "En uso",
@@ -1097,6 +1071,24 @@
       "install_theme_confirm": "¿Quieres instalar {{name}}?",
       "uninstall_theme": "Desinstalar tema",
       "uninstall_theme_confirm": "¿Quieres desinstalar {{name}}?"
+    },
+    "about": {
+      "label": "Acerca de",
+      "desc": "De dónde viene esta aplicación y qué cambia.",
+      "fork": "Esta aplicación es un fork de MarkFlowy, disponible en",
+      "compatibility": "Incluye algunos cambios para hacerla parcialmente compatible con Zettel Notes para Android.",
+      "reset": {
+        "label": "Restablecer ajustes",
+        "hint": "Elimina los ajustes y el diseño guardado. Las notas del espacio de trabajo no se tocan.",
+        "action": "Restablecer ajustes…",
+        "title": "¿Restablecer la aplicación?",
+        "description": "Se eliminarán los ajustes, el diseño y las pestañas recordadas. Las notas se quedan donde están.",
+        "restart": "Restablecer y reiniciar",
+        "plain": "Restablecer sin reiniciar",
+        "done": "Ajustes restablecidos.",
+        "partial": "Restablecimiento parcial: algunos archivos están en uso.",
+        "failed": "No se pudo restablecer."
+      }
     }
   },
   "updater": {
@@ -1108,7 +1100,7 @@
     "install_failed": "No se pudo instalar la actualización: {{error}}",
     "check_failed": "No se pudieron buscar actualizaciones: {{error}}",
     "interrupted_title": "Actualización incompleta",
-    "interrupted_description": "La actualización anterior a {{version}} no se completó. La instalación automática está en pausa. Puedes reintentar, desactivar las actualizaciones automáticas o cancelar para seguir usando MarkFlowy.",
+    "interrupted_description": "La actualización anterior a {{version}} no se completó. La instalación automática está en pausa. Puedes reintentar, desactivar las actualizaciones automáticas o cancelar para seguir usando WinZettel.",
     "disable_auto_update": "Desactivar actualizaciones automáticas"
   },
   "explorer": {
@@ -1289,217 +1281,11 @@
     "exitHint": "Modo Zen · Pulsa {{shortcut}} o Escape dos veces para salir",
     "shortcutFallback": "Cmd/Ctrl+Mayús+F"
   },
-  "capricorn": {
-    "heading": {
-      "collapseSection": "Contraer sección",
-      "expandSection": "Expandir sección"
-    },
-    "blockTypeMenu": {
-      "title": "Convertir en",
-      "multiple": "Convertir {{count}} bloques",
-      "search": "Buscar tipos de bloque…",
-      "noResults": "No hay tipos de bloque coincidentes",
-      "group": {
-        "text": "Texto",
-        "list": "Listas",
-        "source": "Código fuente"
-      },
-      "hint": "↑↓ Seleccionar · Intro Convertir · Esc Cancelar",
-      "reason": {
-        "readOnly": "Este documento no se puede editar.",
-        "unsupported": "La selección contiene un bloque que no se puede convertir.",
-        "containers": "Selecciona bloques consecutivos dentro del mismo contenedor para combinarlos.",
-        "html": "El contenido debe ser un bloque de código HTML independiente.",
-        "math": "Una fórmula no puede conservar los delimitadores ni las líneas en blanco al principio y al final de este código.",
-        "stale": "Los bloques seleccionados han cambiado. Vuelve a abrir el menú."
-      }
-    },
-    "blockHandle": {
-      "convertOrMove": "Haz clic para convertir · Arrastra para mover",
-      "convert": "Convertir: {{target}}",
-      "kind": {
-        "block": "bloque",
-        "blockquote": "cita",
-        "code": "código",
-        "footnote": "nota al pie",
-        "frontmatter": "metadatos",
-        "heading1": "encabezado 1",
-        "heading2": "encabezado 2",
-        "heading3": "encabezado 3",
-        "heading4": "encabezado 4",
-        "heading5": "encabezado 5",
-        "heading6": "encabezado 6",
-        "horizontalRule": "separador",
-        "html": "HTML",
-        "listBullet": "elemento de lista con viñetas",
-        "listOrdered": "elemento de lista numerada",
-        "listTask": "elemento de lista de tareas",
-        "math": "fórmula",
-        "mermaid": "diagrama Mermaid",
-        "paragraph": "párrafo",
-        "rawMarkdown": "Markdown sin procesar",
-        "reference": "referencia",
-        "table": "tabla"
-      },
-      "moveOrSelect": "Mover o seleccionar: {{target}}",
-      "select": "Seleccionar: {{target}}"
-    },
-    "selection": {
-      "selectAllHint": "Pulsa {{shortcut}} de nuevo para seleccionar todo el documento",
-      "selectAllTableHint": "Pulsa {{shortcut}} de nuevo para seleccionar toda la tabla"
-    },
-    "selectionToolbar": {
-      "label": "Formato de texto",
-      "bold": "Negrita",
-      "italic": "Cursiva",
-      "strike": "Tachado",
-      "highlight": "Resaltar",
-      "link": "Insert link"
-    },
-    "editor": {
-      "loading": "Cargando el editor Capricorn",
-      "opening": "Abriendo documento",
-      "load_failed": "No se pudo cargar el editor Capricorn",
-      "preparation_failed": "Falló la preparación del documento en segundo plano. Vuelve a intentarlo."
-    },
-    "placeholder": {
-      "default": "Escribe '/' para ver los comandos"
-    },
-    "clipboard": {
-      "copied_markdown": "Copiado como Markdown",
-      "cut_markdown": "Cortado como Markdown",
-      "retained": "Copiado. Se conservó el contenido original.",
-      "failed": "No se pudo escribir en el portapapeles. Se conservó el original."
-    },
-    "livePreview": {
-      "largeDeferred": "La vista previa grande está en pausa. El código fuente completo sigue disponible.",
-      "renderLarge": "Renderizar vista previa grande (puede tardar)",
-      "actions": "Acciones del bloque {{kind}}",
-      "copied": "Código fuente copiado",
-      "copy": "Copiar código fuente",
-      "copying": "Copiando código fuente…",
-      "editSource": "Editar código fuente",
-      "editSourceForKind": "Editar código fuente de {{kind}}",
-      "hideSource": "Ocultar código fuente",
-      "kind": {
-        "html": "HTML",
-        "math": "Matemáticas",
-        "mermaid": "Mermaid"
-      },
-      "preview": "Vista previa de {{kind}}",
-      "retryCopy": "Reintentar copiar el código fuente",
-      "sourceEditor": "Editor de código fuente de {{kind}}"
-    },
-    "sourceFallback": {
-      "longLine": "Las líneas muy largas se desplazan horizontalmente para mantener la edición fluida.",
-      "loading": "Preparando vista del código fuente…",
-      "truncated": "Solo se muestra el inicio mientras se carga la vista completa."
-    },
-    "link": {
-      "title": "Título",
-      "markdown": "Editar Markdown",
-      "remove": "Quitar enlace",
-      "copy": "Copiar dirección",
-      "copyFailed": "No se pudo copiar la dirección.",
-      "sharedReference": "Los cambios de dirección y título se aplican a todos los enlaces que usan esta referencia.",
-      "open": "Abrir enlace",
-      "actions": "Acciones del enlace",
-      "edit": "Editar enlace",
-      "text": "Texto",
-      "address": "Dirección",
-      "save": "Guardar enlace",
-      "cancel": "Cancelar",
-      "invalidAddress": "Introduce una dirección de enlace válida."
-    },
-    "image": {
-      "unavailable": "Image unavailable",
-      "loading": "Loading image…",
-      "edit": "Edit address",
-      "resetSize": "Restaurar tamaño automático"
-    },
-    "preview": {
-      "retry": "Retry"
-    },
-    "snippets": {
-      "title": "Insertar fragmento",
-      "search": "Buscar fragmentos…",
-      "manage": "Gestionar fragmentos…",
-      "blank": "Nuevo bloque vacío",
-      "stale": "El punto de inserción cambió. Vuelve a abrir el selector."
-    },
-    "table": {
-      "actions": "Acciones de la tabla",
-      "alignment": "Alineación de columna",
-      "copy": "Copiar",
-      "cut": "Cortar",
-      "paste": "Pegar",
-      "selectAll": "Seleccionar todo",
-      "action": {
-        "column": "Acciones de columna",
-        "columnAt": "Acciones de la columna {{index}}",
-        "row": "Acciones de fila",
-        "rowAt": "Acciones de la fila {{index}}"
-      },
-      "addColumnAfter": "Insertar columna a la derecha",
-      "addColumnBefore": "Insertar columna a la izquierda",
-      "addRowAfter": "Insertar fila debajo",
-      "addRowBefore": "Insertar fila encima",
-      "alignCenter": "Centrar columna",
-      "alignLeft": "Alinear columna a la izquierda",
-      "alignNone": "Quitar alineación de columna",
-      "alignRight": "Alinear columna a la derecha",
-      "deleteColumn": "Eliminar columna actual",
-      "deleteRow": "Eliminar fila actual",
-      "deleteTable": "Eliminar tabla",
-      "duplicateRow": "Duplicar fila",
-      "duplicateColumn": "Duplicar columna",
-      "moveRowUp": "Subir fila",
-      "moveRowDown": "Bajar fila",
-      "moveColumnLeft": "Mover columna a la izquierda",
-      "moveColumnRight": "Mover columna a la derecha",
-      "selectRow": "Seleccionar fila",
-      "selectColumn": "Seleccionar columna",
-      "dragRow": "Arrastrar para reordenar la fila",
-      "dragColumn": "Arrastrar para reordenar la columna",
-      "dragRowPosition": "Mover la fila {{from}} a la posición {{to}}",
-      "dragColumnPosition": "Mover la columna {{from}} a la posición {{to}}",
-      "movedRow": "Fila movida a la posición {{position}}",
-      "movedColumn": "Columna movida a la posición {{position}}"
-    }
-  },
-  "inline_insert": {
-    "insert_link": "Insert link",
-    "edit_link": "Edit link",
-    "insert_image": "Insert image",
-    "edit_image": "Edit image",
-    "address": "Address",
-    "text": "Text",
-    "alt": "Description",
-    "optional": "Optional",
-    "choose_image": "Choose local image…",
-    "change": "Change",
-    "replace_image": "Replace image",
-    "edit_alt": "Edit description",
-    "remove": "Remove",
-    "unlink": "Remove link",
-    "insert": "Insert",
-    "save": "Save",
-    "close": "Close",
-    "inserting": "Inserting…",
-    "open": "Open link",
-    "copy": "Copy address",
-    "invalid_address": "Enter a valid address or file path.",
-    "local_error": "Unable to select this image. Try again.",
-    "insert_error": "Unable to insert. Your input has been kept.",
-    "open_error": "Unable to open this link.",
-    "copy_error": "Unable to copy this address.",
-    "single_block": "Select text within one paragraph or table cell."
-  },
   "history": {
     "title": "Historial local",
     "description": "Revisa los cambios y restaura una versión como borrador sin guardar.",
     "enabled": "Activar el historial local",
-    "enabled_description": "Conserva versiones de los documentos abiertos en MarkFlowy. La protección de borradores continúa al desactivarlo.",
+    "enabled_description": "Conserva versiones de los documentos abiertos en WinZettel. La protección de borradores continúa al desactivarlo.",
     "retention": "Historial ordinario: 30 días, hasta 100 versiones por documento y un objetivo de 1 GB. Se protegen los borradores sin guardar y las sesiones activas.",
     "count": "{{count}} versiones",
     "clear_title": "Gestionar el historial",
@@ -1595,61 +1381,6 @@
     "unlock": "Desbloquear",
     "cancel": "Cancelar"
   },
-  "snippets": {
-    "library": "Biblioteca de fragmentos",
-    "description": "Reutiliza fórmulas, diagramas y código en tus espacios locales.",
-    "kind": "Tipo",
-    "kinds": {
-      "math": "Math",
-      "mermaid": "Mermaid",
-      "code": "Code"
-    },
-    "search": "Buscar fragmentos…",
-    "new": "Nuevo fragmento",
-    "copy": "Duplicar",
-    "copyCustom": "Crear copia personalizada",
-    "copySuffix": "(copia)",
-    "show": "Mostrar",
-    "hide": "Ocultar",
-    "hidden": "Oculto",
-    "delete": "Eliminar",
-    "deleteTitle": "¿Eliminar «{{title}}»?",
-    "builtin": "Integrado",
-    "custom": "Personalizado",
-    "unsaved": "Cambios sin guardar",
-    "name": "Nombre",
-    "language": "Lenguaje del código",
-    "languagePlaceholder": "Ej.: typescript; vacío para texto plano",
-    "source": "Código fuente",
-    "sourceHelp": "Introduce solo el contenido, sin delimitadores externos ``` o $$. El texto y los espacios se insertan literalmente; las variables no se expanden.",
-    "save": "Guardar",
-    "discard": "Descartar",
-    "unsavedTitle": "¿Guardar los cambios?",
-    "unsavedDescription": "Guarda o descarta los cambios antes de salir de este fragmento.",
-    "loadError": "No se pudieron cargar los fragmentos",
-    "saveError": "No se pudieron guardar los cambios",
-    "retry": "Reintentar",
-    "noResults": "No hay fragmentos coincidentes",
-    "conflict": "La biblioteca cambió en otra ventana. Tu borrador se conserva. Duplícalo como un fragmento nuevo o descarta los cambios y vuelve a seleccionar el original.",
-    "preview": "Vista previa",
-    "previewAgain": "Actualizar vista previa",
-    "previewStale": "El contenido cambió. Actualiza la vista previa.",
-    "previewError": "Vista previa no disponible. Puedes guardar el contenido.",
-    "builtins": {
-      "math-fraction": "Fracción",
-      "math-root": "Raíz cuadrada",
-      "math-sum": "Sumatoria",
-      "math-matrix": "Matriz",
-      "mermaid-flow": "Diagrama de flujo",
-      "mermaid-sequence": "Diagrama de secuencia",
-      "mermaid-class": "Diagrama de clases",
-      "mermaid-state": "Diagrama de estados",
-      "code-json": "Objeto JSON",
-      "code-typescript": "Función TypeScript",
-      "code-python": "Función Python",
-      "code-bash": "Script Bash"
-    }
-  },
   "pdf_export": {
     "title": "Export PDF",
     "description": "Usa Chrome, Chromium o Edge en tu equipo.",
@@ -1700,5 +1431,18 @@
     "symlink": "Solo se eliminará el enlace. Su destino no se verá afectado.",
     "count_failed": "No se puede contar el contenido. Inténtalo de nuevo.",
     "permanent_warning": "Eliminación permanente. No se puede deshacer."
+  },
+  "editor_context": {
+    "cut": "Cortar",
+    "copy": "Copiar",
+    "paste": "Pegar",
+    "select_all": "Seleccionar todo"
+  },
+  "find": {
+    "mode_find": "Buscar en el documento",
+    "placeholder": "Buscar en esta nota",
+    "previous": "Coincidencia anterior",
+    "next": "Coincidencia siguiente",
+    "no_matches": "Sin coincidencias"
   }
 }

@@ -93,6 +93,9 @@ const githubMarkdownTags = [
   'time',
   'tr',
   'tt',
+  // Underline, subscript and superscript: the Zettel Notes app renders these, so notes
+  // written there must look the same here. sub/sup were already allowed.
+  'u',
   'ul',
   'var',
   'wbr',

@@ -2,52 +2,40 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from '
 import useEditorStore from '@/stores/useEditorStore'
 import useEditorViewTypeStore, { selectEditorViewType } from '@/stores/useEditorViewTypeStore'
 import { EditorViewType } from '@/constants/editorViewType'
-import { getCapricornEditor, subscribeCapricornEditors } from '../../capricornEditorRegistry'
 import {
   sourceCodeCodemirrorViewMap,
   subscribeSourceCodeEditors,
   getSourceCodeFind,
 } from '../../sourceCodeEditorRegistry'
-import { closeEditorSearch, useEditorSearchStore } from '../../editorSearchStore'
-import type { CapricornFindApi, CapricornFindState } from '../../capricornRuntimeAdapter'
+import { closeEditorSearch, dismissEditorSearch, useEditorSearchStore } from '../../editorSearchStore'
+import type { EditorFindApi, EditorFindState } from '../../editorFindApi'
 
-type FindApi = Omit<CapricornFindApi, 'search' | 'replaceAll'> & {
-  search?: CapricornFindApi['search']
+type FindApi = Omit<EditorFindApi, 'search' | 'replaceAll'> & {
+  search?: EditorFindApi['search']
   replaceAll: (replacement: string) => number | Promise<number>
 }
 // An older React tree may unmount after a replacement has claimed the same
 // editor. Leases scope cleanup and cancellation to the actual owner.
 const leases = new WeakMap<FindApi, { token: symbol; release: () => void }>()
 
-export function useEditorSearchController() {
+export function useEditorSearchController(scope?: { fileId?: string; groupId?: string }) {
   const state = useEditorSearchStore()
-  const activeId = useEditorStore((store) => store.activeId)
-  const groupId = useEditorStore((store) => store.activeGroupId)
+  const storeFileId = useEditorStore((store) => store.activeId)
+  const storeGroupId = useEditorStore((store) => store.activeGroupId)
+  // A bar opened in one pane keeps targeting that pane, even after focus moves elsewhere.
+  const activeId = scope?.fileId ?? storeFileId
+  const groupId = scope?.groupId ?? storeGroupId
   const mode = useEditorViewTypeStore((store) =>
     activeId ? selectEditorViewType(store, activeId, groupId) : undefined,
-  )
-  const capricornSnapshot = useCallback(
-    () => (activeId ? getCapricornEditor(activeId) : undefined),
-    [activeId],
   )
   const sourceSnapshot = useCallback(
     () => (activeId ? sourceCodeCodemirrorViewMap.get(activeId) : undefined),
     [activeId],
   )
-  const capricorn = useSyncExternalStore(
-    subscribeCapricornEditors,
-    capricornSnapshot,
-    capricornSnapshot,
-  )
   const source = useSyncExternalStore(subscribeSourceCodeEditors, sourceSnapshot, sourceSnapshot)
+  // The reading pane has its own bar and state; this store only drives the source pane.
   const api: FindApi | undefined =
-    mode === EditorViewType.PREVIEW
-      ? undefined
-      : mode === EditorViewType.SOURCECODE
-        ? source
-          ? getSourceCodeFind(source)
-          : undefined
-        : capricorn?.find
+    mode === EditorViewType.SOURCECODE && source ? getSourceCodeFind(source) : undefined
   const [summary, setSummary] = useState({ activeIndex: undefined as number | undefined, total: 0 })
   const operation = useRef<AbortController | null>(null)
   const ownership = useRef<{ api: FindApi; token: symbol } | null>(null)
@@ -62,7 +50,7 @@ export function useEditorSearchController() {
     operation.current = next
     return next
   }, [])
-  const report = useCallback((value: CapricornFindState) => {
+  const report = useCallback((value: EditorFindState) => {
     setSummary((previous) =>
       previous.activeIndex === value.activeIndex && previous.total === value.matches.length
         ? previous
@@ -225,12 +213,12 @@ export function useEditorSearchController() {
     [api, query, start],
   )
 
+  const dismiss = useCallback(() => dismissEditorSearch('document'), [])
   const stopFind = useCallback(() => {
     cancel()
     closeEditorSearch()
     if (mode === EditorViewType.SOURCECODE) source?.cm.focus()
-    else capricorn?.focus()
-  }, [cancel, mode, source, capricorn])
+  }, [cancel, mode, source])
 
   return {
     ...state,
@@ -255,5 +243,6 @@ export function useEditorSearchController() {
     replace: () => act('replace'),
     replaceAll: () => act('replaceAll'),
     stopFind,
+    dismiss,
   }
 }

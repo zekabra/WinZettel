@@ -5,7 +5,7 @@ import { currentWebview } from '@/services/windows'
 import { getDockPanels } from '@/components/SideBar/dockPanels'
 import { DEFAULT_DOCK_PANEL_ORDER, type DockPanelOrder } from '@/stores/useLayoutStore'
 
-/** Defaults shown by Desktop: Markdown uses Capricorn, full source uses RME. */
+/** Defaults shown by Desktop. */
 export interface CodeEditorSettingDefaults {
   bodyFontSize?: string
   codeBlockLineWrapping?: boolean
@@ -102,11 +102,14 @@ export const getSettingMap = (
           type: 'switch',
           defaultValue: true,
         },
-        error_reporting_enabled: {
-          key: 'error_reporting_enabled',
-          title: { i18nKey: 'settings.general.app.error_reporting.label' },
-          desc: { i18nKey: 'settings.general.app.error_reporting.desc' },
-          type: 'switch',
+      },
+      Workspace: {
+        i18nKey: 'settings.general.workspace.label',
+        workspace_folder: {
+          key: 'workspace_folder',
+          type: 'workspace_folder',
+          title: { i18nKey: 'settings.general.workspace.folder.label' },
+          desc: { i18nKey: 'settings.general.workspace.folder.desc' },
         },
       },
       Startup: {
@@ -197,6 +200,20 @@ export const getSettingMap = (
         },
       },
     },
+    encryption: {
+      i18nKey: 'settings.encryption.label',
+      iconName: 'ri-lock-2-line',
+      desc: { i18nKey: 'settings.encryption.desc' },
+      EndToEnd: {
+        i18nKey: 'settings.encryption.end_to_end.label',
+        passphrase: {
+          key: 'encryption_passphrase',
+          type: 'passphrase',
+          title: { i18nKey: 'settings.encryption.passphrase.label' },
+          desc: { i18nKey: 'settings.encryption.passphrase.desc' },
+        },
+      },
+    },
     display: {
       i18nKey: 'settings.display.label',
       iconName: 'ri-window-line',
@@ -225,11 +242,6 @@ export const getSettingMap = (
           },
         },
       },
-    },
-    snippets: {
-      i18nKey: 'snippets.library',
-      iconName: 'ri-code-box-line',
-      desc: { i18nKey: 'snippets.description' },
     },
     themeStore: {
       i18nKey: 'settings.themeStore.label',
@@ -330,9 +342,8 @@ export const getSettingMap = (
             i18nKey: 'settings.editor.behavior.md_default_mode.desc',
           },
           options: [
-            { value: EditorViewType.WYSIWYG, title: translate('view.wysiwyg') },
-            { value: EditorViewType.SOURCECODE, title: translate('view.source_code') },
             { value: EditorViewType.PREVIEW, title: translate('view.preview') },
+            { value: EditorViewType.SOURCECODE, title: translate('view.source_code') },
           ],
         },
         typewriterScroll: {
@@ -345,13 +356,6 @@ export const getSettingMap = (
             i18nKey: 'settings.editor.behavior.typewriter_scroll.desc',
           },
         },
-        caretAnimation: {
-          key: 'editor_caret_animation',
-          type: 'switch',
-          defaultValue: false,
-          title: { i18nKey: 'settings.editor.behavior.caret_animation.label' },
-          desc: { i18nKey: 'settings.editor.behavior.caret_animation.desc' },
-        },
         linkEditMode: {
           key: 'editor_link_edit_mode',
           type: 'select',
@@ -360,17 +364,6 @@ export const getSettingMap = (
           options: [
             { value: 'popover', title: translate('link_editing.popover') },
             { value: 'markdown', title: translate('link_editing.markdown') },
-          ],
-        },
-        textDirection: {
-          key: 'editor_text_direction',
-          type: 'select',
-          title: { i18nKey: 'settings.editor.behavior.text_direction.label' },
-          desc: { i18nKey: 'settings.editor.behavior.text_direction.desc' },
-          options: [
-            { value: 'auto', title: translate('settings.editor.behavior.text_direction.auto') },
-            { value: 'ltr', title: translate('settings.editor.behavior.text_direction.ltr') },
-            { value: 'rtl', title: translate('settings.editor.behavior.text_direction.rtl') },
           ],
         },
         placeholder: {
@@ -441,41 +434,6 @@ export const getSettingMap = (
           })),
         },
       },
-      Wysiwyg: {
-        i18nKey: 'settings.editor.wysiwyg.label',
-        livePreviewBlockBehavior: {
-          key: 'wysiwyg_editor_live_preview_block_behavior',
-          type: 'select',
-          title: {
-            i18nKey: 'settings.editor.wysiwyg.live_preview_block_behavior.label',
-          },
-          desc: {
-            i18nKey: 'settings.editor.wysiwyg.live_preview_block_behavior.desc',
-          },
-          options: [
-            {
-              value: 'auto',
-              title: translate('settings.editor.wysiwyg.live_preview_block_behavior.options.auto'),
-            },
-            {
-              value: 'always-split',
-              title: translate(
-                'settings.editor.wysiwyg.live_preview_block_behavior.options.always_split',
-              ),
-            },
-          ],
-        },
-        spellcheck: {
-          key: 'wysiwyg_editor_spellcheck',
-          type: 'switch',
-          title: {
-            i18nKey: 'settings.editor.wysiwyg.spellcheck.label',
-          },
-          desc: {
-            i18nKey: 'settings.editor.wysiwyg.spellcheck.desc',
-          },
-        },
-      },
       EmbeddedCode: {
         i18nKey: 'settings.editor.code_editing.embedded_label',
         ...getCodeDisplaySettings('embedded', translate, defaults.codeBlockLineWrapping === false),
@@ -543,7 +501,7 @@ export const getSettingMap = (
     },
     image: {
       i18nKey: 'settings.image.label',
-      iconName: 'ri-image-2-line',
+      iconName: 'ri-folder-open-line',
       desc: {
         i18nKey: 'settings.image.desc',
       },
@@ -814,27 +772,11 @@ export const getSettingMap = (
       i18nKey: 'settings.updates.label',
       iconName: 'ri-refresh-line',
       desc: { i18nKey: 'settings.updates.desc' },
-      Checks: {
-        i18nKey: 'settings.updates.checks',
-        interval: {
-          key: 'update_check_interval',
-          type: 'select',
-          defaultValue: '60',
-          title: { i18nKey: 'settings.updates.interval' },
-          desc: { i18nKey: 'settings.updates.interval_desc' },
-          options: ['0', '60', '120', '240'].map((value) => ({
-            value,
-            title: translate(`settings.updates.interval_${value}`),
-          })),
-        },
-      },
     },
-    support: {
-      i18nKey: 'settings.support.label',
-      iconName: 'ri-heart-fill',
-      desc: {
-        i18nKey: 'settings.support.desc',
-      },
+    about: {
+      i18nKey: 'settings.about.label',
+      iconName: 'ri-information-line',
+      desc: { i18nKey: 'settings.about.desc' },
     },
   }
 }

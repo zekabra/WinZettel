@@ -251,11 +251,11 @@ describe('pane view mode lifecycle', () => {
     open('a', 'permanent')
     open('b', 'permanent')
     const modes = useEditorViewTypeStore.getState()
-    modes.setEditorViewType('a', EditorViewType.WYSIWYG, 'left')
+    modes.setEditorViewType('a', EditorViewType.SOURCECODE, 'left')
     modes.setEditorViewType('b', EditorViewType.PREVIEW, 'left')
     const right = store().splitGroup('left', 'horizontal')!
     modes.setEditorViewType('b', EditorViewType.SOURCECODE, right)
-    expect(modes.getEditorViewType('a', 'left')).toBe(EditorViewType.WYSIWYG)
+    expect(modes.getEditorViewType('a', 'left')).toBe(EditorViewType.SOURCECODE)
     expect(modes.getEditorViewType('b', 'left')).toBe(EditorViewType.PREVIEW)
     store().closeFileInGroup('left', 'a')
     expect(useEditorViewTypeStore.getState().editorGroupViewTypeMap.get('left')?.has('a')).toBe(false)

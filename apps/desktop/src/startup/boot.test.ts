@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const renderBootOverlay = () => {
@@ -119,9 +119,9 @@ describe('boot overlay lifecycle', () => {
 })
 
 describe('static boot loader contract', () => {
-  const desktopRoot = process.cwd().endsWith('apps/desktop')
+  const desktopRoot = process.cwd().endsWith(join('apps', 'desktop'))
     ? process.cwd()
-    : resolve(process.cwd(), 'apps/desktop')
+    : resolve(process.cwd(), 'apps', 'desktop')
   const indexHtml = readFileSync(resolve(desktopRoot, 'index.html'), 'utf8')
 
   it('uses a delayed transform-only progress animation with paint containment', () => {

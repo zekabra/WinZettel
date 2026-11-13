@@ -1,4 +1,3 @@
-import { preloadCapricornRuntimeFactory } from '@/components/EditorArea/capricornRuntimeAdapter'
 import { loadEditorAreaContent } from '@/components/EditorArea/editorAreaLoader'
 import { fileSaveCoordinator } from '@/components/EditorArea/fileSaveCoordinator'
 import { editorSnapshotRegistry } from '@/components/EditorArea/editorSnapshotRegistry'
@@ -7,14 +6,12 @@ import {
   readStableFileSnapshot,
   type FileSnapshotResult,
 } from '@/components/EditorArea/fileSnapshot'
-import { isCapricornView } from '@/constants/editorViewType'
 import { getFileObject } from '@/helper/files'
-import { getFileTypeConfig, isSupportedMode, isTextfileType } from '@/helper/fileTypeHandler'
+import { getFileTypeConfig, isTextfileType } from '@/helper/fileTypeHandler'
 import { getPathIdentityKey } from '@/helper/pathIdentity'
 import { isDraftRecoveryPending } from '@/services/draftRecoveryState'
 import useEditorStateStore from '@/stores/useEditorStateStore'
 import useEditorStore from '@/stores/useEditorStore'
-import useEditorViewTypeStore from '@/stores/useEditorViewTypeStore'
 import { startupInteractive } from './interactive'
 import { markStartupStage } from './performance'
 
@@ -32,13 +29,9 @@ export async function prepareStartupEditorModules(signal: AbortSignal) {
   const { activeId, folderData } = useEditorStore.getState()
   const file = activeId ? getFileObject(activeId) : undefined
   if (!file || signal.aborted) return
-  void loadEditorAreaContent().catch(() => undefined)
-  const config = await getFileTypeConfig(file)
+  await loadEditorAreaContent().catch(() => undefined)
   if (signal.aborted || useEditorStore.getState().activeId !== activeId ||
     useEditorStore.getState().folderData?.[0] !== folderData?.[0]) return
-  const existing = useEditorViewTypeStore.getState().editorViewTypeMap.get(file.id)
-  const mode = existing && isSupportedMode(config, existing) ? existing : config.defaultMode
-  if (config.type === 'markdown' && isCapricornView(mode)) void preloadCapricornRuntimeFactory()
 }
 
 /** A single startup request owns these bytes; this never becomes a general disk cache. */

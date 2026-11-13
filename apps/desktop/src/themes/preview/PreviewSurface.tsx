@@ -1,12 +1,17 @@
 import {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
-  type CSSProperties,
   type MouseEvent,
 } from 'react'
+import { createRoot, type Root } from 'react-dom/client'
 import { ThemeProvider } from 'styled-components'
+import { Preview } from 'rme'
+import { RmeThemeProvider } from '@/components/EditorArea/RmeThemeProvider'
+import { loadRmeRuntime, type RmeRuntime } from '@/components/EditorArea/rmeRuntime'
+import { rmeEditorTokens } from '@/themes/editorTokens'
 import {
   BookmarkIcon,
   ChevronDownIcon,
@@ -21,14 +26,9 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { PopoverRoot, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
-import { capricornStyle, desktopVariables, legacyTokens } from '@/themes/runtime'
+import { desktopVariables, legacyTokens } from '@/themes/runtime'
 import { InjectFonts } from '@/injectFonts'
 import { EDITOR_CSS_SCOPE_CLASS } from '@/themes/editorCssScope'
-import {
-  createCapricornRuntimeAdapter,
-  loadCapricornRuntimeFactory,
-  type CapricornRuntimeAdapter,
-} from '@/components/EditorArea/capricornRuntimeAdapter'
 import type { ResolvedTheme, ThemeTokenName } from '@markflowy/theme/semantic'
 import type { ThemePreviewState, ThemePreviewLabels } from './protocol'
 const markdown = [
@@ -43,26 +43,12 @@ const markdown = [
   '| Detail | Value |\n| --- | --- |\n| Theme | Personal |',
   '',
 ].join('\n\n')
+const previewStyleToken = { rootFontSize: '15px', rootLineHeight: '1.6' }
+
 const inspectSelectors: [string, ThemeTokenName][] = [
-  ...(
-    [
-      'comment',
-      'keyword',
-      'string',
-      'number',
-      'variable',
-      'attribute',
-      'tag',
-      'punctuation',
-      'meta',
-    ] as const
-  ).map((name) => [`.cap-syntax-${name}`, `syntax.${name}`] as [string, ThemeTokenName]),
-  ['.cap-syntax-title', 'syntax.function'],
   ['.cm-editor', 'editor.code.background'],
   ['a', 'editor.link'],
-  ['[data-cap-caret]', 'editor.caret'],
-  ['[data-cap-overlay]', 'surface.overlay'],
-  ['[data-cap-content]', 'editor.background'],
+  ['.mf-preview-content', 'editor.background'],
   ['[data-theme-token]', 'surface.canvas'],
 ]
 
@@ -251,46 +237,58 @@ export function PreviewSurface({
 
 function PreviewEditor({ theme, labels }: { theme: ResolvedTheme; labels: ThemePreviewLabels }) {
   const container = useRef<HTMLDivElement>(null)
-  const adapter = useRef<CapricornRuntimeAdapter | null>(null)
+  const root = useRef<Root | null>(null)
+  const runtime = useRef<RmeRuntime | null>(null)
   const latest = useRef(theme)
   latest.current = theme
   const [error, setError] = useState('')
   const [attempt, setAttempt] = useState(0)
+
+  const renderPreview = useCallback((current: ResolvedTheme) => {
+    if (!root.current || !runtime.current) return
+    const documentTheme = {
+      ...legacyTokens(current.tokens, current.mode),
+      ...rmeEditorTokens(current.tokens),
+    }
+    root.current.render(
+      <RmeThemeProvider runtime={runtime.current}>
+        <ThemeProvider theme={documentTheme}>
+          <Preview
+            doc={markdown}
+            handleLinkClick={() => true}
+            onError={(cause) => setError(String(cause))}
+            styleToken={previewStyleToken}
+          />
+        </ThemeProvider>
+      </RmeThemeProvider>,
+    )
+  }, [])
+
   useEffect(() => {
     let cancelled = false
     setError('')
-    void loadCapricornRuntimeFactory()
-      .then((createRuntime) => {
+    void loadRmeRuntime()
+      .then((loaded) => {
         if (cancelled || !container.current) return
-        const current = latest.current
-        adapter.current = createCapricornRuntimeAdapter({
-          container: container.current,
-          createRuntime,
-          onChange: () => undefined,
-          options: {
-            markdown,
-            handleLinkClick: () => undefined,
-            colorScheme: current.mode,
-            style: capricornStyle(current.tokens, 'document') as CSSProperties,
-            onError: (cause) => setError(String(cause)),
-          },
-        })
+        runtime.current = loaded
+        root.current = createRoot(container.current)
+        renderPreview(latest.current)
       })
       .catch((cause) => {
         if (!cancelled) setError(String(cause))
       })
     return () => {
       cancelled = true
-      adapter.current?.destroy()
-      adapter.current = null
+      root.current?.unmount()
+      root.current = null
+      runtime.current = null
     }
-  }, [attempt])
+  }, [attempt, renderPreview])
+
   useEffect(() => {
-    adapter.current?.updateSettings({
-      colorScheme: theme.mode,
-      style: capricornStyle(theme.tokens, 'document') as CSSProperties,
-    })
-  }, [theme])
+    if (runtime.current) renderPreview(theme)
+  }, [renderPreview, theme])
+
   return (
     <main
       className='flex min-h-0 min-w-0 flex-1 flex-col'
@@ -311,7 +309,6 @@ function PreviewEditor({ theme, labels }: { theme: ResolvedTheme; labels: ThemeP
       <div
         ref={container}
         className={`${EDITOR_CSS_SCOPE_CLASS} min-h-0 flex-1 overflow-auto`}
-        data-mf-capricorn-runtime='true'
         data-theme-token='editor.background'
       />
     </main>

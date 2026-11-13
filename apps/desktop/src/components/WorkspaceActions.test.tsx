@@ -100,8 +100,9 @@ describe('WorkspaceActions', () => {
 
     const trigger = screen.getByRole('button', { name: 'current: Open File or Folder' })
     expect(trigger.getAttribute('title')).toBe('Open File or Folder\n/Users/test/current')
+    // The menu icon stays next to the name: it is the way into the picker.
     expect(trigger.textContent).toBe('current')
-    expect(trigger.querySelector('svg')).toBeNull()
+    expect(trigger.querySelector('svg')).not.toBeNull()
     expect(container.querySelectorAll('[data-slot="workspace-picker-trigger"]')).toHaveLength(1)
 
     fireEvent.click(trigger)

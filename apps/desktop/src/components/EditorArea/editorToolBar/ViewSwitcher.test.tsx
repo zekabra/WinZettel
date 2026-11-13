@@ -4,19 +4,17 @@ import bus from '@/helper/eventBus'
 import type { IShowContextMenuParams } from '@/stores/useContextMenuStore'
 import useEditorViewTypeStore from '@/stores/useEditorViewTypeStore'
 import { desktopDarkTheme } from '@markflowy/theme'
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { enableMapSet } from 'immer'
 import { ThemeProvider } from 'styled-components'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { PreviewToolbar } from './PreviewToolbar/PreviewToolbar'
 import { SourceCodeToolbar } from './SourceCodeToolbar/SourceCodeToolbar'
-import { WysiwygToolbar } from './WysiwygToolbar/WysiwygToolbar'
-import { ViewSwitcher } from './WysiwygToolbar/components/ViewSwitcher'
+import { ViewSwitcher } from './components/ViewSwitcher'
 
 const mocks = vi.hoisted(() => ({
   showMenu: vi.fn<(params: IShowContextMenuParams) => void>(),
-  supportedModes: ['wysiwyg', 'sourceCode', 'preview'],
-  editor: { getUiState: () => null, subscribeUiState: () => () => {} },
+  supportedModes: ['sourceCode', 'preview'],
 }))
 
 vi.mock('@/i18n', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
@@ -34,18 +32,14 @@ vi.mock('@/stores/useFileTypeConfigStore', () => ({
   },
 }))
 vi.mock('@/components/ui-v2/ContextMenu', () => ({ showContextMenu: mocks.showMenu }))
-vi.mock('../capricornEditorRegistry', () => ({
-  getCapricornEditor: () => mocks.editor,
-  subscribeCapricornEditors: () => () => {},
-}))
-vi.mock('../sourceCodeEditorRegistry', () => ({ getSourceCodeEditor: () => undefined }))
+vi.mock('./sourceCodeEditorRegistry', () => ({ getSourceCodeEditor: () => undefined }))
 vi.mock('../sourceInsertCommands', () => ({ insertSourceImage: vi.fn(), insertSourceLink: vi.fn() }))
 vi.mock('./components/MenuList', () => ({ MenuList: () => <button type='button'>More</button> }))
 
 enableMapSet()
 beforeEach(() => {
   vi.clearAllMocks()
-  mocks.supportedModes = ['wysiwyg', 'sourceCode', 'preview']
+  mocks.supportedModes = ['sourceCode', 'preview']
   useEditorViewTypeStore.setState({ editorViewTypeMap: new Map(), editorGroupViewTypeMap: new Map() })
 })
 afterEach(() => {
@@ -62,33 +56,37 @@ function withProviders(children: React.ReactNode) {
 }
 
 describe('editor view switcher', () => {
-  it('offers supported modes for its pane and retains that target when a menu item is selected', () => {
+  it('shows one button per supported mode and switches on click', () => {
     useEditorViewTypeStore.getState().setEditorViewType('pane', EditorViewType.SOURCECODE)
-    mocks.supportedModes = ['wysiwyg', 'sourceCode']
-    render(withProviders(<ViewSwitcher editorId='pane' groupId='right' />))
+    mocks.supportedModes = ['sourceCode']
+    const { rerender } = render(withProviders(<ViewSwitcher editorId='pane' groupId='right' />))
 
-    fireEvent.click(screen.getByRole('button', { name: 'view.label: view.source_code' }))
-    const items = mocks.showMenu.mock.calls.at(-1)![0].items
-    expect(items).toHaveLength(2)
-    expect(items[0]).toMatchObject({ value: EditorViewType.SOURCECODE, checked: true })
-    expect(items[1]).toMatchObject({ value: EditorViewType.WYSIWYG, checked: false })
-    if ('type' in items[1]) throw new Error('Expected a view menu item')
-    items[1].handler?.()
-    expect(bus.emit).toHaveBeenCalledWith('editor_toggle_type', undefined, EditorViewType.WYSIWYG, {
+    // only the modes the file type supports are on screen
+    expect(screen.queryByRole('button', { name: 'view.preview' })).toBeNull()
+    const sourceButton = screen.getByRole('button', { name: 'view.source_code' })
+    expect(sourceButton.getAttribute('aria-pressed')).toBe('true')
+
+    mocks.supportedModes = ['sourceCode', 'preview']
+    rerender(withProviders(<ViewSwitcher editorId='pane' groupId='right' />))
+
+    // preview comes first, then source code
+    const buttons = screen.getAllByRole('button').map((b) => b.getAttribute('aria-label'))
+    expect(buttons).toEqual(['view.preview', 'view.source_code'])
+
+    const previewButton = screen.getByRole('button', { name: 'view.preview' })
+    expect(previewButton.getAttribute('aria-pressed')).toBe('false')
+
+    fireEvent.click(previewButton)
+    expect(bus.emit).toHaveBeenCalledWith('editor_toggle_type', undefined, EditorViewType.PREVIEW, {
       editorId: 'pane',
       groupId: 'right',
     })
+    expect(mocks.showMenu).not.toHaveBeenCalled()
   })
 
-  it('updates the button label when its document mode changes', () => {
-    render(withProviders(<ViewSwitcher editorId='pane' groupId='right' />))
-    expect(screen.getByRole('button', { name: 'view.label: view.wysiwyg' })).toBeDefined()
-    act(() => useEditorViewTypeStore.getState().setEditorViewType('pane', EditorViewType.PREVIEW))
-    expect(screen.getByRole('button', { name: 'view.label: view.preview' })).toBeDefined()
-  })
+
 
   it.each([
-    [EditorViewType.WYSIWYG, 'view.wysiwyg', WysiwygToolbar],
     [EditorViewType.SOURCECODE, 'view.source_code', SourceCodeToolbar],
     [EditorViewType.PREVIEW, 'view.preview', PreviewToolbar],
   ] as const)('keeps the %s switcher visible when the toolbar is narrower than its common controls', async (mode, label, Toolbar) => {
@@ -100,15 +98,18 @@ describe('editor view switcher', () => {
       return this.dataset.sectionId === 'common' ? 48 : 90
     })
     const { container } = render(withProviders(<Toolbar editorId='pane' groupId='right' />))
-    const button = screen.getByRole('button', { name: `view.label: ${label}` })
+    const button = screen.getByRole('button', { name: label })
     const common = button.closest('[data-section-id="common"]')!
 
     if (mode !== EditorViewType.PREVIEW) {
       await waitFor(() => expect(getComputedStyle(container.querySelector('[data-section-id="history"]')!).display).toBe('none'))
     }
     expect(getComputedStyle(common).display).not.toBe('none')
-    expect(common.firstElementChild).toBe(button)
+    expect(common.contains(button)).toBe(true)
     fireEvent.click(button)
-    expect(mocks.showMenu).toHaveBeenCalledOnce()
+    expect(bus.emit).toHaveBeenCalledWith('editor_toggle_type', undefined, mode, {
+      editorId: 'pane',
+      groupId: 'right',
+    })
   })
 })

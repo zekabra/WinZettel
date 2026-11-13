@@ -3,7 +3,7 @@ import { builtInThemes } from '@markflowy/theme'
 import { parseThemeDocument, themeVariables } from '@markflowy/theme/semantic'
 import { describe, expect, it } from 'vitest'
 import { rmeEditorTokens } from './editorTokens'
-import { capricornStyle, getThemeTokens, toAppTheme } from './runtime'
+import { getThemeTokens, toAppTheme } from './runtime'
 
 describe('document highlight colors', () => {
   it.each(builtInThemes)('keeps marked text distinct and readable in $name', (theme) => {
@@ -47,13 +47,9 @@ describe('document highlight colors', () => {
       markBgColor: '#88ccffff',
       markFontColor: '#112233ff',
     })
-    expect(capricornStyle(tokens)).toMatchObject({
-      '--cap-highlight-background': '#88ccffff',
-      '--cap-highlight-foreground': '#112233ff',
-    })
-    expect(capricornStyle(tokens, 'document')).toMatchObject({
-      '--cap-highlight-background': 'var(--mf-theme-editor-highlight-background, #88ccffff)',
-      '--cap-highlight-foreground': 'var(--mf-theme-editor-highlight-foreground, #112233ff)',
+    expect(rmeEditorTokens(tokens)).toMatchObject({
+      markBgColor: '#88ccffff',
+      markFontColor: '#112233ff',
     })
     expect(themeVariables(tokens)).toMatchObject({
       '--mf-theme-editor-highlight-background': '#88ccffff',

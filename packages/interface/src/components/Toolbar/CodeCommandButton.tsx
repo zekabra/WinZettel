@@ -6,9 +6,13 @@ import {
   applyBold,
   applyItalic,
   applyCode,
-  applyH1,
-  applyH2,
-  applyH3,
+  applyHeading,
+  applyUnderline,
+  applyHighlight,
+  applyHorizontalRule,
+  insertLineBreak,
+  insertTable,
+  insertDate,
   applyStrikethrough,
   applyBlockquote,
   applyBulletList,
@@ -41,11 +45,17 @@ export const createCommandMap = (clipboardRead?: ClipboardReadFunction): Record<
     return true
   },
   toggleHeading: (view, attrs) => {
-    if (attrs?.level === 1) return applyH1(view)
-    if (attrs?.level === 2) return applyH2(view)
-    if (attrs?.level === 3) return applyH3(view)
+    const level = Number(attrs?.level)
+    if (Number.isInteger(level) && level >= 1 && level <= 6) return applyHeading(view, level)
     return false
   },
+  setHighlight: (view) => applyHighlight(view),
+  toggleUnderline: (view) => applyUnderline(view),
+  insertHorizontalRule: (view) => applyHorizontalRule(view),
+  insertLineBreak: (view) => insertLineBreak(view),
+  insertTable: (view, attrs) =>
+    insertTable(view, Number(attrs?.columns ?? 3), Number(attrs?.rows ?? 3)),
+  insertDate: (view, attrs) => insertDate(view, String(attrs?.format ?? 'yyyy-MM-dd')),
   toggleStrong: applyBold,
   toggleEmphasis: applyItalic,
   toggleCodeText: applyCode,

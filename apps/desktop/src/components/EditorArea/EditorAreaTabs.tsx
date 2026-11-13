@@ -388,7 +388,8 @@ const EditorAreaTabs = memo((props: EditorAreaTabsProps) => {
   const opened = group?.opened ?? []
   const openedSignature = opened.join('\u0000')
   const activeId = group?.activeId
-  const showTabNavigation = !compact && opened.length > 1
+  // The split layout used to hide these arrows; both panes need them.
+  const showTabNavigation = opened.length > 1
   const { t } = useTranslation()
 
   const clearDropIndicator = useCallback(() => {

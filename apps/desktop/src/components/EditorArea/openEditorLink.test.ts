@@ -102,6 +102,35 @@ describe('editor links', () => {
     },
   )
 
+  it('resolves a workspace-relative attachment link against the workspace root', async () => {
+    mocks.resolve.mockResolvedValue('/workspace/.assets/guide.pdf')
+    mocks.invoke.mockResolvedValue(true)
+
+    await expect(
+      resolveLocalFileLinkPath(
+        '/.assets/guide.pdf',
+        '/workspace/notes/source.md',
+        '/workspace',
+      ),
+    ).resolves.toBe('/workspace/.assets/guide.pdf')
+
+    expect(mocks.resolve).toHaveBeenCalledWith('/workspace', '.assets/guide.pdf')
+  })
+
+  it('keeps a rooted absolute link when the workspace has no such file', async () => {
+    mocks.resolve.mockResolvedValue('/.assets/guide.pdf')
+    mocks.invoke.mockResolvedValue(false)
+    mocks.isAbsolute.mockResolvedValue(true)
+
+    await expect(
+      resolveLocalFileLinkPath(
+        '/.assets/guide.pdf',
+        '/workspace/notes/source.md',
+        '/workspace',
+      ),
+    ).resolves.toBe('/.assets/guide.pdf')
+  })
+
   it('opens an existing relative file in the current editor group', async () => {
     const targetFile = {
       id: 'target',

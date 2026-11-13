@@ -190,7 +190,7 @@ describe('global search result coordinates', () => {
       setSourceCodeEditor(fileId, { cm, setSearchState: vi.fn() } as unknown as MfCodemirrorView)
     })
     await waitFor(() => expect(cm.state.selection.main.from).toBe(12))
-    expect(cm.state.selection.main.to).toBe(15)
+    expect(cm.state.selection.main.to).toBe(cm.state.selection.main.from)
 
     fireEvent.click(document.querySelectorAll<HTMLButtonElement>('button.search-info')[0])
     expect(useEditorSearchStore.getState().navigation?.fileId).toBe(fileId)

@@ -96,8 +96,7 @@ export const Container = styled.div`
     padding-top: ${(props) => props.theme.spaceSm};
 
     /* These editors own their top inset, including in split panes. */
-    &:has(> [data-mf-editor-mode='sourceCode']),
-    &:has(> [data-mf-editor-mode] [data-mf-capricorn-runtime]) {
+    &:has(> [data-mf-editor-mode='sourceCode']) {
       padding-top: 0;
     }
   }

@@ -408,7 +408,7 @@ describe('PdfPrintController', () => {
     await requestPrint()
   })
 
-  it.each(['source', 'wysiwyg', 'preview'])(
+  it.each(['source', 'preview'])(
     'renders the current unsaved Markdown when requested from %s mode',
     async (mode) => {
       const getContent = vi.fn(() => `# Unsaved from ${mode}`)

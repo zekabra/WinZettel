@@ -2,7 +2,9 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "main-capability",
   "description": "Capability for the main window",
-  "windows": ["**"],
+  "windows": [
+    "**"
+  ],
   "permissions": [
     "core:path:default",
     "core:event:default",
@@ -134,6 +136,7 @@
     {
       "identifier": "shell:allow-execute",
       "allow": []
-    }
+    },
+    "clipboard-manager:allow-read-text"
   ]
 }

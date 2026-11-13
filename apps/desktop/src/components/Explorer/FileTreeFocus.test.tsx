@@ -158,24 +158,28 @@ afterEach(() => {
 })
 
 describe('FileTree user opening intent', () => {
-  it.each([true, false])('previews on click/Space and keeps on double click/Enter with sticky root %s', async (stickyRoot) => {
+  it.each([true, false])('opens in its own tab on click/Space and on double click/Enter with sticky root %s', async (stickyRoot) => {
     const onOpen = vi.fn()
     render(<Harness active={null} initialChildren={[activeFile]} onOpen={onOpen} stickyRoot={stickyRoot} />)
     const label = await screen.findByText(activeFile.name)
     const row = label.closest<HTMLElement>('[role="treeitem"]')!
 
     fireEvent.click(label)
-    expect(onOpen).toHaveBeenLastCalledWith(activeFile, { mode: 'preview' })
+    expect(onOpen).toHaveBeenLastCalledWith(activeFile, { mode: 'permanent' })
     fireEvent.doubleClick(label)
     expect(onOpen).toHaveBeenLastCalledWith(activeFile, { mode: 'permanent' })
     fireEvent.keyDown(row, { key: ' ' })
-    expect(onOpen).toHaveBeenLastCalledWith(activeFile, { mode: 'preview' })
+    expect(onOpen).toHaveBeenLastCalledWith(activeFile, { mode: 'permanent' })
     fireEvent.keyDown(row, { key: 'Enter' })
     expect(onOpen).toHaveBeenLastCalledWith(activeFile, { mode: 'permanent' })
     expect(onOpen).toHaveBeenCalledTimes(4)
     fireEvent.click(label, { ctrlKey: true })
-    expect(onOpen).toHaveBeenLastCalledWith(activeFile, { mode: 'preview' })
+    expect(onOpen).toHaveBeenLastCalledWith(activeFile, { mode: 'permanent' })
     expect(onOpen).toHaveBeenCalledTimes(5)
+    // Middle click opens the note in its own tab as well.
+    fireEvent(label, new MouseEvent('auxclick', { bubbles: true, button: 1 }))
+    expect(onOpen).toHaveBeenLastCalledWith(activeFile, { mode: 'permanent' })
+    expect(onOpen).toHaveBeenCalledTimes(6)
     expect(document.querySelector('.mf-file-tree-name-input')).toBeNull()
   })
 

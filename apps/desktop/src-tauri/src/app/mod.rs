@@ -6,6 +6,7 @@ pub mod extensions;
 pub mod keybindings;
 pub mod opened_cache;
 pub mod recent_files;
+pub mod reset;
 pub mod process;
 pub(crate) mod startup_io;
 pub(crate) mod startup_timing;

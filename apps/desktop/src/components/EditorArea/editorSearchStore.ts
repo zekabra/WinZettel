@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import useEditorStore from '@/stores/useEditorStore'
 import useEditorViewTypeStore, { selectEditorViewType } from '@/stores/useEditorViewTypeStore'
 import { EditorViewType, type EditorViewTypeValue } from '@/constants/editorViewType'
-import type { EditorSourceMatchRequest } from './capricornRuntimeAdapter'
+import type { EditorSourceMatchRequest } from './editorFindApi'
 import { openPreviewSearch } from './preview/previewSearch'
 
 export interface SearchNavigationRequest extends EditorSourceMatchRequest {
@@ -15,6 +15,10 @@ export interface SearchNavigationRequest extends EditorSourceMatchRequest {
 
 interface EditorSearchState {
   owner: 'document' | 'global' | null
+  /** Group whose pane owns the open bar; a second pane must not unmount it. */
+  ownerGroupId?: string
+  /** Note the open search belongs to. Another tab must not inherit its term. */
+  ownerFileId?: string
   generation: number
   focusRevision: number
   focusedRevision: number
@@ -47,10 +51,18 @@ export function openDocumentSearch(): boolean {
   }
   if (
     !activeId ||
-    selectEditorViewType(useEditorViewTypeStore.getState(), activeId, activeGroupId) === EditorViewType.PREVIEW
+    selectEditorViewType(useEditorViewTypeStore.getState(), activeId, activeGroupId) ===
+      EditorViewType.PREVIEW
   )
     return false
+  const previous = useEditorSearchStore.getState()
+  const sameNote = previous.ownerFileId === activeId
   useEditorSearchStore.setState((state) => ({
+    ownerGroupId: activeGroupId,
+    ownerFileId: activeId,
+    // Each tab searches independently: a term typed in another note is not reused here.
+    query: sameNote ? state.query : '',
+    replacement: sameNote ? state.replacement : '',
     owner: 'document',
     generation: state.owner === 'document' ? state.generation : state.generation + 1,
     composing: state.owner === 'document' ? state.composing : false,
@@ -80,10 +92,19 @@ export function requestSearchNavigation(
   }))
 }
 
+/** Closing the bar for good: drops the term so the next open starts clean. */
+export function dismissEditorSearch(owner?: EditorSearchState['owner']) {
+  if (owner && useEditorSearchStore.getState().owner !== owner) return
+  useEditorSearchStore.setState({ query: '', replacement: '' })
+  closeEditorSearch(owner)
+}
+
 export function closeEditorSearch(owner?: EditorSearchState['owner']) {
   if (owner && useEditorSearchStore.getState().owner !== owner) return
   useEditorSearchStore.setState((state) => ({
     owner: null,
+    ownerGroupId: undefined,
+    ownerFileId: undefined,
     navigation: null,
     composing: false,
     error: null,

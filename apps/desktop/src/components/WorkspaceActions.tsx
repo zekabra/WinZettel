@@ -89,17 +89,15 @@ export function WorkspaceActions({ location = 'titlebar' }: WorkspaceActionsProp
           <Button
             aria-expanded={isPickerOpen}
             aria-label={rootPath ? `${workspaceLabel}: ${pickerLabel}` : pickerLabel}
-            className={rootPath ? 'h-[22px] max-w-48 px-2' : undefined}
+            className={rootPath ? 'h-[22px] max-w-48 gap-1 px-2' : undefined}
             data-slot='workspace-picker-trigger'
             size={rootPath ? 'sm' : 'icon-chrome'}
             title={rootPath ? `${pickerLabel}\n${rootPath}` : pickerLabel}
             variant='chrome'
           >
-            {rootPath ? (
-              <span className='truncate'>{workspaceLabel}</span>
-            ) : (
-              <MenuIcon aria-hidden='true' className='size-3.5' strokeWidth={1.75} />
-            )}
+            {/* The menu icon stays, whether or not a folder is open: it is the way in. */}
+            <MenuIcon aria-hidden='true' className='size-3.5' strokeWidth={1.75} />
+            {rootPath ? <span className='truncate'>{workspaceLabel}</span> : null}
           </Button>
         )}
       </Popover.Trigger>

@@ -9,6 +9,10 @@ export interface AppContextValue {
   openFolderDialog?: () => Promise<string | null>
   /** Create a new window */
   createNewWindow?: (options: { path?: string }) => Promise<void>
+  /** Encrypt a note in place using the configured passphrase */
+  encryptNote?: (path: string) => Promise<void>
+  /** Decrypt a note in place using the configured passphrase */
+  decryptNote?: (path: string) => Promise<void>
   /** Listen to app events */
   listenAppEvent?: <T>(event: string, handler: (payload: T) => void) => Promise<() => void>
 }

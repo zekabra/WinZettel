@@ -4,26 +4,17 @@ import { z } from 'zod'
 import { jsonStateStorage } from './persistStorage'
 import { workspaceStorageKey } from './workspacePersistence'
 
-const pointSchema = z.object({
-  path: z.array(z.number().int().nonnegative()).max(100),
-  offset: z.number().int().nonnegative().optional(),
-  edge: z.enum(['before', 'after']).optional(),
+const selectionSchema = z.object({
+  kind: z.literal('source'),
+  anchor: z.number().int().nonnegative(),
+  head: z.number().int().nonnegative(),
 })
-const selectionSchema = z.discriminatedUnion('kind', [
-  z.object({ kind: z.literal('capricorn'), anchor: pointSchema, focus: pointSchema }),
-  z.object({
-    kind: z.literal('source'),
-    anchor: z.number().int().nonnegative(),
-    head: z.number().int().nonnegative(),
-  }),
-])
 const resumeSchema = z.object({
   scrollTop: z.number().finite().nonnegative(),
   scrollLeft: z.number().finite().nonnegative(),
   selection: selectionSchema.optional(),
 })
 
-export type ResumePoint = z.infer<typeof pointSchema>
 export type ResumeSelection = z.infer<typeof selectionSchema>
 export type EditorResume = z.infer<typeof resumeSchema>
 

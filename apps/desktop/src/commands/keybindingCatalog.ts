@@ -15,7 +15,7 @@ const commandSchema = z.object({
   id: z.string().min(1),
   configurable: z.boolean(),
   target: z.enum(['app', 'editor', 'native']),
-  editor: z.object({ rme: z.string(), capricornRule: z.string().optional() }).optional(),
+  editor: z.object({ rme: z.string() }).optional(),
 })
 const catalog = z
   .object({

@@ -74,7 +74,10 @@ describe('guardUnsavedFilesAsync', () => {
 
       const options = mocks.confirm.mock.calls[0][0] as ConfirmOptions
       const description = renderToStaticMarkup(<>{options.content}</>)
-      expect(options.title).toBe('confirm.close.title')
+      // The title names what will happen: continue actions are not closes.
+      expect(options.title).toBe(
+        context === 'continue' ? 'confirm.continue.title' : 'confirm.close.title',
+      )
       expect(description).toContain(
         context === 'continue' ? 'confirm.continue.description' : 'confirm.close.description',
       )

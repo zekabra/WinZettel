@@ -1,9 +1,6 @@
 import { runInNewContext } from 'node:vm'
 import ts from 'typescript'
 import { describe, expect, it, vi } from 'vitest'
-import infoBarSource from './EditorInfoBar.tsx?raw'
-import moreActionsSource from './editorToolBar/WysiwygToolbar/components/MoreActions.tsx?raw'
-import menuListSource from './editorToolBar/components/MenuList.tsx?raw'
 
 // Execute the actual action callbacks without mounting unrelated editor UI or
 // invoking native services. The read failure must precede every side effect.
@@ -35,11 +32,7 @@ function readAction(sourceText: string, name: string, bindings: Record<string, u
   return runInNewContext(compiled, { Error, ...bindings }) as (argument: string) => Promise<void>
 }
 
-const actions = [
-  { label: 'info conversion', source: infoBarSource, name: 'convertText' },
-  { label: 'menu conversion', source: menuListSource, name: 'convertText' },
-  { label: 'more conversion', source: moreActionsSource, name: 'convertText' },
-]
+const actions: { label: string; source: string; name: string }[] = []
 
 function createActionHarness(source: string, name: string, failure: unknown) {
   const getEditorContent = vi.fn((): string => {

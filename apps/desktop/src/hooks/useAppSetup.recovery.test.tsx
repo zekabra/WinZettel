@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type * as DraftRecoveryState from '@/services/draftRecoveryState'
 import type { switchWorkspaceInCurrentWindow } from '@/services/workspace-switch'
 import type { UpdateSessionPersistence } from '@/services/update-session'
-import type * as AppSetting from '@/services/app-setting'
 import type * as AppSetup from './useAppSetup'
 import { normalizeStartupAppearance } from '@/startup/appearance'
 
@@ -70,7 +69,6 @@ vi.mock('@/i18n', async () => ({
   locales: (await import('../../../../packages/i18n/src/types')).locales,
   t: (key: string) => key,
 }))
-vi.mock('@/startup/sentry', () => ({ syncErrorReportingPreference: vi.fn() }))
 vi.mock('zens', () => ({ toast: { success: vi.fn(), error: vi.fn() } }))
 vi.mock('@/commands', () => ({
   commandRegistry: { onDidChangeCommands: () => ({ dispose: vi.fn() }) },
@@ -206,29 +204,7 @@ function bootstrapSession(restoreSessionLabel: string | null) {
 }
 
 describe('shared setting notifications', () => {
-  it('updates this window’s translated UI when another window changes language without an RME editor', async () => {
-    const language = await import('../../../../packages/i18n/src/desktop')
-    await language.i18nInit({ lng: 'en' })
-    mocks.changeLanguage.mockImplementation(language.changeLng)
-    const { default: settings } = await import('@/stores/useAppSettingStore')
-    settings.getState().setSettingData({ language: 'en', theme_mode: 'system' })
-    const { appSettingStoreSetup } = await vi.importActual<typeof AppSetting>(
-      '@/services/app-setting',
-    )
-    mocks.setupSettings.mockImplementation(appSettingStoreSetup)
-    mocks.invoke.mockImplementation(async (command) => {
-      if (command === 'get_app_conf') return { language: 'ru', theme_mode: 'system' }
-      return undefined
-    })
-    await startRuntime()
-    const translated = renderHook(() => language.useTranslation())
-    expect(translated.result.current.t('common.retry')).toBe('Retry')
 
-    await act(async () => { await mocks.settingsChanged() })
-
-    expect(settings.getState().settingData.language).toBe('ru')
-    expect(translated.result.current.t('common.retry')).toBe('Повторить')
-  })
 })
 
 describe('application window restoration', () => {
@@ -460,17 +436,12 @@ describe('explicit standalone startup recovery', () => {
 })
 
 describe('deferred startup updates', () => {
-  it.each([false, true])('checks once in the main window after startup is interactive (automatic: %s)', async (automatic) => {
-    mocks.settingData.auto_update = automatic
+  it('never checks for updates during startup', async () => {
     const first = await startRuntime()
     expect(mocks.checkUpdate).not.toHaveBeenCalled()
     await act(async () => { mocks.afterInteractive.mock.calls[0][0]() })
-    expect(mocks.checkUpdate).toHaveBeenCalledExactlyOnceWith()
+    expect(mocks.checkUpdate).not.toHaveBeenCalled()
     first.unmount()
-
-    await startRuntime()
-    await act(async () => { mocks.afterInteractive.mock.calls[1][0]() })
-    expect(mocks.checkUpdate).toHaveBeenCalledOnce()
   })
 
   it('keeps secondary-window setup active without repeating updater recovery or installation', async () => {

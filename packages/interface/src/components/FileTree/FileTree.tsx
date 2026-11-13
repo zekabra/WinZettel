@@ -922,8 +922,19 @@ export function FileTreeRow({
       onClick={(event) => {
         node.handleClick(event)
         if (canOpen && !event.defaultPrevented) {
-          rowState.onOpen?.(node.data, { mode: 'preview' })
+          // A click opens the note in its own tab. Preview mode reused the current tab,
+          // which made every note look like it opened in the first one.
+          rowState.onOpen?.(node.data, { mode: 'permanent' })
         }
+      }}
+      onAuxClick={(event) => {
+        // Middle click opens the note in its own tab, the way browsers open links.
+        if (!canOpen || event.button !== 1) return
+        event.preventDefault()
+        rowState.onOpen?.(node.data, { mode: 'permanent' })
+      }}
+      onMouseDown={(event) => {
+        if (event.button === 1) event.preventDefault()
       }}
       onDoubleClick={(event) => {
         if (!canOpen || event.defaultPrevented) return
@@ -934,7 +945,8 @@ export function FileTreeRow({
         event.preventDefault()
         event.stopPropagation()
         node.select()
-        rowState.onOpen?.(node.data, { mode: event.key === 'Enter' ? 'permanent' : 'preview' })
+        // Space and Enter both open the note in its own tab.
+        rowState.onOpen?.(node.data, { mode: 'permanent' })
       }}
       onFocus={(event) => {
         if (suppressed) revealRoot?.()

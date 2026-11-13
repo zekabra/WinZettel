@@ -1849,7 +1849,6 @@ pub fn run() {
             fc::cmd::move_files_to_target_folder,
             fc::cmd::path_join,
             fc::cmd::get_md_relative_path,
-            fc::cmd::convert_text,
             fc::cmd::rename_fs,
             fc::cmd::paths_refer_to_same_file,
             fc::cmd::paths_refer_to_same_directory_entry,
@@ -1867,6 +1866,7 @@ pub fn run() {
             fc::cmd::get_file_normal_info,
             fc::cmd::copy_file,
             conf::cmd::get_app_conf,
+            app::reset::reset_app_data,
             app::startup_timing::get_startup_timing,
             conf::cmd::reset_app_conf,
             conf::cmd::save_app_conf,
@@ -1920,6 +1920,8 @@ pub fn run() {
         ])
         .setup(|app: &mut tauri::App| {
             app::startup_timing::record_stage("setup-start", None);
+            // A reset requested from Settings finishes here, before the WebView profile is opened.
+            app::reset::apply_pending_reset(app.handle());
             cli_debug!("========================================");
             cli_debug!(
                 "cfg!(debug_assertions)={}, tauri::is_dev()={}",

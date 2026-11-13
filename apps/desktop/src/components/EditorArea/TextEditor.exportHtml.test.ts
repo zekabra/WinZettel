@@ -1,5 +1,4 @@
 import { runInNewContext } from 'node:vm'
-import { isCapricornView } from '@/constants/editorViewType'
 import ts from 'typescript'
 import { expect, it, vi } from 'vitest'
 import textEditorSource from './TextEditor.tsx?raw'
@@ -37,7 +36,7 @@ const compile = (node: ts.Expression) =>
 const compiledUi = compile(handler)
 const compiledCli = compile(automationRenderer)
 
-it.each(['wysiwyg', 'preview', 'sourceCode'])(
+it.each(['preview', 'sourceCode'])(
   'UI and CLI export the complete unsaved snapshot in %s mode',
   async (mode) => {
     const element = document.createElement('div')
@@ -59,12 +58,10 @@ it.each(['wysiwyg', 'preview', 'sourceCode'])(
       active: true,
       id: 'file',
       currentViewType: mode,
-      isCapricornView,
       getFileObject: () => ({ name: 'note.md', path: '/notes/note.md' }),
       curFile: { name: 'note.md', path: '/notes/note.md' },
       remoteImages: { retain: () => release },
       editorWrapperRef: { current: null },
-      capricornEditorRef: { current: null },
       editorSnapshotRegistry: { flushForRead },
       useEditorStore: { getState: () => ({ getEditorContent: () => markdown }) },
       fileTypeConfig: { type: 'markdown' },
@@ -166,7 +163,6 @@ it('keeps the non-Markdown HTML renderer available', async () => {
   const render = runInNewContext(compiledCli, {
     automationHandleRef: { current: { readContent: () => 'Other document' } },
     currentViewType: 'sourceCode',
-    isCapricornView,
     fileTypeConfig: { type: 'text' },
     remoteImages: { retain: () => release },
     editorRef: { current: { exportHtml } },

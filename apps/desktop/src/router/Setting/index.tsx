@@ -1,22 +1,17 @@
-import { SnippetSetting } from './SnippetSetting'
-import type { SettingLeaveGuard } from './types'
+import { UpdateSetting } from './UpdateSetting'
+import { AboutSetting } from './AboutSetting'
 import { HistorySetting } from './HistorySetting'
 import Logo from '@/assets/logo.svg?react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import type { OpenSettingTarget } from '@/extensions/ai/aiProvidersService'
-import { fetchUpdate, installUpdate } from '@/helper/updater'
+import { installUpdate } from '@/helper/updater'
 import { useTranslation } from '@/i18n'
-import { appSettingStoreSetup } from '@/services/app-setting'
-import { dialog } from '@/services/dialog'
 import useAppInfoStore from '@/stores/useAppInfoStore'
-import useLayoutStore from '@/stores/useLayoutStore'
 import useUpdaterStore from '@/stores/useUpdaterStore'
-import { invoke } from '@tauri-apps/api/core'
 import classNames from 'classnames'
 import { Search } from 'lucide-react'
-import { memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
-import { toast } from 'zens'
+import { memo, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import { SettingDialog } from './component/SettingDialog'
 import SettingGroup from './component/SettingGroup'
 import { SettingNavigation } from './component/SettingNavigation'
@@ -33,7 +28,6 @@ import {
   type SettingCategoryKey,
   type SettingSearchEntry,
 } from './settingSearch'
-import { Support } from './Support'
 import { ThemeSetting } from './ThemeSetting'
 import { ThemeStore } from './ThemeStore'
 import { ThemeCustomization } from './ThemeStore/ThemeCustomization'
@@ -82,15 +76,6 @@ function Setting({ navigationRequest }: SettingProps) {
   const [pendingFocusTarget, setPendingFocusTarget] = useState<SettingFocusTarget>()
   const [selectedSearchEntryId, setSelectedSearchEntryId] = useState<string>()
   const [themeSelection, setThemeSelection] = useState<{ mode?: MfTheme['mode'] }>()
-  const leaveGuardRef = useRef<SettingLeaveGuard | null>(null)
-  const registerLeaveGuard = useCallback((guard: SettingLeaveGuard) => {
-    leaveGuardRef.current = guard
-    return () => {
-      if (leaveGuardRef.current === guard) leaveGuardRef.current = null
-    }
-  }, [])
-  const requestLeave = useCallback(() => leaveGuardRef.current?.() ?? Promise.resolve(true), [])
-  const [acceptedNavigation, setAcceptedNavigation] = useState(navigationRequest)
   const categoryHeadingRef = useRef<HTMLHeadingElement>(null)
   const deferredSearchQuery = useDeferredValue(searchQuery)
   const normalizedSearchQuery = deferredSearchQuery.trim()
@@ -106,56 +91,22 @@ function Setting({ navigationRequest }: SettingProps) {
     (key) => key !== 'i18nKey' && key !== 'iconName' && key !== 'desc',
   )
 
-  const handleResetConfiguration = async () => {
-    const action = await dialog.confirm({
-      title: t('settings.resetAppConf.desc'),
-      actions: [
-        { id: 'cancel', label: t('common.cancel') },
-        { id: 'confirm', label: t('common.confirm'), primary: true, danger: true },
-      ],
-    })
-
-    if (action !== 'confirm') return
-
-    invoke('reset_app_conf')
-      .then(async () => {
-        await appSettingStoreSetup()
-        useLayoutStore.getState().setStartupPanel('left', 'restore')
-        useLayoutStore.getState().setStartupPanel('right', 'restore')
-        toast.success(t('settings.resetAppConf.success'))
-      })
-      .catch((err: any) => {
-        toast.error(String(err))
-      })
-  }
-
-  useEffect(() => {
-    void fetchUpdate()
-  }, [])
 
   useEffect(() => {
     const target = navigationRequest?.target
     if (!target) return
 
-    let canceled = false
-    void requestLeave().then((allowed) => {
-      if (!allowed || canceled) return
-      setAcceptedNavigation(navigationRequest)
-      setSearchQuery('')
-      setSelectedSearchEntryId(undefined)
-      setThemeSelection(undefined)
-      setCurGroupKey(target.category)
-      setActiveChildId(target.providerId)
-      setPendingFocusTarget({
-        categoryKey: target.category,
-        groupKey: target.providerId ? 'model' : undefined,
-        childId: target.providerId,
-      })
+    setSearchQuery('')
+    setSelectedSearchEntryId(undefined)
+    setThemeSelection(undefined)
+    setCurGroupKey(target.category)
+    setActiveChildId(target.providerId)
+    setPendingFocusTarget({
+      categoryKey: target.category,
+      groupKey: target.providerId ? 'model' : undefined,
+      childId: target.providerId,
     })
-    return () => {
-      canceled = true
-    }
-  }, [navigationRequest, requestLeave])
+  }, [navigationRequest])
 
   useEffect(() => {
     if (!pendingFocusTarget || pendingFocusTarget.categoryKey !== curGroupKey) return
@@ -199,17 +150,14 @@ function Setting({ navigationRequest }: SettingProps) {
     }
   }
 
-  const handleCategorySelect = async (groupKey: SettingCategoryKey) => {
-    if (groupKey !== curGroupKey && leaveGuardRef.current && !(await requestLeave())) return
+  const handleCategorySelect = (groupKey: SettingCategoryKey) => {
     setCurGroupKey(groupKey)
     setThemeSelection(undefined)
     setActiveChildId(undefined)
     setSelectedSearchEntryId(undefined)
   }
 
-  const handleSearchResultSelect = async (entry: SettingSearchEntry) => {
-    if (entry.categoryKey !== curGroupKey && leaveGuardRef.current && !(await requestLeave()))
-      return
+  const handleSearchResultSelect = (entry: SettingSearchEntry) => {
     setCurGroupKey(entry.categoryKey)
     setThemeSelection(undefined)
     setActiveChildId(entry.childId)
@@ -233,19 +181,12 @@ function Setting({ navigationRequest }: SettingProps) {
   }
 
   const renderCurrentSettingData = () => {
-    if (curGroupKey === 'snippets')
-      return (
-        <SnippetSetting
-          initialKind={acceptedNavigation?.target?.snippetKind}
-          navigationId={acceptedNavigation?.id}
-          registerLeaveGuard={registerLeaveGuard}
-        />
-      )
     if (curGroupKey === 'history') return <HistorySetting />
     if (curGroupKey === 'keyboard') return <KeyboardTable />
     if (curGroupKey === 'image') return <ImageSetting />
+    if (curGroupKey === 'updates') return <UpdateSetting />
+    if (curGroupKey === 'about') return <AboutSetting />
     if (curGroupKey === 'export') return <ExportSetting />
-    if (curGroupKey === 'support') return <Support />
     if (curGroupKey === 'copilot') return <CopilotSetting />
 
     return (
@@ -290,19 +231,9 @@ function Setting({ navigationRequest }: SettingProps) {
     )
   }
 
-  const renderAction = () => {
-    if (curGroupKey === 'general') {
-      return (
-        <Button size='sm' variant='destructive' onClick={handleResetConfiguration}>
-          <i aria-hidden className='ri-restart-line' />
-          {t('settings.resetAppConf.label')}
-        </Button>
-      )
-    }
-  }
 
   return (
-    <SettingDialog beforeClose={requestLeave} onEscapeKeyDown={handleEscapeKeyDown}>
+    <SettingDialog onEscapeKeyDown={handleEscapeKeyDown}>
       <div className='box-border flex h-full w-full min-w-0 overflow-hidden bg-background text-foreground'>
         <aside className='box-border flex w-[13.5rem] shrink-0 flex-col border-r border-border bg-muted/50'>
           <div className='shrink-0 px-3 pt-4 pb-2'>
@@ -444,7 +375,6 @@ function Setting({ navigationRequest }: SettingProps) {
                   {t(curGroup.desc?.i18nKey)}
                 </p>
               </div>
-              <div className='flex shrink-0 items-center gap-2'>{renderAction()}</div>
             </header>
           </div>
           <div className='min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain'>

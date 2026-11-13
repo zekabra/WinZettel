@@ -127,7 +127,7 @@ function createHarness(options: { content?: string; dirty?: boolean; path?: stri
     recordEditorOpenContent,
     recordEditorOpenStage,
     groupId: undefined,
-    fileTypeConfig: { defaultMode: 'Wysiwyg' },
+    fileTypeConfig: { defaultMode: 'sourceCode' },
     FileResultCode,
     TextEditorStatus: {
       LOADING: 'loading',

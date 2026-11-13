@@ -4,6 +4,7 @@ import { protectDiscard } from './local-history'
 import { getFileObject, getSaveOpenedEditorEntries } from '@/helper/files'
 import { dialog } from '@/services/dialog'
 import { useEditorStateStore } from '@/stores'
+import { isPristineDocument } from './pristine-document'
 import { t } from '@/i18n'
 import { isDraftRecoveryPending, waitForDraftRecovery } from './draftRecoveryState'
 import { resolveDraftRecoveryBeforeClose } from './draftRecoveryActions'
@@ -35,7 +36,11 @@ const unique = (ids: string[]) => Array.from(new Set(ids.filter(Boolean)))
 export const getUnsavedFileIds = (fileIds: string[]) => {
   const idStateMap = useEditorStateStore.getState().idStateMap
 
-  return unique(fileIds).filter((id) => idStateMap.get(id)?.hasUnsavedChanges)
+  return unique(fileIds).filter(
+    // A pristine tab holds nothing the user typed, so prompting to save it is noise —
+    // it made actions like splitting a pane look like they were closing the app.
+    (id) => idStateMap.get(id)?.hasUnsavedChanges && !isPristineDocument(id),
+  )
 }
 
 export const saveUnsavedFiles = async (fileIds: string[]) => {
@@ -54,7 +59,8 @@ const confirmUnsavedFiles = async (
   context: UnsavedConfirmContext = 'close',
 ) => {
   return dialog.confirm({
-    title: t('confirm.close.title'),
+    title:
+      context === 'continue' ? t('confirm.continue.title') : t('confirm.close.title'),
     content: (
       <div>
         {t(context === 'continue' ? 'confirm.continue.description' : 'confirm.close.description')}

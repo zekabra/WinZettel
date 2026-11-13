@@ -11,9 +11,6 @@ import useGlobalKeyboard from './useKeyboard'
 vi.mock('hox', () => ({ createGlobalStore: (hook: () => unknown) => [hook] }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke: vi.fn() }))
 vi.mock('@/helper/logger', () => ({ logger: { debug: vi.fn(), warn: vi.fn() } }))
-vi.mock('@/components/EditorArea/capricornEditorRegistry', () => ({
-  getCapricornEditor: () => undefined,
-}))
 vi.mock('@/components/EditorArea/editorSearchStore', () => ({ openDocumentSearch: vi.fn() }))
 vi.mock('zens', () => ({ toast: { error: vi.fn() } }))
 

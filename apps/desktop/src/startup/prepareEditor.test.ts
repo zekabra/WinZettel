@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { invalidateFileSnapshotHandoffs, readStableFileSnapshot } from '@/components/EditorArea/fileSnapshot'
 import { prepareStartupDocumentRead, prepareStartupEditorModules, takeStartupDocumentRead } from './prepareEditor'
-import { EditorViewType } from '@/constants/editorViewType'
 
 const controls = vi.hoisted(() => ({
   file: { id: 'file', name: 'file.md', path: '/w/file.md', kind: 'file', content: undefined as string | undefined },
@@ -12,14 +11,11 @@ const controls = vi.hoisted(() => ({
   snapshotPending: false,
   invoke: vi.fn(),
   area: vi.fn(async () => ({})),
-  runtime: vi.fn(async () => undefined),
-  mode: undefined as string | undefined,
 }))
 vi.mock('@tauri-apps/api/core', () => ({ invoke: controls.invoke }))
 vi.mock('@/helper/files', () => ({ getFileObject: () => controls.file }))
 vi.mock('@/services/draftRecoveryState', () => ({ isDraftRecoveryPending: () => controls.pending }))
 vi.mock('@/components/EditorArea/editorAreaLoader', () => ({ loadEditorAreaContent: controls.area }))
-vi.mock('@/components/EditorArea/capricornRuntimeAdapter', () => ({ preloadCapricornRuntimeFactory: controls.runtime }))
 vi.mock('@/components/EditorArea/fileSaveCoordinator', () => ({
   fileSaveCoordinator: { getRevision: () => controls.revision, getDiskRevision: () => 'base' },
 }))
@@ -30,10 +26,6 @@ vi.mock('@/stores/useEditorStore', () => ({ default: { getState: () => controls.
 vi.mock('@/stores/useEditorStateStore', () => ({
   default: { getState: () => ({ idStateMap: new Map([['file', { hasUnsavedChanges: controls.dirty }]]) }) },
 }))
-vi.mock('@/stores/useEditorViewTypeStore', () => ({
-  default: { getState: () => ({ editorViewTypeMap: new Map([['file', controls.mode]]) }) },
-}))
-
 let controller: AbortController
 const snapshot = { status: 'success', content: '# Markdown', revision: 'disk:1' }
 beforeEach(() => {
@@ -41,7 +33,6 @@ beforeEach(() => {
   controller = new AbortController()
   controls.state = { activeId: 'file', folderData: [{ path: '/w' }] }
   controls.file.content = undefined
-  controls.mode = EditorViewType.WYSIWYG
   controls.revision = 0
   controls.dirty = false
   controls.pending = false
@@ -83,16 +74,12 @@ it('never pre-reads a document whose recovered content is pending or dirty', asy
   expect(controls.invoke).not.toHaveBeenCalled()
 })
 
-it('prepares the selected engine before recovery and respects source/preview mode choices', async () => {
+it('prepares the editor area before recovery without reading document bytes', async () => {
   controls.pending = true
   await prepareStartupEditorModules(controller.signal)
   expect(controls.area).toHaveBeenCalledOnce()
-  expect(controls.runtime).toHaveBeenCalledOnce()
   expect(controls.invoke).not.toHaveBeenCalled()
-  controls.mode = EditorViewType.SOURCECODE
   await prepareStartupEditorModules(controller.signal)
-  expect(controls.runtime).toHaveBeenCalledOnce()
-  controls.mode = EditorViewType.PREVIEW
-  await prepareStartupEditorModules(controller.signal)
-  expect(controls.runtime).toHaveBeenCalledTimes(2)
+  expect(controls.area).toHaveBeenCalledTimes(2)
+  expect(controls.invoke).not.toHaveBeenCalled()
 })

@@ -38,9 +38,10 @@ pub_struct!(AppConf {
     dark_theme: Option<String>,
     language: Option<String>,
     auto_update: Option<bool>,
-    update_check_interval: Option<String>,
     open_file_in_new_window: Option<bool>,
-    error_reporting_enabled: Option<bool>,
+    // Passphrase for note encryption. Stored so encryption stays automatic;
+    // losing it makes encrypted notes unrecoverable.
+    encryption_passphrase: Option<String>,
     webview_zoom: Option<String>,
     pdf_browser_executable_path: Option<String>,
     copilot_provider: Option<String>,
@@ -49,10 +50,8 @@ pub_struct!(AppConf {
     editor_full_width: Option<bool>,
     editor_enable_preview_tabs: Option<bool>,
     editor_typewriter_scroll: Option<bool>,
-    editor_caret_animation: Option<bool>,
     editor_placeholder: Option<bool>,
     editor_link_edit_mode: Option<String>,
-    editor_text_direction: Option<String>,
     editor_insert_date_format: Option<String>,
     editor_root_font_size: Option<u32>,
     editor_root_line_height: Option<String>,
@@ -91,18 +90,14 @@ pub_struct!(AppConf {
     autosave_interval: Option<u32>,
     editor_root_font_family: Option<String>,
     editor_code_font_family: Option<String>,
-    wysiwyg_editor_codemirror_line_wrap: Option<bool>,
-    wysiwyg_editor_live_preview_block_behavior: Option<String>,
     wysiwyg_editor_spellcheck: Option<bool>,
     source_code_editor_spellcheck: Option<bool>,
     md_editor_default_mode: Option<String>,
     file_exclude_patterns: Option<String>,
     when_paste_image: Option<String>,
-    paste_image_save_absolute_path: Option<String>,
     paste_image_save_relative_path: Option<String>,
     paste_image_save_relative_path_rule: Option<String>,
     when_upload_image: Option<String>,
-    upload_image_save_absolute_path: Option<String>,
     upload_image_save_relative_path: Option<String>,
     upload_image_save_relative_path_rule: Option<String>,
     dialog_preferences: Option<HashMap<String, String>>,
@@ -668,9 +663,8 @@ impl AppConf {
             dark_theme: Some("MarkFlowy Dark".to_string()),
             language: Some("en".to_string()),
             auto_update: Some(false),
-            update_check_interval: Some("60".to_string()),
             open_file_in_new_window: Some(true),
-            error_reporting_enabled: Some(false),
+            encryption_passphrase: None,
             webview_zoom: Some("1.0".to_string()),
             pdf_browser_executable_path: None,
             copilot_provider: Some("".to_string()),
@@ -679,10 +673,8 @@ impl AppConf {
             editor_full_width: Some(false),
             editor_enable_preview_tabs: Some(true),
             editor_typewriter_scroll: Some(false),
-            editor_caret_animation: Some(false),
             editor_placeholder: Some(true),
             editor_link_edit_mode: Some("popover".to_string()),
-            editor_text_direction: Some("auto".to_string()),
             editor_insert_date_format: Some("YYYY-MM-DD".to_string()),
             editor_root_font_size: Some(16),
             editor_root_line_height: Some("1.7".to_string()),
@@ -709,8 +701,6 @@ impl AppConf {
             editor_code_font_family: Some("Default Monospace".to_string()),
             wysiwyg_editor_spellcheck: Some(false),
             source_code_editor_spellcheck: Some(false),
-            wysiwyg_editor_codemirror_line_wrap: Some(true),
-            wysiwyg_editor_live_preview_block_behavior: Some("auto".to_string()),
             file_exclude_patterns: Some(DEFAULT_EXCLUDE_PATTERNS.to_string()),
             extensions_chatgpt_apibase: Some("".to_string()),
             extensions_chatgpt_models: Some("gpt-3.5-turbo,gpt-4-32k,gpt-4".to_string()),
@@ -728,19 +718,11 @@ impl AppConf {
             extensions_google_apikey: Some("".to_string()),
             extensions_google_request_headers: Some(HashMap::new()),
             when_paste_image: Some("do_nothing".to_string()),
-            paste_image_save_absolute_path: None,
-            paste_image_save_relative_path: Some("assets/images".to_string()),
-            paste_image_save_relative_path_rule: Some("${documentPath}/assets".to_string()),
+            paste_image_save_relative_path: Some("assets".to_string()),
+            paste_image_save_relative_path_rule: Some("${documentPath}/assets/".to_string()),
             when_upload_image: Some("save_to_local_absolute".to_string()),
-            upload_image_save_absolute_path: Some(
-                app_root()
-                    .join("assets/images")
-                    .to_str()
-                    .unwrap()
-                    .to_string(),
-            ),
-            upload_image_save_relative_path: Some("assets/images".to_string()),
-            upload_image_save_relative_path_rule: Some("${documentPath}/assets".to_string()),
+            upload_image_save_relative_path: Some("assets".to_string()),
+            upload_image_save_relative_path_rule: Some("${documentPath}/assets/".to_string()),
             dialog_preferences: Some(HashMap::new()),
         }
     }
@@ -827,9 +809,8 @@ impl AppConf {
             autosave,
             local_history_enabled,
             auto_update,
-            update_check_interval,
             open_file_in_new_window,
-            error_reporting_enabled,
+            encryption_passphrase,
             webview_zoom,
             pdf_browser_executable_path,
             copilot_provider,
@@ -838,10 +819,8 @@ impl AppConf {
             editor_full_width,
             editor_enable_preview_tabs,
             editor_typewriter_scroll,
-            editor_caret_animation,
             editor_placeholder,
             editor_link_edit_mode,
-            editor_text_direction,
             editor_insert_date_format,
             editor_root_font_size,
             editor_root_line_height,
@@ -863,8 +842,6 @@ impl AppConf {
             md_editor_default_mode,
             editor_root_font_family,
             editor_code_font_family,
-            wysiwyg_editor_codemirror_line_wrap,
-            wysiwyg_editor_live_preview_block_behavior,
             wysiwyg_editor_spellcheck,
             source_code_editor_spellcheck,
             file_exclude_patterns,
@@ -885,11 +862,9 @@ impl AppConf {
             extensions_google_apikey,
             extensions_google_request_headers,
             when_paste_image,
-            paste_image_save_absolute_path,
             paste_image_save_relative_path,
             paste_image_save_relative_path_rule,
             when_upload_image,
-            upload_image_save_absolute_path,
             upload_image_save_relative_path,
             upload_image_save_relative_path_rule,
             dialog_preferences
@@ -1291,16 +1266,15 @@ mod tests {
     }
 
     #[test]
-    fn error_reporting_is_opt_in_and_preserves_explicit_consent() {
+    fn boolean_preferences_round_trip_through_merge_conf() {
         let defaults = typography_default_conf().merge_conf(empty_conf());
-        assert_eq!(defaults.error_reporting_enabled, Some(false));
         for enabled in [true, false] {
             let changed = defaults.clone().amend(serde_json::json!({
-                "error_reporting_enabled": enabled
+                "auto_update": enabled
             }));
-            let saved = serde_json::from_value(serde_json::to_value(changed).unwrap()).unwrap();
+            let saved: AppConf = serde_json::from_value(serde_json::to_value(changed).unwrap()).unwrap();
             let restored = typography_default_conf().merge_conf(saved);
-            assert_eq!(restored.error_reporting_enabled, Some(enabled));
+            assert_eq!(restored.auto_update, Some(enabled));
         }
     }
 
@@ -1398,7 +1372,6 @@ mod tests {
         let current = empty_conf().amend(serde_json::json!({
             "language": "en",
             "theme_mode": "dark",
-            "error_reporting_enabled": false,
             "extensions_chatgpt_apikey": "new-key",
             "dialog_preferences": { "close": "save", "export": "replace" }
         }));
@@ -1408,7 +1381,6 @@ mod tests {
         }));
         assert_eq!(updated.language.as_deref(), Some("zh"));
         assert_eq!(updated.theme_mode.as_deref(), Some("dark"));
-        assert_eq!(updated.error_reporting_enabled, Some(false));
         assert_eq!(
             updated.extensions_chatgpt_apikey.as_deref(),
             Some("new-key")
@@ -1464,10 +1436,10 @@ mod tests {
     #[test]
     fn code_editor_defaults_preserve_legacy_display_and_optional_typography() {
         let legacy = empty_conf().amend(serde_json::json!({
-            "wysiwyg_editor_codemirror_line_wrap": false
+            "editor_code_indent_style": "tabs"
         }));
         let conf = typography_default_conf().merge_conf(legacy);
-        assert_eq!(conf.wysiwyg_editor_codemirror_line_wrap, Some(false));
+        assert_eq!(conf.editor_code_indent_style.as_deref(), Some("tabs"));
         assert_eq!(conf.editor_code_indent_style.as_deref(), Some("spaces"));
         assert_eq!(conf.editor_code_indent_size.as_deref(), Some("default"));
         assert_eq!(conf.editor_code_auto_close_brackets, Some(true));

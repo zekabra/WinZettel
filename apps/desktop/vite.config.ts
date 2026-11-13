@@ -1,14 +1,11 @@
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { fileURLToPath, URL } from 'url'
-import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
-import { defineConfig, normalizePath, type Plugin, type ResolverFunction } from 'vite'
+import { defineConfig, normalizePath, type ResolverFunction } from 'vite'
 import svgr from 'vite-plugin-svgr'
 import { configDefaults } from 'vitest/config'
 
-import { capricornIntegrationTests } from './capricornIntegrationTests'
-import { CAPRICORN_VERSION, resolvePrivateCapricornRuntime } from './capricornRuntimeResolver'
 import { pdfPreviewAssets } from './pdfPreviewAssets'
 
 const workspaceRoot = fileURLToPath(new URL('../..', import.meta.url))
@@ -19,8 +16,6 @@ const rmeSourceRoot = normalizePath(
 const zensSourceRoot = normalizePath(
   fileURLToPath(new URL('../../packages/zens/src', import.meta.url)),
 )
-const capricornRuntimeId = 'virtual:markflowy-capricorn-runtime'
-const resolvedCapricornRuntimeId = `\0${capricornRuntimeId}`
 
 // Tests execute workspace sources without rebuilding published artifacts. The
 // editor owns a separate @/ namespace, so resolve it according to the importer.
@@ -36,40 +31,7 @@ const resolveTestWorkspaceAlias: ResolverFunction = function (
   return this.resolve(target, importer, { ...options, skipSelf: true })
 }
 
-function optionalCapricornRuntimePlugin(runtimeEntry: string | null): Plugin {
-  return {
-    name: 'markflowy-optional-capricorn-runtime',
-    resolveId(source) {
-      return source === capricornRuntimeId ? resolvedCapricornRuntimeId : null
-    },
-    load(id) {
-      if (id !== resolvedCapricornRuntimeId) return null
-
-      if (!runtimeEntry) {
-        return `export function createCapricornRuntime() {
-          throw new Error('Capricorn runtime is not installed. Run yarn install:capricorn-runtime with a GitHub Packages read token.');
-        }`
-      }
-
-      // Re-export the package root so a new async capability remains optional
-      // with older private packages that expose only the synchronous factory.
-      return `export * from ${JSON.stringify(runtimeEntry)};`
-    },
-  }
-}
-
 export default defineConfig(async ({ command, mode }) => {
-  const capricornRuntimeEntry = resolvePrivateCapricornRuntime(
-    fileURLToPath(
-      new URL(
-        '../../.private-runtime/node_modules/@drl990114/capricorn-runtime/package.json',
-        import.meta.url,
-      ),
-    ),
-  )
-  const capricornRuntimeEntrySha256 = capricornRuntimeEntry
-    ? createHash('sha256').update(readFileSync(capricornRuntimeEntry)).digest('hex')
-    : null
   const analyzePlugin =
     mode === 'analyze'
       ? (await import('rollup-plugin-visualizer')).visualizer({
@@ -99,14 +61,6 @@ export default defineConfig(async ({ command, mode }) => {
     },
     plugins: [
       pdfPreviewAssets(),
-      // Vite caches node_modules URLs immutably using its lockfile-based hash.
-      // The private installer can replace this entry without changing that lockfile.
-      // Version the dev entry by its bytes; published chunks already have hashed names.
-      optionalCapricornRuntimePlugin(
-        command === 'serve' && capricornRuntimeEntry
-          ? `${capricornRuntimeEntry}?v=${capricornRuntimeEntrySha256}`
-          : capricornRuntimeEntry,
-      ),
       // Shared and Desktop styles import theme + utilities explicitly without
       // Tailwind's global preflight layer.
       tailwindcss(),
@@ -145,13 +99,6 @@ export default defineConfig(async ({ command, mode }) => {
       __MARKFLOWY_HOST_VERSION__: JSON.stringify(
         JSON.parse(readFileSync(new URL('./src-tauri/tauri.conf.json', import.meta.url), 'utf8'))
           .version,
-      ),
-      __MARKFLOWY_CAPRICORN_RUNTIME_AVAILABLE__: JSON.stringify(capricornRuntimeEntry !== null),
-      __MARKFLOWY_CAPRICORN_RUNTIME_VERSION__: JSON.stringify(
-        capricornRuntimeEntry ? CAPRICORN_VERSION : null,
-      ),
-      __MARKFLOWY_CAPRICORN_RUNTIME_ENTRY_SHA256__: JSON.stringify(
-        capricornRuntimeEntrySha256,
       ),
     },
     resolve: {
@@ -198,9 +145,7 @@ export default defineConfig(async ({ command, mode }) => {
     test: {
       environment: 'happy-dom',
       reporters: ['verbose'],
-      // The dedicated runtime suite owns these contracts; CI runs it once after
-      // the workspace unit tests, with the pinned package required.
-      exclude: [...configDefaults.exclude, ...capricornIntegrationTests],
+      exclude: [...configDefaults.exclude],
       // Use the theme's ESM entry so real RME tests share CodeMirror's classes
       // instead of mixing the externalized CommonJS and ESM state packages.
       server: { deps: { inline: ['rme', '@drl990114/codemirror-themes'] } },

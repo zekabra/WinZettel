@@ -1584,23 +1584,6 @@ pub fn get_file_normal_info(path_str: &str) -> FileNormalInfo {
     }
 }
 
-pub async fn convert_text_async(text: String, variant: String) -> Result<String, SystemError> {
-    use zhconv::{zhconv, Variant};
-
-    tokio::task::spawn_blocking(move || {
-        let variant = match variant.as_str() {
-            "zh-TW" => Variant::ZhTW,
-            "zh-HK" => Variant::ZhHK,
-            "zh-CN" => Variant::ZhCN,
-            "zh-Hans" => Variant::ZhHans,
-            _ => Variant::ZhTW,
-        };
-        zhconv(&text, variant)
-    })
-    .await
-    .map_err(|_| SystemError::TaskAborted(uuid::Uuid::nil()))
-}
-
 pub mod cmd {
     use crate::app::startup_io;
     use crate::fc::{self, ConditionalWriteResult, FileNormalInfo, FileResultCode};
@@ -2052,20 +2035,6 @@ pub mod cmd {
     }
 
     #[tauri::command]
-    pub async fn convert_text(text: String, variant: String) -> FileResult {
-        match fc::convert_text_async(text, variant).await {
-            Ok(content) => FileResult {
-                code: FileResultCode::Success,
-                content,
-            },
-            Err(e) => FileResult {
-                code: FileResultCode::UnknownError,
-                content: e.to_string(),
-            },
-        }
-    }
-
-    #[tauri::command]
     pub fn save_security_bookmark(path: &str) -> bool {
         #[cfg(target_os = "macos")]
         {
@@ -2480,12 +2449,4 @@ mod tests {
         );
     }
 
-    #[tokio::test]
-    async fn converts_text_on_the_shared_blocking_pool() {
-        let converted = convert_text_async("汉语".to_string(), "zh-TW".to_string())
-            .await
-            .unwrap();
-
-        assert_eq!(converted, "漢語");
-    }
 }

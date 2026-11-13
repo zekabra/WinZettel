@@ -109,7 +109,7 @@ describe('Dock palette commands', () => {
 
 describe('relocated outline palette commands', () => {
   const outlineContext: CommandPaletteContext = {
-    target: { fileId: 'file', mode: EditorViewType.WYSIWYG }, platform: 'linux',
+    target: { fileId: 'file', mode: EditorViewType.SOURCECODE }, platform: 'linux',
   }
 
   it('executes outline actions on the left and rejects them while the outline is hidden', async () => {

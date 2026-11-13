@@ -1,7 +1,7 @@
 import { createAppShortcutHandler, createFindShortcutHandler } from '@/helper/findShortcut'
 import { EVENT } from '@/constants'
 import { openDocumentSearch } from '@/components/EditorArea/editorSearchStore'
-import { getCapricornEditor } from '@/components/EditorArea/capricornEditorRegistry'
+import { sourceCodeCodemirrorViewMap } from '@/components/EditorArea/sourceCodeEditorInstances'
 import useEditorStore from '@/stores/useEditorStore'
 import { commandRegistry, keybindingRegistry } from '@/commands'
 import { sameKeyMap, normalizeKeyMap, validateKeyMap } from '@/commands/keybindingKeys'
@@ -12,7 +12,6 @@ import type {
   KeyboardBinding,
   KeybindingSnapshot,
 } from '@/commands/keybindingCatalog'
-import { createCapricornKeybindingConfiguration } from '@/components/EditorArea/capricornKeybindings'
 import { listen } from '@tauri-apps/api/event'
 import { logger } from '@/helper/logger'
 import { invoke } from '@tauri-apps/api/core'
@@ -109,7 +108,7 @@ function useKeyboard() {
   useEffect(() => {
     const composing = () => {
       const { activeId } = useEditorStore.getState()
-      return Boolean(activeId && getCapricornEditor(activeId)?.isComposing())
+      return Boolean(activeId && sourceCodeCodemirrorViewMap.get(activeId)?.cm.composing)
     }
     const ordinary = keyboardInfos
       .filter(
@@ -218,18 +217,6 @@ function useKeyboard() {
         command: t(`command.id_descriptions.${problem.command}`),
       })
     if (problem) return t(`settings.keyboard.${problem.type}_binding`)
-    const selected = bindingsRef.current.find((binding) => binding.id === ruleId)
-    if (selected?.target === 'editor') {
-      const { activeId } = useEditorStore.getState()
-      const editor = activeId ? getCapricornEditor(activeId) : undefined
-      const next = bindingsRef.current.map((binding) =>
-        binding.id === ruleId ? { ...binding, keys: normalizeKeyMap(keys)! } : binding,
-      )
-      const result = editor?.validateKeybindings(
-        createCapricornKeybindingConfiguration(editorKeymap(next), true),
-      )
-      if (result && !result.ok) return t('settings.keyboard.unsupported_binding')
-    }
     return undefined
   }
   const updateKeyBinding = async (ruleId: string, newKeys: string[]): Promise<boolean> => {

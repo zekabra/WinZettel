@@ -1,5 +1,4 @@
 import { invoke, isTauri } from '@tauri-apps/api/core'
-import { capricornRuntimeEntrySha256, capricornRuntimeVersion } from '@/constants/capricornRuntime'
 
 export interface NativeStartupCalibration {
   nativeElapsedMs: number
@@ -74,7 +73,6 @@ export function getStartupPerformanceReport() {
     schemaVersion: 1,
     hostVersion: typeof __MARKFLOWY_HOST_VERSION__ === 'string' ? __MARKFLOWY_HOST_VERSION__ : undefined,
     buildKind: import.meta.env.DEV ? 'development' : 'production',
-    runtime: { version: capricornRuntimeVersion, entrySha256: capricornRuntimeEntrySha256 },
     timeOrigin: performance.timeOrigin,
     navigationType: navigation?.type ?? 'unknown',
     windowLabel: calibration?.windowLabel,

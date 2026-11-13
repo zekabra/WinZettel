@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 import type { LazyStore } from '@tauri-apps/plugin-store'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
@@ -20,9 +20,9 @@ vi.mock('@tauri-apps/api/core', () => ({ invoke: invokeMock, isTauri: () => fals
 vi.mock('@/helper/logger', () => ({ logger: { error: vi.fn() } }))
 vi.mock('@/i18n', () => ({ i18n: { t: () => 'Untitled' }, t: (key: string) => key }))
 
-const desktopRoot = process.cwd().endsWith('apps/desktop')
+const desktopRoot = process.cwd().endsWith(join('apps', 'desktop'))
   ? process.cwd()
-  : resolve(process.cwd(), 'apps/desktop')
+  : resolve(process.cwd(), 'apps', 'desktop')
 const indexHtml = readFileSync(resolve(desktopRoot, 'index.html'), 'utf8')
 const bootstrapScript = indexHtml.match(/<script>\s*([\s\S]*?)<\/script>/)?.[1]
 

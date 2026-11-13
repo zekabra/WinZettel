@@ -549,6 +549,19 @@ function FileNode({
       }
     }
 
+    if (node.data.path && appContext?.encryptNote && appContext?.decryptNote) {
+      items.push({
+        value: 'encrypt_note',
+        label: t('contextmenu.explorer.encrypt_note'),
+        handler: () => void appContext?.encryptNote?.(node.data.path!),
+      })
+      items.push({
+        value: 'decrypt_note',
+        label: t('contextmenu.explorer.decrypt_note'),
+        handler: () => void appContext?.decryptNote?.(node.data.path!),
+      })
+    }
+
     if (node.data.path && appContext?.copyText) {
       const copyText = appContext.copyText
       items.push({

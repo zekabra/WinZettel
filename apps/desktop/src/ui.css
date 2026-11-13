@@ -461,3 +461,62 @@ button[data-mf-component].icon:not(:disabled) {
     animation: none;
   }
 }
+
+/* Editor search highlights. All matches share a muted tone; the one the caret is on is
+   the destructive colour, so "where am I" is answerable at a glance. */
+.cm-search-match {
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--mf-ui-accent, var(--mf-primary)) 32%, transparent);
+}
+
+.cm-search-active {
+  border-radius: 2px;
+  background: var(--mf-destructive);
+  color: var(--mf-destructive-foreground);
+}
+
+::highlight(mf-preview-find) {
+  background: color-mix(in srgb, var(--mf-ui-accent, var(--mf-primary)) 32%, transparent);
+}
+
+::highlight(mf-preview-find-active) {
+  background: var(--mf-destructive);
+  color: var(--mf-destructive-foreground);
+}
+
+/* The active search match is selected, and the selection layer draws over the mark
+   decoration, so the selection itself carries the highlight. */
+.cm-search-active-selection .cm-selectionBackground,
+.cm-search-active-selection.cm-focused .cm-selectionBackground {
+  background: var(--mf-destructive);
+}
+
+/* The theme styles the selection layer, so the search highlight has to outrank it. */
+.cm-search-active-selection .cm-selectionBackground,
+.cm-search-active-selection.cm-focused .cm-selectionBackground,
+.cm-search-active-selection .cm-selectionLayer .cm-selectionBackground {
+  background: var(--mf-destructive) !important;
+}
+
+.cm-search-active-selection .cm-content ::selection {
+  background: var(--mf-destructive);
+  color: var(--mf-destructive-foreground);
+}
+
+/* The active match shares the mark class with every other match; make it win. */
+.cm-editor .cm-search-active,
+.cm-editor .cm-search-match.cm-search-active {
+  background: var(--mf-destructive) !important;
+  color: var(--mf-destructive-foreground);
+}
+
+/* Literal colour: the active mark must read as red even where the theme variable is not
+   in scope, and it has to outrank the shared match class. */
+.cm-editor .cm-search-active,
+.cm-editor .cm-search-match.cm-search-active,
+.cm-editor .cm-search-active.cm-search-match {
+  background: #dc2626 !important;
+  color: #fff !important;
+  border-radius: 2px;
+}
+/* mf-search-active-literal */

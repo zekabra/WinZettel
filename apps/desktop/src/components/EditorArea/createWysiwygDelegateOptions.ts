@@ -33,7 +33,6 @@ type LivePreviewBlockBehavior = 'auto' | 'always-split'
 // rme/dist is generated and ignored, so Desktop can type-check this source option
 // before the local rme declaration bundle is refreshed.
 type WysiwygDelegateOptions = CreateWysiwygDelegateOptions & {
-  imageInsertHandler?: () => ReturnType<typeof requestImageInsert>
   livePreviewBlock?: {
     behavior?: LivePreviewBlockBehavior
   }
@@ -91,7 +90,17 @@ export const createWysiwygDelegateOptions = (
       enabled: settingData.editor_placeholder,
     },
     clipboardReadFunction: clipboardRead,
-    imageInsertHandler: () => requestImageInsert(fileId),
+    // The shared editor contract can only emit an image node from this handler.
+    // Non-image attachments are linked by the source editor, which owns that markup.
+    imageInsertHandler: async () => {
+      const outcome = await requestImageInsert(fileId)
+      if (!outcome) return null
+      if (outcome.kind === 'link') {
+        logger.warn('Attachment links are inserted by the source editor:', outcome.href)
+        return null
+      }
+      return outcome.attributes
+    },
     uploadImageHandler: (files) => handleUploadImage(files, fileId),
     imagePasteHandler: (src) => handleImagePaste(src, fileId),
     handleViewImgSrcUrl: async (url) => {

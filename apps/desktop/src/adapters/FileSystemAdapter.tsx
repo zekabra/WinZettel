@@ -12,6 +12,10 @@ import {
   type RunFileMutation,
 } from '@markflowy/interface'
 import { logger } from '@/helper/logger'
+import { i18n } from '@/i18n'
+import { decryptNoteFileWithPassphrase, encryptNoteFile } from '@/services/note-encryption'
+import { dialog } from '@/services/dialog'
+import { toast } from 'zens'
 import { resolveFileExcludePatterns } from '@/helper/file-exclude'
 import {
   FileResultCode,
@@ -31,7 +35,34 @@ interface FileSystemAdapterProps {
   children: ReactNode
 }
 
-const desktopAppContextValue = { copyText: writeText } satisfies AppContextValue
+const reportEncryptionResult = async (operation: () => Promise<void>, successKey: string) => {
+  try {
+    await operation()
+    toast.success(i18n.t(successKey))
+  } catch (error) {
+    toast.error(error instanceof Error ? error.message : String(error))
+  }
+}
+
+const desktopAppContextValue = {
+  copyText: writeText,
+  encryptNote: (path: string) =>
+    reportEncryptionResult(() => encryptNoteFile(path), 'contextmenu.explorer.encrypt_note_done'),
+  decryptNote: async (path: string) => {
+    const passphrase = await dialog.inputConfirm({
+      title: i18n.t('contextmenu.explorer.decrypt_note_passphrase'),
+      inputProps: {
+        type: 'password',
+        placeholder: i18n.t('settings.encryption.passphrase.placeholder'),
+      },
+    })
+    if (typeof passphrase !== 'string' || !passphrase) return
+    await reportEncryptionResult(
+      () => decryptNoteFileWithPassphrase(path, passphrase),
+      'contextmenu.explorer.decrypt_note_done',
+    )
+  },
+} satisfies AppContextValue
 
 const runFileMutation: RunFileMutation = (operation) =>
   savePathCoordinator.runFileMutation((lease) =>

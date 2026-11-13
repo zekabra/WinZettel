@@ -16,7 +16,6 @@ const harness = vi.hoisted(() => ({
   events: [] as string[],
   onLoadingChange: undefined as undefined | ((pending: boolean) => void),
   getFileTypeConfig: vi.fn(),
-  preload: vi.fn(),
   recordStage: vi.fn(),
 }))
 
@@ -31,9 +30,6 @@ vi.mock('@/helper/logger', () => ({
 }))
 vi.mock('@/services/editor-file', () => ({ isEmptyEditor: () => false }))
 vi.mock('@/i18n', () => ({ t: (key: string) => key }))
-vi.mock('./capricornRuntimeAdapter', () => ({
-  preloadCapricornRuntimeFactory: harness.preload,
-}))
 vi.mock('./editorPerformanceDiagnostics', () => ({
   finishEditorOpenMeasurement: vi.fn(),
   getEditorOpenMeasurement: () => ({ id: 'measurement' }),
@@ -64,8 +60,8 @@ vi.mock('./UnsupportedFileType', () => ({ UnsupportedFileType: () => null }))
 
 const markdownConfig: FileTypeConfig = {
   type: 'markdown',
-  supportedModes: [EditorViewType.WYSIWYG, EditorViewType.SOURCECODE, EditorViewType.PREVIEW],
-  defaultMode: EditorViewType.WYSIWYG,
+  supportedModes: [EditorViewType.SOURCECODE, EditorViewType.PREVIEW],
+  defaultMode: EditorViewType.SOURCECODE,
 }
 
 function deferred<T>() {
@@ -79,7 +75,6 @@ function deferred<T>() {
 beforeEach(() => {
   harness.events.length = 0
   harness.getFileTypeConfig.mockReset()
-  harness.preload.mockReset()
   harness.recordStage.mockReset()
   useFileCacheStore.setState({ entries: {}, metadataRevision: 0, pathEntries: {} })
   useFileTypeConfigStore.setState({ fileTypeConfigMap: new Map() })
@@ -168,13 +163,12 @@ describe('Editor initialization lifecycle', () => {
       expect(view.queryByRole('alert')).toBeNull()
     } finally { release() }
   })
-  it('opens a restored source-only Markdown view without preparing Capricorn', async () => {
+  it('opens a restored source-only Markdown view without preparing the editor engine', async () => {
     setFileObject('source', { id: 'source', name: 'source.md', kind: 'file', content: '# Source' })
     useEditorViewTypeStore.getState().setEditorViewType('source', EditorViewType.SOURCECODE)
     harness.getFileTypeConfig.mockResolvedValue(markdownConfig)
     const view = render(<Editor id='source' active visible />)
     await view.findByTestId('text-editor')
-    expect(harness.preload).not.toHaveBeenCalled()
     expect(useEditorViewTypeStore.getState().getEditorViewType('source')).toBe(EditorViewType.SOURCECODE)
   })
   it('gates an already-known file type on draft validation and promotes a newly visible tab', async () => {
@@ -213,7 +207,6 @@ describe('Editor initialization lifecycle', () => {
 
   it('does no content work for an unvisited restored tab and keeps its selected mode', async () => {
     harness.getFileTypeConfig.mockResolvedValue(markdownConfig)
-    harness.preload.mockResolvedValue(undefined)
     setFileObject('file-a', {
       id: 'file-a', name: 'a.md', kind: 'file', ext: 'md', path: '/workspace/a.md',
     })
@@ -221,7 +214,6 @@ describe('Editor initialization lifecycle', () => {
     const view = render(<Editor id='file-a' active={false} visible={false} groupId='group' />)
     expect(view.container.childElementCount).toBe(0)
     expect(harness.getFileTypeConfig).not.toHaveBeenCalled()
-    expect(harness.preload).not.toHaveBeenCalled()
 
     view.rerender(<Editor id='file-a' active visible groupId='group' />)
     await view.findByTestId('text-editor')
@@ -248,7 +240,6 @@ describe('Editor initialization lifecycle', () => {
     expect(useFileTypeConfigStore.getState().fileTypeConfigMap.has('file-a')).toBe(false)
     expect(useEditorViewTypeStore.getState().editorViewTypeMap.has('file-a')).toBe(false)
     expect(useEditorViewTypeStore.getState().editorGroupViewTypeMap.has('group')).toBe(false)
-    expect(harness.preload).not.toHaveBeenCalled()
     expect(harness.recordStage).not.toHaveBeenCalled()
   })
 
@@ -284,40 +275,14 @@ describe('Editor initialization lifecycle', () => {
     expect(useFileTypeConfigStore.getState().fileTypeConfigMap.has('file-a')).toBe(false)
     expect(useEditorViewTypeStore.getState().editorViewTypeMap.has('file-a')).toBe(false)
     expect(useEditorViewTypeStore.getState().editorGroupViewTypeMap.get('group')).toEqual(
-      new Map([['file-b', EditorViewType.WYSIWYG]]),
+      new Map([['file-b', EditorViewType.SOURCECODE]]),
     )
-    expect(harness.preload).toHaveBeenCalledOnce()
-  })
-
-  it('starts prewarm before mounting TextEditor and does not await it before disk loading', async () => {
-    const pendingPrewarm = deferred<void>()
-    harness.getFileTypeConfig.mockResolvedValue(markdownConfig)
-    harness.preload.mockImplementation(() => {
-      harness.events.push('prewarm')
-      return pendingPrewarm.promise
-    })
-    setFileObject('file-a', {
-      id: 'file-a',
-      name: 'a.md',
-      kind: 'file',
-      ext: 'md',
-      path: '/workspace/a.md',
-    })
-
-    const view = render(<Editor id='file-a' active visible groupId='group' />)
-    await view.findByTestId('text-editor')
-
-    expect(harness.events[0]).toBe('prewarm')
-    expect(harness.events).toContain('text-editor-render')
-    expect(harness.preload).toHaveBeenCalledOnce()
-    await act(async () => pendingPrewarm.resolve())
   })
 
   it('keeps one deadline from type lookup through content preparation and stops on failure', async () => {
     vi.useFakeTimers()
     const pendingType = deferred<FileTypeConfig>()
     harness.getFileTypeConfig.mockReturnValue(pendingType.promise)
-    harness.preload.mockResolvedValue(undefined)
     setFileObject('file-a', {
       id: 'file-a',
       name: 'a.md',
@@ -344,7 +309,6 @@ describe('Editor initialization lifecycle', () => {
 
   it('keeps the mounted tab subtree across A to B to A visibility switches', async () => {
     harness.getFileTypeConfig.mockResolvedValue(markdownConfig)
-    harness.preload.mockResolvedValue(undefined)
     setFileObject('file-a', {
       id: 'file-a',
       name: 'a.md',
@@ -367,6 +331,5 @@ describe('Editor initialization lifecycle', () => {
       (mountedEditor.closest('[data-editor-id="file-a"]') as HTMLElement | null)?.style.display,
     ).toBe('')
     expect(harness.getFileTypeConfig).toHaveBeenCalledOnce()
-    expect(harness.preload).toHaveBeenCalledOnce()
   })
 })

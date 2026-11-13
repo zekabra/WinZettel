@@ -3,6 +3,7 @@ import { convertFileSrc, invoke } from '@tauri-apps/api/core'
 import { join } from '@tauri-apps/api/path'
 import { fetch } from '@tauri-apps/plugin-http'
 import { FileResultCode, type FileSysResult } from './filesys'
+import { isImagePath } from './fileTypeHandler'
 import { logger } from './logger'
 import { localResourcePath } from './localResourcePath'
 import type { RemoteImageResources } from './remoteImageResources'
@@ -255,6 +256,12 @@ export const readFileAsBase64 = (file: File): Promise<string> => {
   })
 }
 
+const fileExtension = (path: string): string => {
+  const name = (path.split(/[\\/]/).pop() || '').split(/[?#]/)[0]
+  const dot = name.lastIndexOf('.')
+  return dot > 0 ? name.slice(dot + 1) : ''
+}
+
 export const moveImageToLocalFolder = async (
   imageSrc: string,
   targetFolderPath: string,
@@ -294,7 +301,11 @@ export const moveImageToLocalFolder = async (
     }
   } else {
     const rootPath = useEditorStore.getState().folderData?.[0]?.path || ''
-    const { src: localPath } = await getImageInfo(imageSrc, rootPath)
+    const { src: resolvedPath } = await getImageInfo(imageSrc, rootPath)
+    // `getImageInfo` only understands image extensions and answers with an empty src
+    // for anything else (a picked PDF, a .txt, ...). Fall back to the source path so
+    // the attachment keeps its extension.
+    const localPath = resolvedPath || imageSrc
     logger.info('Local image path:', localPath)
 
     // 判断这个localPath是不是在targetFolderPath里面
@@ -303,9 +314,13 @@ export const moveImageToLocalFolder = async (
       return localPath
     }
 
+    const extension = fileExtension(localPath)
+    // Attachments that are not images are still moved here; name them for what they
+    // are so the Markdown reads `file_<ts>.pdf` instead of pretending to be an image.
+    const stem = isImagePath(localPath) ? 'image' : 'file'
     const targetPath = await join(
       targetFolderPath,
-      `image_${Date.now()}.${localPath.split('.').pop()}`,
+      extension ? `${stem}_${Date.now()}.${extension}` : `${stem}_${Date.now()}`,
     )
 
     logger.info('targetPath', targetPath)
@@ -471,6 +486,24 @@ export const getImageUrlInTauri = async (
   // Markdown URLs encode path characters, but decoding an HTTP URL here can
   // change signed URLs and object-storage keys. Decode only local paths.
   const localUrl = localResourcePath(url) || url
+
+  // Workspace-relative attachment links start with a slash ("/.assets/photo.png")
+  // so they stay valid wherever the document sits. Resolve those against the
+  // workspace root first; a real absolute path still works as the fallback.
+  if (localUrl.startsWith('/') && !localUrl.startsWith('//')) {
+    const workspaceRoot = useEditorStore.getState().folderData?.[0]?.path
+    if (workspaceRoot) {
+      try {
+        const candidate = await join(workspaceRoot, localUrl.replace(/^\/+/, ''))
+        if (await invoke<boolean>('file_exists', { filePath: candidate })) {
+          return convertFileSrc(candidate)
+        }
+      } catch (error) {
+        logger.warn('Failed to resolve a workspace-relative attachment:', error)
+      }
+    }
+  }
+
   if (isAbsoluteLocalPath(localUrl)) {
     return convertFileSrc(localUrl)
   }

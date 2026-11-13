@@ -118,8 +118,7 @@
       "configurable": true,
       "target": "editor",
       "editor": {
-        "rme": "redo",
-        "capricornRule": "editor.history.redo.default"
+        "rme": "redo"
       }
     },
     {
@@ -127,8 +126,7 @@
       "configurable": true,
       "target": "editor",
       "editor": {
-        "rme": "undo",
-        "capricornRule": "editor.history.undo.default"
+        "rme": "undo"
       }
     },
     {
@@ -141,8 +139,7 @@
       "configurable": true,
       "target": "editor",
       "editor": {
-        "rme": "toggleStrong",
-        "capricornRule": "editor.format.bold.default"
+        "rme": "toggleStrong"
       }
     },
     {
@@ -150,8 +147,7 @@
       "configurable": true,
       "target": "editor",
       "editor": {
-        "rme": "toggleEmphasis",
-        "capricornRule": "editor.format.italic.default"
+        "rme": "toggleEmphasis"
       }
     },
     {
@@ -159,8 +155,7 @@
       "configurable": true,
       "target": "editor",
       "editor": {
-        "rme": "toggleCodeText",
-        "capricornRule": "editor.format.code.default"
+        "rme": "toggleCodeText"
       }
     },
     {
@@ -168,8 +163,7 @@
       "configurable": true,
       "target": "editor",
       "editor": {
-        "rme": "toggleDelete",
-        "capricornRule": "editor.format.strike.default"
+        "rme": "toggleDelete"
       }
     },
     {
@@ -177,8 +171,7 @@
       "configurable": true,
       "target": "editor",
       "editor": {
-        "rme": "insertCurrentDate",
-        "capricornRule": "editor.insert.currentDate.default"
+        "rme": "insertCurrentDate"
       }
     },
     {
@@ -186,8 +179,7 @@
       "configurable": true,
       "target": "editor",
       "editor": {
-        "rme": "toggleH1",
-        "capricornRule": "editor.block.heading.1.default"
+        "rme": "toggleH1"
       }
     },
     {
@@ -195,8 +187,7 @@
       "configurable": true,
       "target": "editor",
       "editor": {
-        "rme": "toggleH2",
-        "capricornRule": "editor.block.heading.2.default"
+        "rme": "toggleH2"
       }
     },
     {
@@ -204,8 +195,7 @@
       "configurable": true,
       "target": "editor",
       "editor": {
-        "rme": "toggleH3",
-        "capricornRule": "editor.block.heading.3.default"
+        "rme": "toggleH3"
       }
     },
     {
@@ -213,8 +203,7 @@
       "configurable": true,
       "target": "editor",
       "editor": {
-        "rme": "toggleH4",
-        "capricornRule": "editor.block.heading.4.default"
+        "rme": "toggleH4"
       }
     },
     {
@@ -222,8 +211,7 @@
       "configurable": true,
       "target": "editor",
       "editor": {
-        "rme": "toggleH5",
-        "capricornRule": "editor.block.heading.5.default"
+        "rme": "toggleH5"
       }
     },
     {
@@ -231,8 +219,7 @@
       "configurable": true,
       "target": "editor",
       "editor": {
-        "rme": "toggleH6",
-        "capricornRule": "editor.block.heading.6.default"
+        "rme": "toggleH6"
       }
     },
     {

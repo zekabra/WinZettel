@@ -13,7 +13,6 @@ vi.mock('@/i18n', () => ({
   useTranslation: () => ({
     t: (key: string) =>
       ({
-        'about.label': 'About',
         'command_palette.title': 'Command Palette',
         'common.menu': 'Menu',
         'settings.label': 'Settings',
@@ -73,7 +72,6 @@ describe('application menu', () => {
             label: 'Command Palette',
             value: 'command-palette',
           }),
-          expect.objectContaining({ label: 'About', value: 'about' }),
           expect.objectContaining({ label: 'Theme', value: 'theme' }),
           expect.objectContaining({
             commandId: 'app_openSetting',

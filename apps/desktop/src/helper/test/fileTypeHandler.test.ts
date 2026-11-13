@@ -29,30 +29,22 @@ describe('document preview file types', () => {
 })
 
 describe('getMarkdownSupportedModes', () => {
-  it('exposes WYSIWYG only when the verified Capricorn runtime is available', () => {
-    expect(getMarkdownSupportedModes(false)).toEqual([
-      EditorViewType.PREVIEW,
-      EditorViewType.SOURCECODE,
-    ])
-    expect(getMarkdownSupportedModes(true)).toEqual([
-      EditorViewType.PREVIEW,
-      EditorViewType.WYSIWYG,
-      EditorViewType.SOURCECODE,
-    ])
+  it('offers Preview and Source Code for Markdown', () => {
+    expect(getMarkdownSupportedModes()).toEqual([EditorViewType.PREVIEW, EditorViewType.SOURCECODE])
   })
 
-  it('falls back to Source Code when a saved WYSIWYG preference is unavailable', () => {
-    expect(getMarkdownDefaultMode(EditorViewType.WYSIWYG, false)).toBe(EditorViewType.SOURCECODE)
-    expect(getMarkdownSupportedModes(false)).toContain(EditorViewType.PREVIEW)
+  it('falls back to Preview when a saved mode is unavailable', () => {
+    expect(getMarkdownDefaultMode('wysiwyg')).toBe(EditorViewType.PREVIEW)
+    expect(getMarkdownSupportedModes()).toContain(EditorViewType.PREVIEW)
   })
 
-  it('keeps valid preferences and defaults to WYSIWYG when Capricorn is available', () => {
-    expect(getMarkdownDefaultMode(EditorViewType.PREVIEW, true)).toBe(EditorViewType.PREVIEW)
-    expect(getMarkdownDefaultMode('unknown-mode', true)).toBe(EditorViewType.WYSIWYG)
+  it('keeps valid preferences and defaults to Preview', () => {
+    expect(getMarkdownDefaultMode(EditorViewType.PREVIEW)).toBe(EditorViewType.PREVIEW)
+    expect(getMarkdownDefaultMode('unknown-mode')).toBe(EditorViewType.PREVIEW)
   })
 
-  it('keeps Source Code and Preview preferences without Capricorn', () => {
-    expect(getMarkdownDefaultMode(EditorViewType.SOURCECODE, false)).toBe(EditorViewType.SOURCECODE)
-    expect(getMarkdownDefaultMode(EditorViewType.PREVIEW, false)).toBe(EditorViewType.PREVIEW)
+  it('keeps Source Code and Preview preferences', () => {
+    expect(getMarkdownDefaultMode(EditorViewType.SOURCECODE)).toBe(EditorViewType.SOURCECODE)
+    expect(getMarkdownDefaultMode(EditorViewType.PREVIEW)).toBe(EditorViewType.PREVIEW)
   })
 })

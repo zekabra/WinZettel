@@ -100,6 +100,8 @@ it('keeps one find bar below the active tabs and transfers search and commands a
   const second = registerSource('second', 'foo')
   const firstSearch = vi.spyOn(first.find, 'searchAsync')
 
+  useEditorStore.setState({ activeId: 'first', activeGroupId: 'left' })
+
   await act(async () => {
     await commandRegistry.execute('app_findReplaceEditor')
   })
@@ -114,33 +116,27 @@ it('keeps one find bar below the active tabs and transfers search and commands a
   await waitFor(() => expect(first.find.getState().matches).toHaveLength(2))
   expect(second.find.getState().matches).toHaveLength(0)
 
+  // The bar belongs to the pane that opened it. Focusing the other pane must neither move
+  // it nor retarget the search: the two panes search independently.
   act(() => second.cm.focus())
   expect(useEditorStore.getState().activeGroupId).toBe('right')
-  const movedInput = screen.getByRole('textbox', { name: 'find_replace.find' }) as HTMLInputElement
-  expect(movedInput.value).toBe('foo')
+  expect(screen.getAllByRole('textbox', { name: 'find_replace.find' })).toHaveLength(1)
+  const keptInput = screen.getByRole('textbox', { name: 'find_replace.find' }) as HTMLInputElement
+  expect(keptInput.value).toBe('foo')
   expect(
-    movedInput
+    keptInput
       .closest('[data-slot="editor-find"]')
       ?.previousElementSibling?.getAttribute('data-tab-group'),
-  ).toBe('right')
-  expect(screen.getAllByRole('textbox', { name: 'find_replace.find' })).toHaveLength(1)
-  expect(second.cm.hasFocus).toBe(true)
-  await waitFor(() => expect(second.find.getState().matches).toHaveLength(1))
-  expect(first.find.getState().matches).toHaveLength(0)
+  ).toBe('left')
+  await waitFor(() => expect(first.find.getState().matches).toHaveLength(2))
+  expect(second.find.getState().matches).toHaveLength(0)
   expect(firstSearch).toHaveBeenCalledOnce()
-
-  await act(async () => {
-    await commandRegistry.execute('app_findReplaceEditor')
-  })
-  expect(document.activeElement).toBe(movedInput)
-  expect(movedInput.value).toBe('foo')
 
   await act(async () => {
     await commandRegistry.execute('app_stopFindEditor')
   })
   expect(screen.queryByRole('textbox', { name: 'find_replace.find' })).toBeNull()
-  expect(second.cm.hasFocus).toBe(true)
-  expect(second.find.getState().matches).toHaveLength(0)
+  expect(first.find.getState().matches).toHaveLength(0)
 
   act(() => first.cm.focus())
   await act(async () => {
@@ -149,9 +145,9 @@ it('keeps one find bar below the active tabs and transfers search and commands a
   const reopenedInput = screen.getByRole('textbox', {
     name: 'find_replace.find',
   }) as HTMLInputElement
-  expect(reopenedInput.value).toBe('foo')
+  // Closing the bar drops the term on purpose: reopening starts from an empty field.
+  expect(reopenedInput.value).toBe('')
   expect(document.activeElement).toBe(reopenedInput)
-  await waitFor(() => expect(first.find.getState().matches).toHaveLength(2))
   fireEvent.keyDown(reopenedInput, { key: 'Escape' })
   expect(useEditorSearchStore.getState().owner).toBeNull()
   expect(first.cm.hasFocus).toBe(true)
